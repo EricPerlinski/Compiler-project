@@ -6,6 +6,6 @@ public class Test {
         PlicLexer lexer = new PlicLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         PlicParser parser = new PlicParser(tokens);
-        parser.prog();
+        parser.root();
     }
 }
