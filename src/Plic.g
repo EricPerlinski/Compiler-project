@@ -20,7 +20,7 @@ type
 	| array;
 
 array
-	: 'array' '\[' bounds '\]';
+	: 'array' '[' bounds ']';
 
 bounds
 	: CSTE_ENT '..' CSTE_ENT (',' CSTE_ENT '..' CSTE_ENT)*;
@@ -48,7 +48,7 @@ instruction
 	| bloc
 	| iteration
 	| condition
-	| return
+	| return_func
 	| read
 	| write;
 
@@ -64,7 +64,7 @@ iteration
 condition
 	: 'if' exp 'then' instruction+ ('else' instruction+)? 'fi';
 
-return
+return_func
 	: 'return' '(' exp ')';
 
 read
