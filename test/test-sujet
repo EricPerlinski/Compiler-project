@@ -1,22 +1,22 @@
 /* Un exemple de programme très simple */
 do
-integer i, j, maximum
-fun
-tion int fMax (x: integer, y: integer)
-integer result
-if x > y then result = x
-else result = y
-return (result)
-end /* fun
-tion */
-pro
-edure theEnd ()
-write "that's all !"
-end
-i = -3
-j = 0
-maximum = fMax(i, j)
-write maximum
-theEnd()
+	integer i, j, maximum
+	
+	function int fMax (x: integer, y: integer)
+		integer result
+		if x > y then result = x
+			else result = y
+		return (result)
+	end /* function */
+
+	procedure theEnd ()
+		write "that's all !"
+	end
+	
+	i = -3
+	j = 0
+	maximum = fMax(i, j)
+	write maximum
+	theEnd()
 end
 
