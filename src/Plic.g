@@ -107,8 +107,10 @@ oper
 
 
 
-NEWLINE:'\r'? '\n' ;
-WS  :   (' '|'\t'|('/*' .* '*/'))+ {$channel=HIDDEN;} ;
+
+
 CSTE_ENT : '0'..'9'+ ;
 CSTE_CHAINE : '\'' .* '\'' ;
 IDF : ('a'..'z')('a'..'z'|'A'..'Z'|'0'..'9')* ;
+NEWLINE:'\r'? '\n' ;
+WS  :   (' '|'\t'|('/*' .* '*/'))+ {$channel=HIDDEN;} ;
