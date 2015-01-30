@@ -49,6 +49,7 @@ instruction
 	| iteration NEWLINE*
 	| condition NEWLINE*
 	| return_func NEWLINE*
+	| proc_call
 	| read NEWLINE*
 	| write NEWLINE*;
 
@@ -56,7 +57,11 @@ bloc
 	: 'begin' declaration* instruction+ 'end';
 
 affectation
-	: IDF '=' exp;
+	: IDF affectation_rec;
+
+affectation_rec
+	: '=' exp
+	| '[' exp (',' exp)? ']' '=' exp ;
 
 iteration
 	: 'for' IDF 'in' exp '..' exp 'do' NEWLINE* instruction+ 'end';
@@ -66,6 +71,10 @@ condition
 
 return_func
 	: 'return' '(' exp ')';
+
+proc_call
+	: IDF '(' ( exp ( ',' exp)* )? ')';
+
 
 read
 	: 'read' IDF;
@@ -78,12 +87,16 @@ write_arg
 	| CSTE_CHAINE;
 
 exp
-	: IDF idf_arg exp_arg
+	: IDF exp_rec
 	| CSTE_ENT exp_arg
 	| 'true' exp_arg
 	| 'false' exp_arg
 	| '(' exp ')' exp_arg
 	| '-' exp exp_arg ;
+
+exp_rec
+	: idf_arg exp_arg
+	| '[' exp (',' exp)* ']' ;
 	
 exp_arg
 	: oper exp exp_arg
@@ -110,7 +123,7 @@ oper
 
 
 CSTE_ENT : '0'..'9'+ ;
-CSTE_CHAINE : '\'' .* '\'' ;
+CSTE_CHAINE : '\"' .* '\"' ;
 IDF : ('a'..'z')('a'..'z'|'A'..'Z'|'0'..'9')* ;
 NEWLINE:'\r'? '\n' {$channel=HIDDEN;};
 WS  :   (' '|'\t'|('/*' .* '*/'))+ {$channel=HIDDEN;} ;
