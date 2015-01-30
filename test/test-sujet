@@ -2,10 +2,14 @@
 do
 	integer i, j, maximum
 	
-	function int fMax (x: integer, y: integer)
+	function integer fMax (x: integer, y: integer)
 		integer result
-		if x > y then result = x
-			else result = y
+		if x > y 
+		then 
+			result = x
+		else 
+			result = y
+		fi
 		return (result)
 	end /* function */
 
