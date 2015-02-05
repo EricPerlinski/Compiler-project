@@ -87,37 +87,54 @@ write_arg
 	| CSTE_CHAINE;
 
 exp
-	: IDF exp_rec
-	| CSTE_ENT exp_arg
-	| 'true' exp_arg
-	| 'false' exp_arg
-	| '(' exp ')' exp_arg
-	| '-' exp exp_arg ;
+	: plusmoins;
 
-exp_rec
-	: idf_arg exp_arg
-	| '[' exp (',' exp)* ']' ;
-	
-exp_arg
-	: oper exp exp_arg
+plusmoins
+	: fois plusmoins2;
+
+plusmoins2
+	: '+' plusmoins
+	| '-' plusmoins
 	| ;
-	
+
+fois
+	: unaire fois2;
+
+fois2
+	: '*' fois
+	| ;
+
+unaire
+	: '-'* comp;
+
+comp
+	: parenthesis comp2;
+
+comp2
+	: '==' comp
+	| '!=' comp
+	| '<' comp
+	| '<=' comp
+	| '>' comp
+	| '>=' comp
+	| ;
+
+parenthesis
+	: '(' exp ')' | atom ;
+
+atom
+	: 'true'
+	| 'false'
+	| CSTE_ENT
+	| IDF atom_rec;
+
+atom_rec
+	: idf_arg
+	| '[' exp (',' exp)* ']' ;
+
 idf_arg
 	: '(' ( exp ( ',' exp)* )? ')'
 	| ;
-
-oper
-	: '+' 
-	| '-' 
-	| '*' 
-	| '<' 
-	| '<=' 
-	| '>' 
-	| '>=' 
-	| '==' 
-	| '!=' ;
-
-
 
 
 
