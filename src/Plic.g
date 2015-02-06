@@ -105,7 +105,7 @@ fois2
 	| ;
 
 unaire
-	: '-'* comp;
+	: '-'? comp;
 
 comp
 	: parenthesis comp2;
