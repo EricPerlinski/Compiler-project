@@ -1,0 +1,25 @@
+/* Un exemple de programme mal indenté très simple */
+do
+	integer i, j, maximum
+	
+	function    integer fMax (x: integer, y: integer)
+		      integer result
+	       	if x > y 
+		  then 
+			 result = x
+		else 
+			 result = y
+		fi
+		  return (result)
+	   end /* function */
+
+	procedure theEnd ()
+		  write "that's all !"
+	end
+	
+	i = -3
+	read   j /* previously j = 0 */
+	maximum     = fMax(i, j)
+	write   maximum
+	theEnd ()
+end
