@@ -1,0 +1,22 @@
+do
+    integer i,j,k
+
+    i = 1
+    j = 2
+    k = 3
+
+    if i > j then
+        if i > k then
+            write "it's i"
+        else 
+            write "it's k"
+        fi
+    else 
+        if j > k then 
+	       write "it's j"
+        else 
+            write "it's k"
+        fi
+    fi
+    
+end
