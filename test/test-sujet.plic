@@ -18,7 +18,7 @@ do
 	end
 	
 	i = -3
-	j = 0
+	read j /* previously j = 0 */
 	maximum = fMax(i, j)
 	write maximum
 	theEnd()
