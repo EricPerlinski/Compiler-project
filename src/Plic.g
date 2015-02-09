@@ -4,7 +4,7 @@ root
 	: prog NEWLINE*;
 
 prog
-	: 'do' NEWLINE* declaration* instruction+ 'end' ;
+	: DO NEWLINE* declaration* instruction+ 'end' ;
 
 declaration
 	: dec_var NEWLINE*
@@ -138,9 +138,9 @@ idf_arg
 
 
 
-
+DO : 'do';
 CSTE_ENT : '0'..'9'+ ;
 CSTE_CHAINE : '\"' .* '\"' ;
-IDF : ('a'..'z')('a'..'z'|'A'..'Z'|'0'..'9')* ;
+IDF : ('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9')* ;
 NEWLINE:'\r'? '\n' {$channel=HIDDEN;};
 WS  :   (' '|'\t'|('/*' .* '*/'))+ {$channel=HIDDEN;} ;
