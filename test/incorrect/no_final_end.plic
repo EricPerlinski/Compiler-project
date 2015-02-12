@@ -1,0 +1,3 @@
+do
+    x = 12
+    write x
