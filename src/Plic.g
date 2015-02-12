@@ -90,19 +90,17 @@ exp
 	: plusmoins;
 
 plusmoins
-	: fois plusmoins2;
+	: fois plusmoins2*;
 
 plusmoins2
-	: '+' plusmoins
-	| '-' plusmoins
-	| ;
+	: '+' fois
+	| '-' fois;
 
 fois
-	: unaire fois2;
+	: unaire fois2*;
 
 fois2
-	: '*' fois
-	| ;
+	: '*' unaire;
 
 unaire
 	: '-'? comp;
