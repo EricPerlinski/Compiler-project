@@ -90,32 +90,25 @@ exp
 	: plusmoins;
 
 plusmoins
-	: fois plusmoins2*;
-
-plusmoins2
-	: '+' fois
-	| '-' fois;
+	: fois (('+'|'-') fois)*;
 
 fois
-	: unaire fois2*;
+	: unaire ('*' unaire)*;
 
-fois2
-	: '*' unaire;
 
 unaire
 	: '-'? comp;
 
 comp
-	: parenthesis comp2;
+	: parenthesis comp2*;
 
 comp2
-	: '==' comp
-	| '!=' comp
-	| '<' comp
-	| '<=' comp
-	| '>' comp
-	| '>=' comp
-	| ;
+	: '==' parenthesis
+	| '!=' parenthesis
+	| '<' parenthesis
+	| '<=' parenthesis
+	| '>' parenthesis
+	| '>=' parenthesis;
 
 parenthesis
 	: '(' exp ')' | atom ;
