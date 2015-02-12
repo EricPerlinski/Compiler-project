@@ -4,13 +4,38 @@ options{
 	output=AST;
 }
 
+tokens {
+	PROG;
+	DECLARATION;
+	INSTRUCTION;
+	FUNCTION;
+	PROCEDURE;
+	BLOC;
+	AFFECTATION;
+	IF;
+	FOR;
+	RETURN;
+	READ;
+	WRITE;
+	PROC_CALL;
+	FUNC_CALL;
+	AFF_LEFT;
+	AFF_RIGHT;
+	ARRAY;
+	CONDITION;
+	IF_BLOC;
+	ELSE_BLOC;
+}
+
+
+
 root
 	: prog 
 	;
 
 prog
 	: 'do' declaration* instruction+ 'end'
-		->  declaration* instruction+
+		->  ^(PROG declaration* instruction+)
 	;
 
 declaration
@@ -21,7 +46,7 @@ declaration
 
 dec_var
 	: type IDF (',' IDF)*
-		-> ^(type IDF+)
+		-> ^(DECLARATION type IDF+)
 	;
 
 type
@@ -32,7 +57,7 @@ type
 
 array
 	: 'array' '[' bounds ']'
-		-> ^('array' bounds)
+		-> 'array' bounds
 	;
 
 bounds
@@ -42,27 +67,25 @@ bounds
 
 dec_func
 	: ent_func declaration* instruction+ 'end'
-		-> ^(ent_func declaration* instruction+) 
+		-> ^(FUNCTION ent_func declaration* instruction+)
 	;
 
 dec_proc
 	: ent_proc declaration* instruction+ 'end'
-		-> ^(ent_proc declaration* instruction+) 
+		-> ^(PROCEDURE ent_proc declaration* instruction+) 
 	;
 
 ent_func
-	: 'function' type IDF param
-		-> ^(type IDF param)
+	: 'function'! type IDF param
 	;
 
 ent_proc
-	: 'procedure' IDF param
-		-> ^(IDF param)
+	: 'procedure'! IDF param
 	;
 
 param
 	: '(' (formal (',' formal)*)? ')'
-		-> formal+
+		-> formal*
 	;
 
 formal
@@ -82,34 +105,66 @@ instruction
 
 bloc
 	: 'begin' declaration* instruction+ 'end'
-		-> ^(declaration* instruction+) 
+		-> ^(BLOC declaration* instruction+) 
 	;
 
 affectation
-	: IDF affectation_rec;
+	: IDF
+	(
+		('=' exp 
+			-> ^(AFFECTATION ^(AFF_LEFT IDF) ^(AFF_RIGHT exp)) )|
+		('[' exp (',' exp)? ']' '=' exp  
+			-> ^(AFFECTATION ^(AFF_LEFT IDF exp+) ^(AFF_RIGHT exp)))
+	)
+		
+		
+	;
 
 affectation_rec
 	: '=' exp
-	| '[' exp (',' exp)? ']' '=' exp ;
+		-> exp
+	| '[' exp (',' exp)? ']' '=' exp 
+		-> exp+ exp
+	;
 
 iteration
-	: 'for' IDF 'in' exp '..' exp 'do'  instruction+ 'end';
+	: 'for' IDF 'in' exp '..' exp 'do'  instruction+ 'end'
+		-> ^(FOR IDF exp exp instruction+)
+	;
 
 condition
-	: 'if' exp 'then'  instruction+ ('else'  instruction+)? 'fi';
+	: 'if' exp 'then' condition_if  ('else' condition_else )? 'fi'
+		-> ^(IF ^(CONDITION exp) ^(IF_BLOC condition_if) ^(ELSE_BLOC condition_else)?)
+	;
+
+condition_if
+	: instruction+
+	;
+
+condition_else
+	: instruction+
+	;
 
 return_func
-	: 'return' '(' exp ')';
+	: 'return' '(' exp ')'
+		-> ^(RETURN exp)
+	;
 
 proc_call	
-	: IDF '(' ( exp ( ',' exp)* )? ')';
+	: IDF '(' ( exp ( ',' exp)* )? ')'
+		-> ^(PROC_CALL IDF exp*)
+	;
 
 
 read
-	: 'read' IDF;
+	: 'read' IDF
+		-> ^(READ IDF)
+	;
 
 write
-	: 'write' write_arg;
+	: 'write' write_arg
+		-> ^(WRITE write_arg)
+	;
 
 write_arg
 	: exp
@@ -140,21 +195,30 @@ comp2
 	| '>=' parenthesis;
 
 parenthesis
-	: '(' exp ')' | atom ;
+	: '(' exp ')' 
+	| atom ;
 
 atom
 	: 'true'
 	| 'false'
 	| CSTE_ENT
-	| IDF atom_rec;
+	| IDF 
+		(
+		idf_arg 
+			-> ^(FUNC_CALL IDF idf_arg)
+		|
+		'[' exp (',' exp)* ']'
+			-> ^(ARRAY IDF exp*)
+		|
+			-> IDF
+		)
+	;
 
-atom_rec
-	: idf_arg
-	| '[' exp (',' exp)* ']' ;
 
 idf_arg
 	: '(' ( exp ( ',' exp)* )? ')'
-	| ;
+		-> exp*
+	;
 
 CSTE_ENT : '0'..'9'+ ;
 CSTE_CHAINE : '\"' .* '\"' ;
