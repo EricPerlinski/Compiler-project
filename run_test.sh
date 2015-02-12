@@ -5,7 +5,7 @@ then
 	list=`ls "test/correct/"`
 	for file in $list
 	do
-		echo "\033[32mFILE "$file"\033[0m\n"
+		echo "\n\033[32mFILE "$file"\033[0m"
 		./run.sh < "test/correct/"$file
 	done
 
@@ -15,7 +15,7 @@ then
 	list=`ls "test/incorrect/"`
 	for file in $list
 	do
-		echo "\033[31mFILE "$file"\033[0m\n"
+		echo "\n\033[31mFILE "$file"\033[0m"
 		./run.sh < "test/incorrect/"$file
 	done
 fi
