@@ -1,15 +1,15 @@
 grammar Plic;
 
 root
-	: prog NEWLINE*;
+	: prog;
 
 prog
-	: 'do' NEWLINE* declaration* instruction+ 'end' ;
+	: 'do' declaration* instruction+ 'end' ;
 
 declaration
-	: dec_var NEWLINE*
-	| dec_func NEWLINE*
-	| dec_proc NEWLINE*;
+	: dec_var
+	| dec_func
+	| dec_proc;
 
 dec_var
 	: type IDF (',' IDF)*;
@@ -44,14 +44,14 @@ formal
 	: ('adr')? IDF ':' type;
 
 instruction
-	: affectation NEWLINE*
-	| bloc NEWLINE*
-	| iteration NEWLINE*
-	| condition NEWLINE*
-	| return_func NEWLINE*
+	: affectation
+	| bloc
+	| iteration
+	| condition
+	| return_func
 	| proc_call
-	| read NEWLINE*
-	| write NEWLINE*;
+	| read
+	| write;
 
 bloc
 	: 'begin' declaration* instruction+ 'end';
@@ -64,10 +64,10 @@ affectation_rec
 	| '[' exp (',' exp)? ']' '=' exp ;
 
 iteration
-	: 'for' IDF 'in' exp '..' exp 'do' NEWLINE* instruction+ 'end';
+	: 'for' IDF 'in' exp '..' exp 'do'  instruction+ 'end';
 
 condition
-	: 'if' exp NEWLINE* 'then' NEWLINE* instruction+ ('else' NEWLINE* instruction+)? 'fi';
+	: 'if' exp 'then'  instruction+ ('else'  instruction+)? 'fi';
 
 return_func
 	: 'return' '(' exp ')';
@@ -138,6 +138,6 @@ idf_arg
 
 CSTE_ENT : '0'..'9'+ ;
 CSTE_CHAINE : '\"' .* '\"' ;
-IDF : ('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9')* ;
+IDF : ('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|'_')* ;
 NEWLINE:'\r'? '\n' {$channel=HIDDEN;};
 WS  :   (' '|'\t'|('/*' .* '*/'))+ {$channel=HIDDEN;} ;
