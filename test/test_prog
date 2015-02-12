@@ -1,0 +1,12 @@
+do
+integer ma_var,i
+	for i in 0..10 do
+		if a+B>ma_var_c then
+			if i==1 then 
+				vartest=1
+			fi
+		else
+			vartest= 0
+		fi
+	end
+end
