@@ -1,0 +1,10 @@
+do
+    integer i,j
+    i = 5
+
+    for j in 0..5 do
+        i = i + i * j
+    end
+    
+    write i
+end
