@@ -1,47 +1,74 @@
 grammar Plic;
 
+options{
+	output=AST;
+}
+
 root
-	: prog;
+	: prog 
+	;
 
 prog
-	: 'do' declaration* instruction+ 'end' ;
+	: 'do' declaration* instruction+ 'end'
+		->  declaration* instruction+
+	;
 
 declaration
 	: dec_var
 	| dec_func
-	| dec_proc;
+	| dec_proc
+	;
 
 dec_var
-	: type IDF (',' IDF)*;
+	: type IDF (',' IDF)*
+		-> ^(type IDF+)
+	;
 
 type
 	: 'integer'
 	| 'boolean'
-	| array;
+	| array
+	;
 
 array
-	: 'array' '[' bounds ']';
+	: 'array' '[' bounds ']'
+		-> ^('array' bounds)
+	;
 
 bounds
-	: CSTE_ENT '..' CSTE_ENT (',' CSTE_ENT '..' CSTE_ENT)*;
+	: CSTE_ENT '..' CSTE_ENT (',' CSTE_ENT '..' CSTE_ENT)*
+		-> (CSTE_ENT CSTE_ENT)+
+	;
 
 dec_func
-	: ent_func declaration* instruction+ 'end';
+	: ent_func declaration* instruction+ 'end'
+		-> ^(ent_func declaration* instruction+) 
+	;
 
 dec_proc
-	: ent_proc declaration* instruction+ 'end';
+	: ent_proc declaration* instruction+ 'end'
+		-> ^(ent_proc declaration* instruction+) 
+	;
 
 ent_func
-	: 'function' type IDF param;
+	: 'function' type IDF param
+		-> ^(type IDF param)
+	;
 
 ent_proc
-	: 'procedure' IDF param;
+	: 'procedure' IDF param
+		-> ^(IDF param)
+	;
 
 param
-	: '(' (formal (',' formal)*)? ')';
+	: '(' (formal (',' formal)*)? ')'
+		-> formal+
+	;
 
 formal
-	: ('adr')? IDF ':' type;
+	: ('adr')? IDF ':' type
+		-> ('adr')? IDF type
+	;
 
 instruction
 	: affectation
@@ -54,7 +81,9 @@ instruction
 	| write;
 
 bloc
-	: 'begin' declaration* instruction+ 'end';
+	: 'begin' declaration* instruction+ 'end'
+		-> ^(declaration* instruction+) 
+	;
 
 affectation
 	: IDF affectation_rec;
@@ -72,7 +101,7 @@ condition
 return_func
 	: 'return' '(' exp ')';
 
-proc_call
+proc_call	
 	: IDF '(' ( exp ( ',' exp)* )? ')';
 
 

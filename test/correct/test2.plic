@@ -6,7 +6,7 @@ do
 		t[9]=procChePasQuoi(t[9])
 		return(t[9])
 	end
-
+	i=2
 	i=tab [2]
 	tab[2,4]=tab[i]
 
