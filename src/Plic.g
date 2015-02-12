@@ -4,7 +4,7 @@ root
 	: prog NEWLINE*;
 
 prog
-	: DO NEWLINE* declaration* instruction+ 'end' ;
+	: 'do' NEWLINE* declaration* instruction+ 'end' ;
 
 declaration
 	: dec_var NEWLINE*
@@ -136,9 +136,6 @@ idf_arg
 	: '(' ( exp ( ',' exp)* )? ')'
 	| ;
 
-
-
-DO : 'do';
 CSTE_ENT : '0'..'9'+ ;
 CSTE_CHAINE : '\"' .* '\"' ;
 IDF : ('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9')* ;
