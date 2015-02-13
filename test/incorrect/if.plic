@@ -1,0 +1,4 @@
+do
+	integer if
+	if=1
+end
