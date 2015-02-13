@@ -184,15 +184,15 @@ unaire
 	: '-'? comp;
 
 comp
-	: parenthesis comp2*;
+	: parenthesis ( comp_oper parenthesis)*;
 
-comp2
-	: '==' parenthesis
-	| '!=' parenthesis
-	| '<' parenthesis
-	| '<=' parenthesis
-	| '>' parenthesis
-	| '>=' parenthesis;
+comp_oper
+	: '<' 
+	| '<=' 
+	| '>' 
+	| '>=' 
+	| '==' 
+	| '!=' ;
 
 parenthesis
 	: '(' exp ')' 
