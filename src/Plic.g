@@ -25,6 +25,7 @@ tokens {
 	CONDITION;
 	IF_BLOC;
 	ELSE_BLOC;
+	UNAIRE;
 }
 
 
@@ -174,14 +175,18 @@ exp
 	: plusmoins;
 
 plusmoins
-	: fois (('+'|'-') fois)*;
+	: fois (('+'|'-')^ fois)*
+		;
 
 fois
-	: unaire ('*' unaire)*;
+	: unaire ('*'^ unaire)*;
 
 
 unaire
-	: '-'? comp;
+	: '-' comp
+		-> ^(UNAIRE comp)
+	| comp
+	;
 
 comp
 	: parenthesis ( comp_oper parenthesis)*;
@@ -196,6 +201,7 @@ comp_oper
 
 parenthesis
 	: '(' exp ')' 
+		-> exp
 	| atom ;
 
 atom
