@@ -7,10 +7,14 @@ options{
 tokens {
 	PROG;
 	DECLARATION;
+	DECLARATIONS;
 	INSTRUCTION;
+	INSTRUCTIONS;
+	VARIABLE;
 	FUNCTION;
 	PROCEDURE;
 	BLOC;
+	PARAMS;
 	AFFECTATION;
 	IF;
 	FOR;
@@ -35,23 +39,28 @@ root
 
 prog
 	: 'do' declaration* instruction+ 'end'
-		->  ^(PROG declaration* instruction+)
+		->  ^(PROG ^(DECLARATIONS declaration*) ^(INSTRUCTIONS instruction+))
 	;
 
 declaration
 	: dec_var
+		->^(VARIABLE dec_var)
 	| dec_func
+		-> dec_func
 	| dec_proc
+		->dec_proc
 	;
 
 dec_var
 	: type IDF (',' IDF)*
-		-> ^(DECLARATION type IDF+)
+		-> ^(type IDF+)
 	;
 
 type
 	: 'integer'
+
 	| 'boolean'
+		
 	| array
 	;
 
@@ -85,12 +94,14 @@ ent_proc
 
 param
 	: '(' (formal (',' formal)*)? ')'
-		-> formal*
+		-> ^(PARAMS formal*)
 	;
 
 formal
-	: ('adr')? IDF ':' type
-		-> ('adr')? IDF type
+	: 'adr' IDF ':' type
+		-> ^('adr' ^(type IDF))
+	| IDF ':' type
+		->^(type IDF)
 	;
 
 instruction
