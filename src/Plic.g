@@ -121,15 +121,8 @@ bloc
 	;
 
 affectation
-	: IDF
-	(
-		('=' exp 
-			-> ^(AFFECTATION ^(AFF_LEFT IDF) ^(AFF_RIGHT exp)) )|
-		('[' exp (',' exp)? ']' '=' exp  
-			-> ^(AFFECTATION ^(AFF_LEFT IDF exp+) ^(AFF_RIGHT exp)))
-	)
-		
-		
+	: atom_aff '=' exp 
+			-> ^(AFFECTATION ^(AFF_LEFT atom_aff) ^(AFF_RIGHT exp))
 	;
 
 affectation_rec
@@ -219,17 +212,19 @@ atom
 	: 'true'
 	| 'false'
 	| CSTE_ENT
-	| IDF 
+	| IDF idf_arg 
+		-> ^(FUNC_CALL IDF idf_arg)
+	| atom_aff
+	;
+
+atom_aff
+	: IDF 
 		(
-		idf_arg 
-			-> ^(FUNC_CALL IDF idf_arg)
-		|
 		'[' exp (',' exp)* ']'
 			-> ^(ARRAY IDF exp*)
 		|
 			-> IDF
-		)
-	;
+		);
 
 
 idf_arg
