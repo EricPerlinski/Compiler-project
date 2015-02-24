@@ -13,6 +13,7 @@ tokens {
 	VARIABLE;
 	FUNCTION;
 	PROCEDURE;
+	PROTOTYPE;
 	BLOC;
 	PARAMS;
 	AFFECTATION;
@@ -77,12 +78,12 @@ bounds
 
 dec_func
 	: ent_func declaration* instruction+ 'end'
-		-> ^(FUNCTION ent_func declaration* instruction+)
+		-> ^(FUNCTION ^(PROTOTYPE ent_func) ^(DECLARATIONS declaration*) ^(INSTRUCTIONS instruction+))
 	;
 
 dec_proc
 	: ent_proc declaration* instruction+ 'end'
-		-> ^(PROCEDURE ent_proc declaration* instruction+) 
+		-> ^(PROCEDURE ^(PROTOTYPE ent_proc) ^(DECLARATIONS declaration*) ^(INSTRUCTIONS instruction+)) 
 	;
 
 ent_func
