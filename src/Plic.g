@@ -1,47 +1,110 @@
 grammar Plic;
 
+options{
+	output=AST;
+}
+
+tokens {
+	PROG;
+	DECLARATION;
+	DECLARATIONS;
+	INSTRUCTION;
+	INSTRUCTIONS;
+	VARIABLE;
+	FUNCTION;
+	PROCEDURE;
+	PROTOTYPE;
+	BLOC;
+	PARAMS;
+	AFFECTATION;
+	IF;
+	FOR;
+	RETURN;
+	READ;
+	WRITE;
+	PROC_CALL;
+	FUNC_CALL;
+	AFF_LEFT;
+	AFF_RIGHT;
+	ARRAY;
+	CONDITION;
+	IF_BLOC;
+	ELSE_BLOC;
+	UNAIRE;
+}
+
+
+
 root
-	: prog;
+	: prog 
+	;
 
 prog
-	: 'do' declaration* instruction+ 'end' ;
+	: 'do' declaration* instruction+ 'end'
+		->  ^(PROG ^(DECLARATIONS declaration*) ^(INSTRUCTIONS instruction+))
+	;
 
 declaration
 	: dec_var
+		->^(VARIABLE dec_var)
 	| dec_func
-	| dec_proc;
+		-> dec_func
+	| dec_proc
+		->dec_proc
+	;
 
 dec_var
-	: type IDF (',' IDF)*;
+	: type IDF (',' IDF)*
+		-> ^(type IDF+)
+	;
 
 type
 	: 'integer'
+
 	| 'boolean'
-	| array;
+		
+	| array
+	;
 
 array
-	: 'array' '[' bounds ']';
+	: 'array' '[' bounds ']'
+		-> 'array' bounds
+	;
 
 bounds
-	: CSTE_ENT '..' CSTE_ENT (',' CSTE_ENT '..' CSTE_ENT)*;
+	: CSTE_ENT '..' CSTE_ENT (',' CSTE_ENT '..' CSTE_ENT)*
+		-> (CSTE_ENT CSTE_ENT)+
+	;
 
 dec_func
-	: ent_func declaration* instruction+ 'end';
+	: ent_func declaration* instruction+ 'end'
+		-> ^(FUNCTION ^(PROTOTYPE ent_func) ^(DECLARATIONS declaration*) ^(INSTRUCTIONS instruction+))
+	;
 
 dec_proc
-	: ent_proc declaration* instruction+ 'end';
+	: ent_proc declaration* instruction+ 'end'
+		-> ^(PROCEDURE ^(PROTOTYPE ent_proc) ^(DECLARATIONS declaration*) ^(INSTRUCTIONS instruction+)) 
+	;
 
 ent_func
-	: 'function' type IDF param;
+	: 'function'! type IDF param
+	;
 
 ent_proc
-	: 'procedure' IDF param;
+	: 'procedure'! IDF param
+	;
 
 param
-	: '(' (formal (',' formal)*)? ')';
+	: '(' (formal (',' formal)*)? ')'
+		-> ^(PARAMS formal*)
+	;
 
 formal
-	: ('adr')? IDF ':' type;
+	: 'adr' IDF ':' type
+		-> ^('adr' ^(type IDF))
+	| IDF ':' type
+		->^(type IDF)
+	;
 
 instruction
 	: affectation
@@ -54,33 +117,60 @@ instruction
 	| write;
 
 bloc
-	: 'begin' declaration* instruction+ 'end';
+	: 'begin' declaration* instruction+ 'end'
+		-> ^(BLOC declaration* instruction+) 
+	;
 
 affectation
-	: IDF affectation_rec;
+	: atom_aff '=' exp 
+			-> ^(AFFECTATION ^(AFF_LEFT atom_aff) ^(AFF_RIGHT exp))
+	;
 
 affectation_rec
 	: '=' exp
-	| '[' exp (',' exp)? ']' '=' exp ;
+		-> exp
+	| '[' exp (',' exp)? ']' '=' exp 
+		-> exp+ exp
+	;
 
 iteration
-	: 'for' IDF 'in' exp '..' exp 'do'  instruction+ 'end';
+	: 'for' IDF 'in' exp '..' exp 'do'  instruction+ 'end'
+		-> ^(FOR IDF exp exp instruction+)
+	;
 
 condition
-	: 'if' exp 'then'  instruction+ ('else'  instruction+)? 'fi';
+	: 'if' exp 'then' condition_if  ('else' condition_else )? 'fi'
+		-> ^(IF ^(CONDITION exp) ^(IF_BLOC condition_if) ^(ELSE_BLOC condition_else)?)
+	;
+
+condition_if
+	: instruction+
+	;
+
+condition_else
+	: instruction+
+	;
 
 return_func
-	: 'return' '(' exp ')';
+	: 'return' '(' exp ')'
+		-> ^(RETURN exp)
+	;
 
-proc_call
-	: IDF '(' ( exp ( ',' exp)* )? ')';
+proc_call	
+	: IDF '(' ( exp ( ',' exp)* )? ')'
+		-> ^(PROC_CALL IDF exp*)
+	;
 
 
 read
-	: 'read' IDF;
+	: 'read' IDF
+		-> ^(READ IDF)
+	;
 
 write
-	: 'write' write_arg;
+	: 'write' write_arg
+		-> ^(WRITE write_arg)
+	;
 
 write_arg
 	: exp
@@ -90,51 +180,58 @@ exp
 	: plusmoins;
 
 plusmoins
-	: fois plusmoins2;
-
-plusmoins2
-	: '+' plusmoins
-	| '-' plusmoins
-	| ;
+	: fois (('+'|'-')^ fois)*
+		;
 
 fois
-	: unaire fois2;
+	: unaire ('*'^ unaire)*;
 
-fois2
-	: '*' fois
-	| ;
 
 unaire
-	: '-'? comp;
+	: '-' comp
+		-> ^(UNAIRE comp)
+	| comp
+	;
 
 comp
-	: parenthesis comp2;
+	: parenthesis ( comp_oper^ parenthesis)*;
 
-comp2
-	: '==' comp
-	| '!=' comp
-	| '<' comp
-	| '<=' comp
-	| '>' comp
-	| '>=' comp
-	| ;
+comp_oper
+	: '<' 
+	| '<=' 
+	| '>' 
+	| '>=' 
+	| '==' 
+	| '!=' ;
 
 parenthesis
-	: '(' exp ')' | atom ;
+	: '(' exp ')' 
+		-> exp
+	| atom ;
 
 atom
 	: 'true'
 	| 'false'
 	| CSTE_ENT
-	| IDF atom_rec;
+	| IDF idf_arg 
+		-> ^(FUNC_CALL IDF idf_arg)
+	| atom_aff
+	;
 
-atom_rec
-	: idf_arg
-	| '[' exp (',' exp)* ']' ;
+atom_aff
+	: IDF 
+		(
+		'[' exp (',' exp)* ']'
+			-> ^(ARRAY IDF exp*)
+		|
+			-> IDF
+		);
+
 
 idf_arg
 	: '(' ( exp ( ',' exp)* )? ')'
-	| ;
+		-> exp*
+	;
 
 CSTE_ENT : '0'..'9'+ ;
 CSTE_CHAINE : '\"' .* '\"' ;
