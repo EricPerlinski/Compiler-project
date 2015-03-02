@@ -4,3 +4,7 @@ antlr.jar
 bin/
 src/Plic.tokens
 src/output
+tree/input/*.tree
+tree/output/*.dot
+tree/output/*.jpg
+tree/*.class
