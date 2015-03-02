@@ -194,7 +194,7 @@ unaire
 	;
 
 comp
-	: parenthesis ( comp_oper parenthesis)*;
+	: parenthesis ( comp_oper^ parenthesis)*;
 
 comp_oper
 	: '<' 
