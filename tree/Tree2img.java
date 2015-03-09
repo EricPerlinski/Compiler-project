@@ -102,11 +102,8 @@ public class Tree2img{
 			System.out.println("USAGE : java Tree2img file.tree [outputFile.dot]");
 			return;
 		case 1:
-			inputStr = args[0];
-			break;
-		case 2:
-			inputStr = args[0];
-			outputFile=args[1];
+			inputStr = "input/"+args[0];
+			outputFile="output/"+args[0]+".dot";
 			break;
 		default:
 			System.out.println("USAGE : java Tree2img file.tree [outputFile.dot]");
