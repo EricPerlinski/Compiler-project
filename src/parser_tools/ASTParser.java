@@ -28,6 +28,7 @@ public class ASTParser {
 	public void ASTParse(){
 		
 		if(c.getToken().getText().equalsIgnoreCase("PROG") && c.getChildCount() == 2 && c.getChild(0).getText().equalsIgnoreCase("DECLARATIONS") && c.getChild(1).getText().equalsIgnoreCase("INSTRUCTIONS") ){
+			
 			TDS tDS = new TDS(0,1);
 			tableDesSymboles.add(tDS);
 			
@@ -65,6 +66,12 @@ public class ASTParser {
 
 	public void setTableDesSymboles(ArrayList<TDS> tableDesSymboles) {
 		this.tableDesSymboles = tableDesSymboles;
+	}
+
+	@Override
+	public String toString() {
+		return "ASTParser [c=" + c + ", tableDesSymboles=" + tableDesSymboles
+				+ "]";
 	}
 	
 	
