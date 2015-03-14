@@ -32,6 +32,15 @@ public class TDS {
 		nbReg = newNbReg;
 	}
 	
+	public TDS (int newNbImb, int newNbReg){
+		var = new ArrayList<Declarations>();
+		params = new ArrayList<Declarations>();
+		fils = new ArrayList<TDS>();
+		pere = null;
+		nbImb = newNbImb;
+		nbReg = newNbReg;
+	}
+	
 	/* Methods */
 	
 	public void addParam (Declarations newParam){

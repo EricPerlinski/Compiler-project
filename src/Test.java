@@ -12,9 +12,6 @@ public static void main(String[] args) throws Exception {
         PlicParser parser = new PlicParser(tokens);
         PlicParser.root_return r = parser.root();
         ASTParser astparser = new ASTParser((CommonTree)r.getTree());
-        
-        System.out.println(astparser.toStringTree());
-        
-        
+        astparser.ASTParse();
     }
 }
