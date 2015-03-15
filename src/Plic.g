@@ -31,6 +31,9 @@ tokens {
 	IF_BLOC;
 	ELSE_BLOC;
 	UNAIRE;
+	ARRAY;
+	BOUNDS;
+	BOUND;
 }
 
 
@@ -55,7 +58,7 @@ declaration
 
 dec_var
 	: type IDF (',' IDF)*
-		-> ^(type IDF+)
+		-> type IDF+
 	;
 
 type
@@ -63,17 +66,13 @@ type
 
 	| 'boolean'
 		
-	| array
-	;
-
-array
-	: 'array' '[' bounds ']'
-		-> 'array' bounds
+	| 'array' '[' bounds ']'
+		-> ^(ARRAY ^(BOUNDS bounds))
 	;
 
 bounds
 	: CSTE_ENT '..' CSTE_ENT (',' CSTE_ENT '..' CSTE_ENT)*
-		-> (CSTE_ENT CSTE_ENT)+
+		-> ^(BOUND CSTE_ENT CSTE_ENT)+
 	;
 
 dec_func
