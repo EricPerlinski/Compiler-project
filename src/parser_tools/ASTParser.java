@@ -92,7 +92,7 @@ public class ASTParser {
 			for(int i = 1; i < t.getChildCount(); i++){
 				//TODO Ajouter t.getChild(i).getText() à la TDS
 				System.out.println("integer :: "+t.getChild(i).getText());
-				
+				 
 			}
 		}else if(t.getChild(0).getText().equalsIgnoreCase("boolean")){
 			System.out.println("Type BOOLEAN:");
