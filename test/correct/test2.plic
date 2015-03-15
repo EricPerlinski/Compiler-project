@@ -7,7 +7,7 @@ do
 	integer i1,i2
 	array [0..5] tab2 
 	
-	function integer f(adr t:array[0..22,10..15],adr y:integer)
+	procedure f(adr t:array[0..22,10..15],adr y:integer)
 		t[9]=carre(t[9])
 		return(t[9])
 	end

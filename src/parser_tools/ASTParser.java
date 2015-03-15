@@ -155,10 +155,8 @@ public class ASTParser {
 		
 		for(int k = 0; k < t_2proto.getChildCount(); k++){
 			
-			
-			
+
 			if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("integer")){
-				
 				Declarations d = new Declarations(Type.integer,t_2proto.getChild(k).getChild(0).getChild(0).getText(),0); 
 				current.addParam(d);
 			}else if(t_proto.getChild(2).getChild(k).getChild(0).getText().equalsIgnoreCase("boolean")){
@@ -239,6 +237,8 @@ public class ASTParser {
 
 		//prototype
 		Tree t_proto = t.getChild(0);
+		
+		
 
 		current.setIdf(t_proto.getChild(0).getText());
 		parse_params(t_proto.getChild(1));
