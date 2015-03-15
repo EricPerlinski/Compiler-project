@@ -52,6 +52,11 @@ public class ASTParser {
 		*/
 		if(t.getText().equals("VARIABLE")){
 			//TODO creer parse_variable(t)
+			System.out.println("Entrée dans un noeud variable");
+			for(int i = 0; i<t.getChildCount(); i++){
+				System.out.println("Variable::Type:::"+t.getChild(i).getText());
+				parse_variable(t.getChild(i));
+			}
 		}else 
 		/* Si c'est un bloc avec params et nom alors ajouter la TDS courante a la pile
 		créé une nouvelle TDS et parcourir le bloc recursivement*/
@@ -77,10 +82,51 @@ public class ASTParser {
 			NodeParse(t.getChild(i));
 		}
 		
+	}
 	
+	
+	public void parse_variable(Tree t){
+		
+		if(t.getText().equalsIgnoreCase("integer")){
+			for(int i = 0; i < t.getChildCount(); i++){
+			
+				System.out.println("integer ::::: "+t.getChild(i).getText());
+				parse_int(t.getChild(i));
+			}
+		}else if(t.getText().equalsIgnoreCase("boolean")){
+			for(int i = 0; i < t.getChildCount(); i++){
+				
+				System.out.println("integer ::::: "+t.getText());
+				parse_bool(t.getChild(i));
+			}
+			
+		}else if(t.getText().equalsIgnoreCase("array")){
+			for(int i = 0; i < t.getChildCount(); i++){
+				
+				System.out.println("integer ::::: "+t.getText());
+				parse_array(t.getChild(i));
+			}
+		}
 		
 	}
 	
+	public void parse_int(Tree t){
+		for(int i = 0; i < t.getChildCount(); i++){
+			
+		}
+	}
+	
+	public void parse_bool(Tree t){
+		for(int i = 0; i < t.getChildCount(); i++){
+			
+		}
+	}
+	
+	public void parse_array(Tree t){
+		for(int i = 0; i < t.getChildCount(); i++){
+			
+		}
+	}
 	/* Getters & Setters */
 	
 	public CommonTree getC() {
