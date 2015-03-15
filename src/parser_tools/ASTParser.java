@@ -3,7 +3,10 @@ package parser_tools;
 import java.util.ArrayList;
 import java.util.Stack;
 
+import model.Bound;
+import model.Declarations;
 import model.TDS;
+import model.Type;
 
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
@@ -93,45 +96,38 @@ public class ASTParser {
 		
 		
 		if(t.getChild(0).getText().equalsIgnoreCase("integer")){
-			System.out.println("Type ENTIER:");
+			
 			for(int i = 1; i < t.getChildCount(); i++){
 				//TODO Ajouter t.getChild(i).getText() à la TDS
-				System.out.println("integer :: "+t.getChild(i).getText());
+				Declarations d = new Declarations(Type.integer,t.getChild(i).getText(), 0);
+				System.out.println(d);
 				 
 			}
 		}else if(t.getChild(0).getText().equalsIgnoreCase("boolean")){
-			System.out.println("Type BOOLEAN:");
+			
 			for(int i = 1; i < t.getChildCount(); i++){
 				//TODO Ajouter t.getChild(i).getText() à la TDS
-				System.out.println("boolean :: "+t.getChild(i).getText());
+				Declarations d = new Declarations(Type.bool,t.getChild(i).getText(), 0);
+				System.out.println(d);
 			}
 			
 		}else if(t.getChild(0).getText().equalsIgnoreCase("array")){
 			
-				System.out.println("Type TABLEAU:");
-				System.out.println("array :: "+t.getChild(1).getText());
+				ArrayList<Bound> Bounds = new ArrayList<Bound>();
 				if(t.getChild(0).getChild(0).getText().equalsIgnoreCase("BOUNDS")){
-					System.out.println("Taille du tableau");
+					
 					for(int k = 0; k < t.getChild(0).getChild(0).getChildCount(); k++){
-						System.out.println("Borne "+k);
-						
-						System.out.println("Lower Bound : "+t.getChild(0).getChild(0).getChild(k).getChild(0)+
-								"  Upper Bound : " + t.getChild(0).getChild(0).getChild(k).getChild(1));
+						Bound b = new Bound(Integer.parseInt(t.getChild(0).getChild(0).getChild(k).getChild(0).getText()),
+								Integer.parseInt(t.getChild(0).getChild(0).getChild(k).getChild(1).getText()));
+						Bounds.add(b);
 					}
 				}
-				parse_array(t.getChild(0));
-			
+				Declarations d = new Declarations(Type.array,t.getChild(1).getText(),0, Bounds);
+				System.out.println(d);
 		}
 		
 	}
 	
-	
-	
-	public void parse_array(Tree t){
-		for(int i = 0; i < t.getChildCount(); i++){
-			
-		}
-	}
 	
 	public void parse_fonction(Tree t){
 		
