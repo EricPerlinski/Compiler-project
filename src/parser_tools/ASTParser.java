@@ -35,8 +35,17 @@ public class ASTParser {
 			TDS tDS = new TDS(0,1);
 			tableDesSymboles.add(tDS);
 			
-			NodeParse(c.getChild(0)); // Parse du premier Noeud Declarations
-			NodeParse(c.getChild(1)); // Parse du premier Noeud Instructions
+			// Parse du premier Noeud Declarations
+			for(int i=0;i<c.getChild(0).getChildCount();i++){
+				NodeParse(c.getChild(0).getChild(i));
+			}
+			
+			// Parse du premier Noeud Instructions
+			for(int j=0;j<c.getChild(1).getChildCount();j++){
+				NodeParse(c.getChild(1).getChild(j));
+			}
+			
+			
 			
 		}
 		
@@ -44,7 +53,7 @@ public class ASTParser {
 	
 	public void NodeParse(Tree t){
 		
-		System.out.println(t.getText());
+		
 
 		/* 
 			Si c'est une variable, explorer le sous arbre pour recuperer les infos
@@ -60,8 +69,10 @@ public class ASTParser {
 		}else 
 		/* Si c'est un bloc avec params et nom alors ajouter la TDS courante a la pile
 		créé une nouvelle TDS et parcourir le bloc recursivement*/
-		if(t.getText().equals("FUNCTION") || t.getText().equals("PROCEDURE")){
-			//TODO creer parse_bloc_nomme(t)
+		if(t.getText().equals("FUNCTION")){
+			//TODO creer parse_fonction(t)
+		}else if (t.getText().equals("PROCEDURE")){
+			//TODO creer parse_proc(t)
 		}else 
 		/* Si c'est un bloc anonyme faire comme une fonction mais sans les params, types, ...*/
 		if(	t.getText().equals("BLOC") || 
@@ -76,11 +87,6 @@ public class ASTParser {
 			//	}
 			
 		}
-
-		//peut etre supprimer ca
-		for(int i=0; i<t.getChildCount(); i++){
-			NodeParse(t.getChild(i));
-		}
 		
 	}
 	
@@ -89,43 +95,35 @@ public class ASTParser {
 		
 		if(t.getText().equalsIgnoreCase("integer")){
 			for(int i = 0; i < t.getChildCount(); i++){
-			
+				//TODO Ajouter t.getChild(i).getText() à la TDS
 				System.out.println("integer ::::: "+t.getChild(i).getText());
-				parse_int(t.getChild(i));
+				
 			}
 		}else if(t.getText().equalsIgnoreCase("boolean")){
 			for(int i = 0; i < t.getChildCount(); i++){
-				
-				System.out.println("integer ::::: "+t.getText());
-				parse_bool(t.getChild(i));
+				//TODO Ajouter t.getChild(i).getText() à la TDS
+				System.out.println("boolean ::::: "+t.getText());
 			}
 			
 		}else if(t.getText().equalsIgnoreCase("array")){
 			for(int i = 0; i < t.getChildCount(); i++){
-				
-				System.out.println("integer ::::: "+t.getText());
+				System.out.println("array ::::: "+t.getText());
 				parse_array(t.getChild(i));
 			}
 		}
 		
 	}
 	
-	public void parse_int(Tree t){
-		for(int i = 0; i < t.getChildCount(); i++){
-			
-		}
-	}
 	
-	public void parse_bool(Tree t){
-		for(int i = 0; i < t.getChildCount(); i++){
-			
-		}
-	}
 	
 	public void parse_array(Tree t){
 		for(int i = 0; i < t.getChildCount(); i++){
 			
 		}
+	}
+	
+	public void parse_fonction(Tree t){
+		
 	}
 	/* Getters & Setters */
 	
