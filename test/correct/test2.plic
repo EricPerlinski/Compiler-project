@@ -1,6 +1,11 @@
 do
 	array [0..3,0..4] tab
-	integer i 
+	integer j
+	integer i
+	boolean b1 , b2
+	boolean b3
+	integer i1,i2
+	array [0..5] tab2 
 	
 	function integer f(t:array[0..22])
 		t[9]=carre(t[9])

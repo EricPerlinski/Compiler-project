@@ -10,6 +10,7 @@ public class TDS {
 	private TDS pere; // lien vers la TDS du père
 	private int nbImb; // numero d'imbrication
 	private int nbReg; // numero de region
+	private String idf; //idf du bloc si fonction ou procedure
 	
 	
 	/* Constructors */
@@ -100,6 +101,15 @@ public class TDS {
 	public void setNbReg(int nbReg) {
 		this.nbReg = nbReg;
 	}
+
+	public void setIdf(String idf){
+		this.idf=idf;
+	}
+
+	public String getIdf(){
+		return this.idf;
+	}
+
 
 	/* ToString */
 	

@@ -13,6 +13,8 @@ public class ASTParser {
 	private CommonTree c;
 	private ArrayList<TDS> tableDesSymboles;
 	private Stack<TDS> stack;
+	private TDS current; 
+	private int currentReg=0;
 	
 	/* Constructor */
 	
@@ -20,6 +22,7 @@ public class ASTParser {
 		setC(newC);
 		setTableDesSymboles(new ArrayList<TDS>());
 		stack=new Stack<TDS>();
+		current=new TDS(null,0,currentReg);
 	}
 	
 	/* Methods */
@@ -64,24 +67,16 @@ public class ASTParser {
 			System.out.println("Entrée dans un noeud variable");
 			parse_variable(t);
 		}else 
-		/* Si c'est un bloc avec params et nom alors ajouter la TDS courante a la pile
-		créé une nouvelle TDS et parcourir le bloc recursivement*/
+		/* Si c'est un bloc avec params et nom alors ajouter la TDS courante a la pile créé une nouvelle TDS et parcourir le bloc recursivement*/
 		if(t.getText().equals("FUNCTION")){
-			//TODO creer parse_fonction(t)
+			parse_bloc_function(t);
 		}else if (t.getText().equals("PROCEDURE")){
-			//TODO creer parse_proc(t)
+			parse_bloc_procedure(t);
 		}else 
 		/* Si c'est un bloc anonyme faire comme une fonction mais sans les params, types, ...*/
-		if(	t.getText().equals("BLOC") || 
-					t.getText().equals("IF_BLOC") || 
-					t.getText().equals("ELSE_BLOC") || 
-					t.getText().equals("FOR")){
-			//TODO parse_bloc_anonyme(t) // il s'agit peut etre de cette fonction
-			// je propose : 
-			//
-			//	for(int i=0; i<t.getChildCount(); i++){
-			//		NodeParse(t.getChild(i));
-			//	}
+		if(	t.getText().equals("BLOC") || t.getText().equals("IF_BLOC") || t.getText().equals("ELSE_BLOC") || t.getText().equals("FOR")){
+			parse_bloc_anonyme(t);
+			
 			
 		}
 		
@@ -159,6 +154,72 @@ public class ASTParser {
 		return "ASTParser [c=" + c + ", tableDesSymboles=" + tableDesSymboles
 				+ "]";
 	}
+
+	public void parse_bloc_anonyme(Tree t){
+		//on cree un nouveau current, on push l'ancien
+		stack.push(current);
+		currentReg++;
+		current=new TDS(current,current.getNbImb()+1,currentReg);
+
+		
+		//declarations
+		NodeParse(t.getChild(0));
+		
+		//instructions
+		NodeParse(t.getChild(1));
+
+		//reset current
+		current=stack.pop();
+	}
+
+	public void parse_bloc_function(Tree t){
+		//on cree un nouveau current, on push l'ancien
+		stack.push(current);
+		currentReg++;
+		current=new TDS(current,current.getNbImb()+1,currentReg);
+
+		//prototype
+		Tree t_proto = t.getChild(0);
+
+		String type_ret = t_proto.getChild(0).getText(); //TODO utiliser ca plus tard pour la semantique
+		current.setIdf(t_proto.getChild(1).getText());
+		parse_params(t_proto.getChild(2));
+		
+		//declarations
+		NodeParse(t.getChild(1));
+		
+		//instructions
+		NodeParse(t.getChild(2));
+
+		//reset current
+		current=stack.pop();
+	}
 	
+	public void parse_bloc_procedure(Tree t){
+		//on cree un nouveau current, on push l'ancien
+		stack.push(current);
+		currentReg++;
+		current=new TDS(current,current.getNbImb()+1,currentReg);
+
+
+		//prototype
+		Tree t_proto = t.getChild(0);
+
+		current.setIdf(t_proto.getChild(0).getText());
+		parse_params(t_proto.getChild(1));
+
+		//declarations
+		NodeParse(t.getChild(1));
+		
+		//instructions
+		NodeParse(t.getChild(2));
+
+		//reset current
+		current=stack.pop();
+	}
+
+	public void parse_params(Tree t){
+		
+	}
 	
 }
