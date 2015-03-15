@@ -122,7 +122,7 @@ public class Declarations {
 	public String toDot(){
 		StringBuffer str = new StringBuffer();
 
-		str.append("{"+type+":"+idf);	
+		str.append("{"+(parAdresse?"adr ":"")+type+":"+idf);	
 		for(int i=0;i<bounds.size();i++){
 			str.append("["+bounds.get(i).getLb()+".."+bounds.get(i).getUb()+"]");
 		}
