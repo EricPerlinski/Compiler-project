@@ -151,69 +151,70 @@ public class ASTParser {
 		String type_ret = t_proto.getChild(0).getText(); //TODO utiliser ca plus tard pour la semantique
 		current.setIdf(t_proto.getChild(1).getText());
 		
+		Tree t_2proto = t_proto.getChild(2);
 		
-		for(int k = 0; k < t_proto.getChild(2).getChildCount(); k++){
+		for(int k = 0; k < t_2proto.getChildCount(); k++){
 			
-			if(t_proto.getChild(2).getChild(k).getText().equalsIgnoreCase("integer")){
-				Declarations d = new Declarations(Type.integer,t_proto.getChild(2).getChild(k).getChild(0).getText(),0); 
+			
+			
+			if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("integer")){
+				
+				Declarations d = new Declarations(Type.integer,t_2proto.getChild(k).getChild(0).getChild(0).getText(),0); 
 				current.addParam(d);
-			}else if(t_proto.getChild(2).getChild(k).getText().equalsIgnoreCase("boolean")){
-				Declarations d = new Declarations(Type.bool,t_proto.getChild(2).getChild(k).getChild(0).getText(),0); 
+			}else if(t_proto.getChild(2).getChild(k).getChild(0).getText().equalsIgnoreCase("boolean")){
+				Declarations d = new Declarations(Type.bool,t_2proto.getChild(k).getChild(0).getChild(0).getText(),0); 
 				current.addParam(d);
-			}else if(t_proto.getChild(2).getChild(k).getText().equalsIgnoreCase("array")){
+			}else if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("array")){
+				
 				ArrayList<Bound> Bounds = new ArrayList<Bound>();
 				
-				
-				if(t.getChild(0).getChild(2).getChild(k).getChild(0).getText().equalsIgnoreCase("BOUNDS")){
+				if(t_2proto.getChild(k).getChild(0).getChild(0).getText().equalsIgnoreCase("BOUNDS")){
 					
-					for(int l = 0; l < t.getChild(0).getChild(2).getChild(k).getChild(0).getChildCount(); l++){
+					for(int l = 0; l < t_2proto.getChild(k).getChild(0).getChild(0).getChildCount(); l++){
 						
-						
-						Bound b = new Bound(Integer.parseInt(t.getChild(0).getChild(2).getChild(k).getChild(0).getChild(l).getChild(0).getText()),
-								Integer.parseInt(t.getChild(0).getChild(2).getChild(k).getChild(0).getChild(l).getChild(1).getText()));
+						Bound b = new Bound(Integer.parseInt(t_2proto.getChild(k).getChild(0).getChild(0).getChild(l).getChild(0).getText()),
+								Integer.parseInt( t_2proto.getChild(k).getChild(0).getChild(0).getChild(l).getChild(1).getText()) );
 						Bounds.add(b);
 					}
 				}
-				Declarations d = new Declarations(Type.array,"tabnull",0, Bounds);
+				Declarations d = new Declarations(Type.array,t_2proto.getChild(k).getChild(1).getText(),0, Bounds);
 				current.addParam(d);
-			}else if(t_proto.getChild(2).getChild(k).getText().equalsIgnoreCase("var")){
-			
-			
-			
-			
-				if(t_proto.getChild(2).getChild(k).getChild(0).getText().equalsIgnoreCase("integer")){
-					Declarations d = new Declarations(Type.integer,t_proto.getChild(2).getChild(k).getChild(0).getChild(0).getText(),0); 
+				
+				
+				
+			}else if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("adr")){
+				
+				
+				
+				if(t_2proto.getChild(k).getChild(1).getText().equalsIgnoreCase("integer")){
+					Declarations d = new Declarations(Type.integer,t_2proto.getChild(k).getChild(2).getText(),0,true); 
 					current.addParam(d);
-				}else if(t_proto.getChild(2).getChild(k).getChild(0).getText().equalsIgnoreCase("boolean")){
-					Declarations d = new Declarations(Type.bool,t_proto.getChild(2).getChild(k).getChild(0).getChild(0).getText(),0); 
+				}else if(t_2proto.getChild(k).getChild(1).getText().equalsIgnoreCase("boolean")){
+					Declarations d = new Declarations(Type.bool,t_2proto.getChild(k).getChild(2).getText(),0,true); 
 					current.addParam(d);
-				}else if(t_proto.getChild(2).getChild(k).getChild(0).getText().equalsIgnoreCase("array")){
+				}else if(t_2proto.getChild(k).getChild(1).getText().equalsIgnoreCase("array")){
+					
+					Tree boundsnode = t_2proto.getChild(k).getChild(1).getChild(0);
 					ArrayList<Bound> Bounds = new ArrayList<Bound>();
 					
-					
-					if(t.getChild(0).getChild(2).getChild(k).getChild(0).getChild(0).getText().equalsIgnoreCase("BOUNDS")){
+					if(boundsnode.getText().equalsIgnoreCase("BOUNDS")){
 						
-						for(int l = 0; l < t.getChild(0).getChild(2).getChild(k).getChild(0).getChildCount(); l++){
+						
+						  for(int l = 0; l < boundsnode.getChildCount(); l++){
 							
-							
-							Bound b = new Bound(Integer.parseInt(t.getChild(0).getChild(2).getChild(k).getChild(0).getChild(0).getChild(l).getChild(0).getText()),
-									Integer.parseInt(t.getChild(0).getChild(2).getChild(k).getChild(0).getChild(0).getChild(l).getChild(1).getText()));
+							Bound b = new Bound(Integer.parseInt(boundsnode.getChild(l).getChild(0).getText()),
+									Integer.parseInt(  boundsnode.getChild(l).getChild(1).getText()) );
 							Bounds.add(b);
 						}
+			
 					}
-					Declarations d = new Declarations(Type.array,"tabnull",0, Bounds);
+					
+					Declarations d = new Declarations(Type.array,t_2proto.getChild(k).getChild(2).getText(),0, Bounds,true);
 					current.addParam(d);
+					
 				}
-			
-			
-			
-			
-			
-			
-			
 			}
 		}
-		
 		
 		//declarations
 		for(int i=0;i<t.getChild(1).getChildCount();i++){
@@ -281,7 +282,7 @@ public class ASTParser {
 
 	@Override
 	public String toString() {
-		return "ASTParser [c=" + c + ", tableDesSymboles=" + tableDesSymboles
+		return "ASTParser [c=" + c + ", tableDesSymboles=" + stack.toString()
 				+ "]";
 	}
 
