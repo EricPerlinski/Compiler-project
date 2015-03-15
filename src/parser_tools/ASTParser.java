@@ -148,7 +148,7 @@ public class ASTParser {
 		//prototype
 		Tree t_proto = t.getChild(0);
 
-		String type_ret = t_proto.getChild(0).getText(); //TODO utiliser ca plus tard pour la semantique
+		current.setTypeRec(t_proto.getChild(0).getText()); 
 		current.setIdf(t_proto.getChild(1).getText());
 		
 		System.out.println(t_proto.getChild(1).getText());

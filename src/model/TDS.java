@@ -11,7 +11,7 @@ public class TDS {
 	private int nbImb; // numero d'imbrication
 	private int nbReg; // numero de region
 	private String idf; //idf du bloc si fonction ou procedure
-	
+	private String typeRet=null; //type de retour
 	
 	/* Constructors */
 	
@@ -43,6 +43,10 @@ public class TDS {
 	}
 	
 	/* Methods */
+
+	public void setTypeRec(String type){
+		this.typeRet=type;
+	}
 	
 	public void addParam (Declarations newParam){
 		this.params.add(newParam);
@@ -183,7 +187,9 @@ public class TDS {
 
 		str.append("<TR><TD BORDER=\"1\" WIDTH=\"100\">nbReg : "+nbReg+"</TD></TR>\n");
 		str.append("<TR><TD BORDER=\"1\" WIDTH=\"100\">nbImb : "+nbImb+"</TD></TR>\n");
-
+		if(typeRet!=null){
+			str.append("<TR><TD BORDER=\"1\" WIDTH=\"100\">type_ret : "+typeRet+"</TD></TR>\n");
+		}
 		for(int i=0;i<params.size();i++){
 			str.append("<TR><TD BORDER=\"1\" WIDTH=\"100\">Param_"+i+" : "+params.get(i).toDot()+"</TD></TR>\n");
 		}
