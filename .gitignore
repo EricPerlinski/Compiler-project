@@ -8,3 +8,5 @@ src/output
 tree/input/*
 tree/output/*
 tree/*.class
+tds/input/*
+tds/output/*
