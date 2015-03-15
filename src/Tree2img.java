@@ -97,9 +97,9 @@ public class Tree2img{
 	public static void run(String treeInput,String name_output) {
 		
 		if(name_output==null){
-			name_output="../tree/input/output.dot";
+			name_output="tree/input/output.dot";
 		}else{
-			name_output="../tree/input/"+name_output+".dot";
+			name_output="tree/input/"+name_output+".dot";
 		}
 			
 		Tree2img tree2img = new Tree2img(treeInput.toString(),name_output);
