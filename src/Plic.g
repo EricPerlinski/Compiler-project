@@ -100,9 +100,9 @@ param
 
 formal
 	: 'adr' IDF ':' type
-		-> ^('adr' type IDF)
+		-> ^(VARIABLE 'adr' type IDF)
 	| IDF ':' type
-		->type IDF
+		->^(VARIABLE type IDF)
 	;
 
 instruction
