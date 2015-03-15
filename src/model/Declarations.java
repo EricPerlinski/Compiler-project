@@ -9,6 +9,7 @@ public class Declarations {
 	
 	private Type type;
 	private String idf;
+	private boolean parAdresse;
 	private int deplacement;
 	private ArrayList<Bound> bounds = new ArrayList<Bound>();
 
@@ -23,6 +24,7 @@ public class Declarations {
 		this.idf = newIdf;
 		this.deplacement = newDeplacement;
 		this.bounds = new ArrayList<Bound>();
+		this.parAdresse = false;
 	}
 	
 	public Declarations(Type newType, String newIdf, int newDeplacement, ArrayList<Bound> newBounds){
@@ -30,9 +32,24 @@ public class Declarations {
 		this.idf = newIdf;
 		this.deplacement = newDeplacement;
 		this.bounds = newBounds;
+		this.parAdresse = false;
 	}
 	
+	public Declarations(Type newType, String newIdf, int newDeplacement, boolean newParAdresse){
+		this.type = newType;
+		this.idf = newIdf;
+		this.deplacement = newDeplacement;
+		this.bounds = new ArrayList<Bound>();
+		this.parAdresse = newParAdresse;
+	}
 	
+	public Declarations(Type newType, String newIdf, int newDeplacement, ArrayList<Bound> newBounds, boolean newParAdresse){
+		this.type = newType;
+		this.idf = newIdf;
+		this.deplacement = newDeplacement;
+		this.bounds = newBounds;
+		this.parAdresse = newParAdresse;
+	}
 	
 	
 	

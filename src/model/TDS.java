@@ -121,7 +121,7 @@ public class TDS {
 	public String toString() {
 		String str= "\nTDS [\nidf=" +idf+  "\nvar=\n"; 
 		for(int i=0;i<var.size();i++){
-			str+=var.get(i).toString()+",";
+			str+=var.get(i).toString()+",\n";
 		}
 		str+= "\nparams=";
 		for(int i=0;i<params.size();i++){
