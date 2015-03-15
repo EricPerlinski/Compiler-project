@@ -1,3 +1,4 @@
+src/.metadata
 PlicParser.java
 PlicLexer.java
 antlr.jar
