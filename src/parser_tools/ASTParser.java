@@ -17,7 +17,7 @@ public class ASTParser {
 	private ArrayList<TDS> tableDesSymboles;
 	private Stack<TDS> stack;
 	private TDS current; 
-	private int currentReg=0;
+	private int currentReg=1;
 	
 	/* Constructor */
 	
@@ -26,6 +26,7 @@ public class ASTParser {
 		setTableDesSymboles(new ArrayList<TDS>());
 		stack=new Stack<TDS>();
 		current=new TDS(null,0,currentReg);
+		current.setIdf("Root");
 	}
 
 	public TDS getCurrent(){
@@ -42,8 +43,6 @@ public class ASTParser {
 		
 		if(c.getToken().getText().equalsIgnoreCase("PROG") && c.getChildCount() == 2 && c.getChild(0).getText().equalsIgnoreCase("DECLARATIONS") && c.getChild(1).getText().equalsIgnoreCase("INSTRUCTIONS") ){
 			
-			TDS tDS = new TDS(0,1);
-			tableDesSymboles.add(tDS);
 			
 			// Parse du premier Noeud Declarations
 			for(int i=0;i<c.getChild(0).getChildCount();i++){
@@ -63,15 +62,11 @@ public class ASTParser {
 	
 	public void NodeParse(Tree t){
 		
-
-		System.out.println(t.getText());
 		/* 
 			Si c'est une variable, explorer le sous arbre pour recuperer les infos
 			Faire une fonction qui parse un noeud VARIABLE
 		*/
 		if(t.getText().equals("VARIABLE")){
-			//TODO creer parse_variable(t)
-			System.out.println("Entrée dans un noeud variable");
 			parse_variable(t);
 		}else 
 		/* Si c'est un bloc avec params et nom alors ajouter la TDS courante a la pile créé une nouvelle TDS et parcourir le bloc recursivement*/
@@ -125,34 +120,6 @@ public class ASTParser {
 		
 	}
 	
-	
-	public void parse_fonction(Tree t){
-		
-	}
-	/* Getters & Setters */
-	
-	public CommonTree getC() {
-		return c;
-	}
-
-	public void setC(CommonTree c) {
-		this.c = c;
-	}
-
-	public ArrayList<TDS> getTableDesSymboles() {
-		return tableDesSymboles;
-	}
-
-	public void setTableDesSymboles(ArrayList<TDS> tableDesSymboles) {
-		this.tableDesSymboles = tableDesSymboles;
-	}
-
-	@Override
-	public String toString() {
-		return "ASTParser [c=" + c + ", tableDesSymboles=" + tableDesSymboles
-				+ "]";
-	}
-
 	public void parse_bloc_anonyme(Tree t){
 		//on cree un nouveau current, on push l'ancien
 		stack.push(current);
@@ -183,7 +150,41 @@ public class ASTParser {
 
 		String type_ret = t_proto.getChild(0).getText(); //TODO utiliser ca plus tard pour la semantique
 		current.setIdf(t_proto.getChild(1).getText());
-		parse_params(t_proto.getChild(2));
+		
+		
+		for(int k = 0; k < t_proto.getChild(2).getChildCount(); k++){
+			
+			if(t_proto.getChild(2).getChild(k).getText().equalsIgnoreCase("integer")){
+				Declarations d = new Declarations(Type.integer,t_proto.getChild(2).getChild(k).getChild(0).getText(),0); 
+				current.addParam(d);
+			}else if(t_proto.getChild(2).getChild(k).getText().equalsIgnoreCase("boolean")){
+				Declarations d = new Declarations(Type.bool,t_proto.getChild(2).getChild(k).getChild(0).getText(),0); 
+				current.addParam(d);
+			}else if(t_proto.getChild(2).getChild(k).getText().equalsIgnoreCase("array")){
+				
+				ArrayList<Bound> Bounds = new ArrayList<Bound>();
+				
+				
+				/* GGRRRRRRRRRRRRRRRRRRRRRRRRRRRRROOOOOOOOOOOOOOOOOO COMMENTAIRE */
+				/*
+				 * 
+				 * 
+				 * 
+				 * 
+				 * CA DEVRAIT AFFICHER BOUNDS AU LIEU DE t
+				 * 
+				 * 
+				 * 
+				 * 
+				 */
+				System.out.println(t_proto.getChild(2).getChild(0).getChild(0).getText());
+				/*
+				Declarations d = new Declarations(Type.array,t.getChild(1).getText(),0, Bounds);
+				current.addParam(d);
+				*/
+			}
+		}
+		
 		
 		//declarations
 		for(int i=0;i<t.getChild(1).getChildCount();i++){
@@ -229,5 +230,32 @@ public class ASTParser {
 	public void parse_params(Tree t){
 		
 	}
+	
+	
+	/* Getters & Setters */
+	
+	public CommonTree getC() {
+		return c;
+	}
+
+	public void setC(CommonTree c) {
+		this.c = c;
+	}
+
+	public ArrayList<TDS> getTableDesSymboles() {
+		return tableDesSymboles;
+	}
+
+	public void setTableDesSymboles(ArrayList<TDS> tableDesSymboles) {
+		this.tableDesSymboles = tableDesSymboles;
+	}
+
+	@Override
+	public String toString() {
+		return "ASTParser [c=" + c + ", tableDesSymboles=" + tableDesSymboles
+				+ "]";
+	}
+
+
 	
 }

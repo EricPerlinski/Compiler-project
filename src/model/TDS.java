@@ -119,15 +119,15 @@ public class TDS {
 	
 	@Override
 	public String toString() {
-		String str= "TDS [var="; 
+		String str= "\nTDS [\nidf=" +idf+  "\nvar=\n"; 
 		for(int i=0;i<var.size();i++){
-			str+=var.get(i).toString()+",\n";
+			str+=var.get(i).toString()+",";
 		}
 		str+= "\nparams=";
 		for(int i=0;i<params.size();i++){
 			str+=params.get(i).toString()+",\n";
 		}
-		str += "\nnbImb=" + nbImb + ", nbReg=" + nbReg+ "]";
+		str += "\nnbImb=" + nbImb + ", nbReg=" + nbReg+ "\n]\n";
 		return str;
 	}
 
