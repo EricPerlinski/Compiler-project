@@ -62,10 +62,7 @@ public class ASTParser {
 		if(t.getText().equals("VARIABLE")){
 			//TODO creer parse_variable(t)
 			System.out.println("Entrée dans un noeud variable");
-			for(int i = 0; i<t.getChildCount(); i++){
-				System.out.println("Variable::Type:::"+t.getChild(i).getText());
-				parse_variable(t.getChild(i));
-			}
+			parse_variable(t);
 		}else 
 		/* Si c'est un bloc avec params et nom alors ajouter la TDS courante a la pile
 		créé une nouvelle TDS et parcourir le bloc recursivement*/
@@ -92,24 +89,38 @@ public class ASTParser {
 	
 	
 	public void parse_variable(Tree t){
+	
 		
-		if(t.getText().equalsIgnoreCase("integer")){
-			for(int i = 0; i < t.getChildCount(); i++){
+		
+		if(t.getChild(0).getText().equalsIgnoreCase("integer")){
+			System.out.println("Type ENTIER:");
+			for(int i = 1; i < t.getChildCount(); i++){
 				//TODO Ajouter t.getChild(i).getText() à la TDS
-				System.out.println("integer ::::: "+t.getChild(i).getText());
+				System.out.println("integer :: "+t.getChild(i).getText());
 				
 			}
-		}else if(t.getText().equalsIgnoreCase("boolean")){
-			for(int i = 0; i < t.getChildCount(); i++){
+		}else if(t.getChild(0).getText().equalsIgnoreCase("boolean")){
+			System.out.println("Type BOOLEAN:");
+			for(int i = 1; i < t.getChildCount(); i++){
 				//TODO Ajouter t.getChild(i).getText() à la TDS
-				System.out.println("boolean ::::: "+t.getText());
+				System.out.println("boolean :: "+t.getChild(i).getText());
 			}
 			
-		}else if(t.getText().equalsIgnoreCase("array")){
-			for(int i = 0; i < t.getChildCount(); i++){
-				System.out.println("array ::::: "+t.getText());
-				parse_array(t.getChild(i));
-			}
+		}else if(t.getChild(0).getText().equalsIgnoreCase("array")){
+			
+				System.out.println("Type TABLEAU:");
+				System.out.println("array :: "+t.getChild(1).getText());
+				if(t.getChild(0).getChild(0).getText().equalsIgnoreCase("BOUNDS")){
+					System.out.println("Taille du tableau");
+					for(int k = 0; k < t.getChild(0).getChild(0).getChildCount(); k++){
+						System.out.println("Borne "+k);
+						
+						System.out.println("Lower Bound : "+t.getChild(0).getChild(0).getChild(k).getChild(0)+
+								"  Upper Bound : " + t.getChild(0).getChild(0).getChild(k).getChild(1));
+					}
+				}
+				parse_array(t.getChild(0));
+			
 		}
 		
 	}
