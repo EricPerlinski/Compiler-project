@@ -124,7 +124,7 @@ public class TDS {
 			str+=var.get(i).toString()+",\n";
 		}
 		str+= "\nparams=";
-		for(int i=0;i<var.size();i++){
+		for(int i=0;i<params.size();i++){
 			str+=params.get(i).toString()+",\n";
 		}
 		str += "\nnbImb=" + nbImb + ", nbReg=" + nbReg+ "]";
