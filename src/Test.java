@@ -32,7 +32,7 @@ public class Test {
         Tree2img.run(t.toStringTree(),name);
 
         // Création du parseur d'AST pour la création des TDS
-        ASTParser astParser = new ASTParser((CommonTree)r.getTree());
+        ASTParser astParser = new ASTParser(t);
         astParser.ASTParse();
         
         // TEST
