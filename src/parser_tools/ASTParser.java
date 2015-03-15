@@ -161,27 +161,56 @@ public class ASTParser {
 				Declarations d = new Declarations(Type.bool,t_proto.getChild(2).getChild(k).getChild(0).getText(),0); 
 				current.addParam(d);
 			}else if(t_proto.getChild(2).getChild(k).getText().equalsIgnoreCase("array")){
-				
 				ArrayList<Bound> Bounds = new ArrayList<Bound>();
 				
 				
-				/* GGRRRRRRRRRRRRRRRRRRRRRRRRRRRRROOOOOOOOOOOOOOOOOO COMMENTAIRE */
-				/*
-				 * 
-				 * 
-				 * 
-				 * 
-				 * CA DEVRAIT AFFICHER BOUNDS AU LIEU DE t
-				 * 
-				 * 
-				 * 
-				 * 
-				 */
-				System.out.println(t_proto.getChild(2).getChild(0).getChild(0).getText());
-				/*
-				Declarations d = new Declarations(Type.array,t.getChild(1).getText(),0, Bounds);
+				if(t.getChild(0).getChild(2).getChild(k).getChild(0).getText().equalsIgnoreCase("BOUNDS")){
+					
+					for(int l = 0; l < t.getChild(0).getChild(2).getChild(k).getChild(0).getChildCount(); l++){
+						
+						
+						Bound b = new Bound(Integer.parseInt(t.getChild(0).getChild(2).getChild(k).getChild(0).getChild(l).getChild(0).getText()),
+								Integer.parseInt(t.getChild(0).getChild(2).getChild(k).getChild(0).getChild(l).getChild(1).getText()));
+						Bounds.add(b);
+					}
+				}
+				Declarations d = new Declarations(Type.array,"tabnull",0, Bounds);
 				current.addParam(d);
-				*/
+			}else if(t_proto.getChild(2).getChild(k).getText().equalsIgnoreCase("var")){
+			
+			
+			
+			
+				if(t_proto.getChild(2).getChild(k).getChild(0).getText().equalsIgnoreCase("integer")){
+					Declarations d = new Declarations(Type.integer,t_proto.getChild(2).getChild(k).getChild(0).getChild(0).getText(),0); 
+					current.addParam(d);
+				}else if(t_proto.getChild(2).getChild(k).getChild(0).getText().equalsIgnoreCase("boolean")){
+					Declarations d = new Declarations(Type.bool,t_proto.getChild(2).getChild(k).getChild(0).getChild(0).getText(),0); 
+					current.addParam(d);
+				}else if(t_proto.getChild(2).getChild(k).getChild(0).getText().equalsIgnoreCase("array")){
+					ArrayList<Bound> Bounds = new ArrayList<Bound>();
+					
+					
+					if(t.getChild(0).getChild(2).getChild(k).getChild(0).getChild(0).getText().equalsIgnoreCase("BOUNDS")){
+						
+						for(int l = 0; l < t.getChild(0).getChild(2).getChild(k).getChild(0).getChildCount(); l++){
+							
+							
+							Bound b = new Bound(Integer.parseInt(t.getChild(0).getChild(2).getChild(k).getChild(0).getChild(0).getChild(l).getChild(0).getText()),
+									Integer.parseInt(t.getChild(0).getChild(2).getChild(k).getChild(0).getChild(0).getChild(l).getChild(1).getText()));
+							Bounds.add(b);
+						}
+					}
+					Declarations d = new Declarations(Type.array,"tabnull",0, Bounds);
+					current.addParam(d);
+				}
+			
+			
+			
+			
+			
+			
+			
 			}
 		}
 		
