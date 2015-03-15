@@ -151,16 +151,17 @@ public class ASTParser {
 		String type_ret = t_proto.getChild(0).getText(); //TODO utiliser ca plus tard pour la semantique
 		current.setIdf(t_proto.getChild(1).getText());
 		
+		System.out.println(t_proto.getChild(1).getText());
 		Tree t_2proto = t_proto.getChild(2);
 		
 		for(int k = 0; k < t_2proto.getChildCount(); k++){
 			
 
 			if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("integer")){
-				Declarations d = new Declarations(Type.integer,t_2proto.getChild(k).getChild(0).getChild(0).getText(),0); 
+				Declarations d = new Declarations(Type.integer,t_2proto.getChild(k).getChild(1).getText(),0); 
 				current.addParam(d);
 			}else if(t_proto.getChild(2).getChild(k).getChild(0).getText().equalsIgnoreCase("boolean")){
-				Declarations d = new Declarations(Type.bool,t_2proto.getChild(k).getChild(0).getChild(0).getText(),0); 
+				Declarations d = new Declarations(Type.bool,t_2proto.getChild(k).getChild(1).getText(),0); 
 				current.addParam(d);
 			}else if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("array")){
 				
