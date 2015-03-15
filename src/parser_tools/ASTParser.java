@@ -53,8 +53,8 @@ public class ASTParser {
 	
 	public void NodeParse(Tree t){
 		
-		
 
+		System.out.println(t.getText());
 		/* 
 			Si c'est une variable, explorer le sous arbre pour recuperer les infos
 			Faire une fonction qui parse un noeud VARIABLE
