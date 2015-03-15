@@ -99,7 +99,7 @@ public class ASTParser {
 			for(int i = 1; i < t.getChildCount(); i++){
 				//TODO Ajouter t.getChild(i).getText() à la TDS
 				Declarations d = new Declarations(Type.integer,t.getChild(i).getText(), 0);
-				System.out.println(d);
+				current.addVar(d);
 				 
 			}
 		}else if(t.getChild(0).getText().equalsIgnoreCase("boolean")){
@@ -107,7 +107,7 @@ public class ASTParser {
 			for(int i = 1; i < t.getChildCount(); i++){
 				//TODO Ajouter t.getChild(i).getText() à la TDS
 				Declarations d = new Declarations(Type.bool,t.getChild(i).getText(), 0);
-				System.out.println(d);
+				current.addVar(d);
 			}
 			
 		}else if(t.getChild(0).getText().equalsIgnoreCase("array")){
@@ -122,7 +122,7 @@ public class ASTParser {
 					}
 				}
 				Declarations d = new Declarations(Type.array,t.getChild(1).getText(),0, Bounds);
-				System.out.println(d);
+				current.addVar(d);
 		}
 		
 	}
