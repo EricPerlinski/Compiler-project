@@ -1,6 +1,7 @@
 package parser_tools;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 import model.TDS;
 
@@ -11,12 +12,14 @@ public class ASTParser {
 	
 	private CommonTree c;
 	private ArrayList<TDS> tableDesSymboles;
+	private Stack<TDS> stack;
 	
 	/* Constructor */
 	
 	public ASTParser(CommonTree newC){
 		setC(newC);
 		setTableDesSymboles(new ArrayList<TDS>());
+		stack=new Stack<TDS>();
 	}
 	
 	/* Methods */
@@ -42,10 +45,38 @@ public class ASTParser {
 	public void NodeParse(Tree t){
 		
 		System.out.println(t.getText());
-		
+
+		/* 
+			Si c'est une variable, explorer le sous arbre pour recuperer les infos
+			Faire une fonction qui parse un noeud VARIABLE
+		*/
+		if(t.getText().equals("VARIABLE")){
+			//TODO creer parse_variable(t)
+		}else 
+		/* Si c'est un bloc avec params et nom alors ajouter la TDS courante a la pile
+		créé une nouvelle TDS et parcourir le bloc recursivement*/
+		if(t.getText().equals("FUNCTION") || t.getText().equals("PROCEDURE")){
+			//TODO creer parse_bloc_nomme(t)
+		}else 
+		/* Si c'est un bloc anonyme faire comme une fonction mais sans les params, types, ...*/
+		if(	t.getText().equals("BLOC") || 
+					t.getText().equals("IF_BLOC") || 
+					t.getText().equals("ELSE_BLOC") || 
+					t.getText().equals("FOR")){
+			//TODO parse_bloc_anonyme(t) // il s'agit peut etre de cette fonction
+			// je propose : 
+			//
+			//	for(int i=0; i<t.getChildCount(); i++){
+			//		NodeParse(t.getChild(i));
+			//	}
+			
+		}
+
+		//peut etre supprimer ca
 		for(int i=0; i<t.getChildCount(); i++){
 			NodeParse(t.getChild(i));
 		}
+		
 	
 		
 	}
