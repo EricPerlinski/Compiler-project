@@ -36,6 +36,7 @@ public class Test {
         astParser.ASTParse();
         
         // TEST
-        System.out.println(astParser.toString());
+        astParser.getCurrent().afficherTds();
+        //System.out.println(astParser.toString());
     }
 }

@@ -47,6 +47,10 @@ public class TDS {
 	public void addParam (Declarations newParam){
 		this.params.add(newParam);
 	}
+
+	public void addFils (TDS tds){
+		this.fils.add(tds);
+	}
 	
 	public void addVar (Declarations newVar){
 		this.var.add(newVar);
@@ -125,6 +129,13 @@ public class TDS {
 		}
 		str += "\nnbImb=" + nbImb + ", nbReg=" + nbReg+ "]";
 		return str;
+	}
+
+	public void afficherTds(){
+		System.out.println(this);
+		for(int i=0;i<fils.size();i++){
+			fils.get(i).afficherTds();
+		}
 	}
 	
 	

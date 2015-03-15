@@ -27,6 +27,10 @@ public class ASTParser {
 		stack=new Stack<TDS>();
 		current=new TDS(null,0,currentReg);
 	}
+
+	public TDS getCurrent(){
+		return current;
+	}
 	
 	/* Methods */
 
@@ -156,6 +160,7 @@ public class ASTParser {
 		stack.push(current);
 		currentReg++;
 		current=new TDS(current,current.getNbImb()+1,currentReg);
+		(stack.peek()).addFils(current);
 
 		
 		//declarations
@@ -173,7 +178,8 @@ public class ASTParser {
 		stack.push(current);
 		currentReg++;
 		current=new TDS(current,current.getNbImb()+1,currentReg);
-
+		(stack.peek()).addFils(current);
+		
 		//prototype
 		Tree t_proto = t.getChild(0);
 
@@ -196,7 +202,7 @@ public class ASTParser {
 		stack.push(current);
 		currentReg++;
 		current=new TDS(current,current.getNbImb()+1,currentReg);
-
+		(stack.peek()).addFils(current);
 
 		//prototype
 		Tree t_proto = t.getChild(0);
