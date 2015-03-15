@@ -100,9 +100,9 @@ param
 
 formal
 	: 'adr' IDF ':' type
-		-> ^('adr' ^(type IDF))
+		-> ^('adr' type IDF)
 	| IDF ':' type
-		->^(type IDF)
+		->type IDF
 	;
 
 instruction
