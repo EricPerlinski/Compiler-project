@@ -1,6 +1,6 @@
 package model;
 
-import java.util.ArrayList;
+import java.util.*;
 
 public class TDS {
 
@@ -132,10 +132,61 @@ public class TDS {
 	}
 
 	public void afficherTds(){
-		System.out.println(this);
+		System.out.println(this.toString());
 		for(int i=0;i<fils.size();i++){
 			fils.get(i).afficherTds();
 		}
+	}
+
+	public void afficherTdsDot(){
+		StringBuffer str=new StringBuffer();
+		str.append("digraph {rankdir = TB ; node[shape=none]; edge[tailclip=false];\n");
+
+		Stack<Integer> stack = new Stack<Integer>();
+		str.append(tds2dot(0));
+		stack.push(new Integer(0));
+		afficherTdsDotRec(str,stack);
+
+
+		str.append("\n}");
+		System.out.println(str.toString());
+	}
+
+	public void afficherTdsDotRec(StringBuffer str,Stack<Integer> stack){
+		
+		for(int i=0;i<fils.size();i++){
+			Integer currentO=(stack.peek());
+			int current = ((int)currentO)+1;
+			str.append("\nelement_"+stack.peek()+":2 -> element_"+current+":port\n");
+			str.append(fils.get(i).tds2dot(current));
+			stack.push(new Integer(current));
+			fils.get(i).afficherTdsDotRec(str,stack);
+			stack.pop();
+		}
+		
+	}
+
+
+	public String tds2dot(int index){
+		StringBuffer str = new StringBuffer();
+		str.append("element_"+index+"[label=<\n"+
+			"<TABLE BORDER=\"0\" CELLSPACING=\"0\">\n"+
+			"<TR><TD PORT=\"port\" BORDER=\"1\" WIDTH=\"100\"></TD></TR>\n"+
+			"<TR><TD BORDER=\"1\" WIDTH=\"100\">"+idf+"</TD></TR>\n");
+
+		str.append("<TR><TD BORDER=\"1\" WIDTH=\"100\">nbReg : "+nbReg+"</TD></TR>\n");
+		str.append("<TR><TD BORDER=\"1\" WIDTH=\"100\">nbImb : "+nbImb+"</TD></TR>\n");
+
+		for(int i=0;i<params.size();i++){
+			str.append("<TR><TD BORDER=\"1\" WIDTH=\"100\">Param_"+i+" : "+params.get(i).toDot()+"</TD></TR>\n");
+		}
+
+		for(int i=0;i<var.size();i++){
+			str.append("<TR><TD BORDER=\"1\" WIDTH=\"100\">Param_"+i+" : "+var.get(i).toDot()+"</TD></TR>\n");
+		}
+
+		str.append("<TR><TD PORT=\"2\" BORDER=\"1\" WIDTH=\"40\"> </TD></TR></TABLE>>]\n");
+		return str.toString();
 	}
 	
 	

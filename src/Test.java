@@ -36,7 +36,7 @@ public class Test {
         astParser.ASTParse();
         
         // TEST
-        astParser.getCurrent().afficherTds();
+        astParser.getCurrent().afficherTdsDot();
         //System.out.println(astParser.toString());
     }
 }

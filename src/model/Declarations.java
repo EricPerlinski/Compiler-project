@@ -98,6 +98,18 @@ public class Declarations {
 		str+="\n}";
 		return str;
 	}
+
+	public String toDot(){
+		StringBuffer str = new StringBuffer();
+
+		str.append("{"+type+":"+idf);	
+		for(int i=0;i<bounds.size();i++){
+			str.append("["+bounds.get(i).getLb()+".."+bounds.get(i).getUb()+"]");
+		}
+		str.append("#"+deplacement+"}");	
+
+		return str.toString();
+	}
 	
 
 }
