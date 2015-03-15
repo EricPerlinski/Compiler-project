@@ -11,6 +11,8 @@ public class Declarations {
 	private String idf;
 	private int deplacement;
 	private ArrayList<Bound> bounds = new ArrayList<Bound>();
+
+	
 	
 	
 	
@@ -85,6 +87,16 @@ public class Declarations {
 	
 	public void removeBound(Bound boundToRemove){
 		this.bounds.remove(boundToRemove);
+	}
+
+	public String toString(){
+		String str="";
+		str += "DECLARATION { \n type : "+type+"\n idf : "+idf+"\n deplacement : "+deplacement+"\n	bounds : ";
+		for(int i=0;i<bounds.size();i++){
+			str += "\tdim"+i+":"+bounds.get(i).toString()+",\n";
+		}
+		str+="\n}";
+		return str;
 	}
 	
 
