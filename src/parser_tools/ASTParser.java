@@ -83,8 +83,6 @@ public class ASTParser {
 		/* Si c'est un bloc anonyme faire comme une fonction mais sans les params, types, ...*/
 		if(	t.getText().equals("BLOC") || t.getText().equals("IF_BLOC") || t.getText().equals("ELSE_BLOC") || t.getText().equals("FOR")){
 			parse_bloc_anonyme(t);
-			
-			
 		}
 		
 	}
@@ -188,10 +186,14 @@ public class ASTParser {
 		parse_params(t_proto.getChild(2));
 		
 		//declarations
-		NodeParse(t.getChild(1));
+		for(int i=0;i<t.getChild(1).getChildCount();i++){
+			NodeParse(t.getChild(1).getChild(i));
+		}
 		
-		//instructions
-		NodeParse(t.getChild(2));
+		// instructions
+		for(int j=0;j<t.getChild(2).getChildCount();j++){
+			NodeParse(t.getChild(2).getChild(j));
+		}
 
 		//reset current
 		current=stack.pop();
@@ -211,10 +213,14 @@ public class ASTParser {
 		parse_params(t_proto.getChild(1));
 
 		//declarations
-		NodeParse(t.getChild(1));
+		for(int i=0;i<t.getChild(1).getChildCount();i++){
+			NodeParse(t.getChild(1).getChild(i));
+		}
 		
-		//instructions
-		NodeParse(t.getChild(2));
+		// instructions
+		for(int j=0;j<t.getChild(2).getChildCount();j++){
+			NodeParse(t.getChild(2).getChild(j));
+		}
 
 		//reset current
 		current=stack.pop();
