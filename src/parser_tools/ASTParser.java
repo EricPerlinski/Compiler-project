@@ -12,6 +12,8 @@ import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
 
 public class ASTParser {
+
+	private static final int DEPLACEMENT_PARAM=-2;
 	
 	private CommonTree c;
 	private ArrayList<TDS> tableDesSymboles;
@@ -167,12 +169,17 @@ public class ASTParser {
 		
 		for(int k = 0; k < t_2proto.getChildCount(); k++){
 			
+			int deplacement=DEPLACEMENT_PARAM;
+			if(current.getLastParam()!=null){
+				deplacement= current.getLastParam().getDeplacement()-current.getLastParam().getSize();
+			}
+
 
 			if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("integer")){
-				Declarations d = new Declarations(Type.integer,t_2proto.getChild(k).getChild(1).getText(),0); 
+				Declarations d = new Declarations(Type.integer,t_2proto.getChild(k).getChild(1).getText(),deplacement); 
 				current.addParam(d);
 			}else if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("boolean")){
-				Declarations d = new Declarations(Type.bool,t_2proto.getChild(k).getChild(1).getText(),0); 
+				Declarations d = new Declarations(Type.bool,t_2proto.getChild(k).getChild(1).getText(),deplacement); 
 				current.addParam(d);
 			}else if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("array")){
 				
@@ -187,7 +194,7 @@ public class ASTParser {
 						Bounds.add(b);
 					}
 				}
-				Declarations d = new Declarations(Type.array,t_2proto.getChild(k).getChild(1).getText(),0, Bounds);
+				Declarations d = new Declarations(Type.array,t_2proto.getChild(k).getChild(1).getText(),deplacement, Bounds);
 				current.addParam(d);
 				
 				
@@ -197,10 +204,10 @@ public class ASTParser {
 				
 				
 				if(t_2proto.getChild(k).getChild(1).getText().equalsIgnoreCase("integer")){
-					Declarations d = new Declarations(Type.integer,t_2proto.getChild(k).getChild(2).getText(),0,true); 
+					Declarations d = new Declarations(Type.integer,t_2proto.getChild(k).getChild(2).getText(),deplacement,true); 
 					current.addParam(d);
 				}else if(t_2proto.getChild(k).getChild(1).getText().equalsIgnoreCase("boolean")){
-					Declarations d = new Declarations(Type.bool,t_2proto.getChild(k).getChild(2).getText(),0,true); 
+					Declarations d = new Declarations(Type.bool,t_2proto.getChild(k).getChild(2).getText(),deplacement,true); 
 					current.addParam(d);
 				}else if(t_2proto.getChild(k).getChild(1).getText().equalsIgnoreCase("array")){
 					
@@ -219,7 +226,7 @@ public class ASTParser {
 			
 					}
 					
-					Declarations d = new Declarations(Type.array,t_2proto.getChild(k).getChild(2).getText(),0, Bounds,true);
+					Declarations d = new Declarations(Type.array,t_2proto.getChild(k).getChild(2).getText(),deplacement, Bounds,true);
 					current.addParam(d);
 					
 				}
@@ -256,15 +263,20 @@ public class ASTParser {
 		
 		
 		Tree t_2proto = t_proto.getChild(1);
+
+		int deplacement=DEPLACEMENT_PARAM;
+		if(current.getLastParam()!=null){
+			deplacement= current.getLastParam().getDeplacement()-current.getLastParam().getSize();
+		}
 		
 		for(int k = 0; k < t_2proto.getChildCount(); k++){
 			
 
 			if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("integer")){
-				Declarations d = new Declarations(Type.integer,t_2proto.getChild(k).getChild(1).getText(),0); 
+				Declarations d = new Declarations(Type.integer,t_2proto.getChild(k).getChild(1).getText(),deplacement); 
 				current.addParam(d);
 			}else if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("boolean")){
-				Declarations d = new Declarations(Type.bool,t_2proto.getChild(k).getChild(1).getText(),0); 
+				Declarations d = new Declarations(Type.bool,t_2proto.getChild(k).getChild(1).getText(),deplacement); 
 				current.addParam(d);
 			}else if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("array")){
 				
@@ -279,7 +291,7 @@ public class ASTParser {
 						Bounds.add(b);
 					}
 				}
-				Declarations d = new Declarations(Type.array,t_2proto.getChild(k).getChild(1).getText(),0, Bounds);
+				Declarations d = new Declarations(Type.array,t_2proto.getChild(k).getChild(1).getText(),deplacement, Bounds);
 				current.addParam(d);
 				
 				
@@ -289,10 +301,10 @@ public class ASTParser {
 				
 				
 				if(t_2proto.getChild(k).getChild(1).getText().equalsIgnoreCase("integer")){
-					Declarations d = new Declarations(Type.integer,t_2proto.getChild(k).getChild(2).getText(),0,true); 
+					Declarations d = new Declarations(Type.integer,t_2proto.getChild(k).getChild(2).getText(),deplacement,true); 
 					current.addParam(d);
 				}else if(t_2proto.getChild(k).getChild(1).getText().equalsIgnoreCase("boolean")){
-					Declarations d = new Declarations(Type.bool,t_2proto.getChild(k).getChild(2).getText(),0,true); 
+					Declarations d = new Declarations(Type.bool,t_2proto.getChild(k).getChild(2).getText(),deplacement,true); 
 					current.addParam(d);
 				}else if(t_2proto.getChild(k).getChild(1).getText().equalsIgnoreCase("array")){
 					
@@ -311,7 +323,7 @@ public class ASTParser {
 			
 					}
 					
-					Declarations d = new Declarations(Type.array,t_2proto.getChild(k).getChild(2).getText(),0, Bounds,true);
+					Declarations d = new Declarations(Type.array,t_2proto.getChild(k).getChild(2).getText(),deplacement, Bounds,true);
 					current.addParam(d);
 					
 				}

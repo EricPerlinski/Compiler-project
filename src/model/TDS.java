@@ -74,6 +74,15 @@ public class TDS {
 		return params;
 	}
 
+	public Declarations getLastParam(){
+		if(params.size()>0){
+			return params.get(params.size()-1);
+		}else{
+			return null;
+		}
+		
+	}
+
 	public void setParams(ArrayList<Declarations> params) {
 		this.params = params;
 	}
