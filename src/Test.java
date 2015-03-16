@@ -37,10 +37,10 @@ public class Test {
         astParser.ASTParse();
         
         // TEST
-        //dotWrite(astParser.getCurrent().toDot(),name);
+        dotWrite(astParser.getCurrent().toDot(),name);
         //System.out.println(astParser.toString());
         
-        astParser.getCurrent().afficherTds();
+        //astParser.getCurrent().afficherTds();
     }
 
     private static void dotWrite(String src, String name){
