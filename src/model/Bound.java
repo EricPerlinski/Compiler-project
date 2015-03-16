@@ -30,7 +30,7 @@ public class Bound {
 		this.ub = newUb;
 	};
 	
-	public int getDim() {
+	public int getDim() {	
 		return this.ub-this.lb+1;
 	}
 	

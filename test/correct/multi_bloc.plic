@@ -4,14 +4,6 @@ do
 		integer var1_F1,var2_F2
 		function integer f2(param1_F2:integer, param2_F2:integer, param3_F2:integer )
 			integer var1_F2, var2_F2	
-			function integer f3(param1_F3:integer, param2_F3:integer, param3_F3:integer )
-				integer var1_F3, var2_F3
-				function integer f5(param1_F5:integer, param2_F5:integer, param3_F5:integer )
-					integer var1_F5, var2_F5
-					var1_F5=0
-				end
-				var1_F3=0
-			end
 			function integer f4(adr param1_F4:integer, param2_F4:integer, param3_F4:integer )
 				integer var1_F4, var2_F4
 				function boolean f6(param1_F6:boolean, param2_F6:boolean, param3_F6:boolean )
@@ -19,6 +11,14 @@ do
 					var1_F6=0
 				end
 				var1_F4=0
+			end
+			begin
+				integer var1_F3, var2_F3
+				function integer f5(param1_F5:integer, param2_F5:integer, param3_F5:integer )
+					integer var1_F5, var2_F5
+					var1_F5=0
+				end
+				var1_F3=0
 			end
 			var1_F2=0
 		end
@@ -30,7 +30,7 @@ do
 		i=0
 	end
 
-	procedure ptab(tab1_ptab:array[5..4], tab2_ptab:array[0..4,3..7])
+	procedure ptab(tab1_ptab:array[-5..4], tab2_ptab:array[-6..-4,-3..7])
 		integer i
 		i=0
 	end

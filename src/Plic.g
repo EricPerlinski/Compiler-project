@@ -71,8 +71,8 @@ type
 	;
 
 bounds
-	: CSTE_ENT '..' CSTE_ENT (',' CSTE_ENT '..' CSTE_ENT)*
-		-> ^(BOUND CSTE_ENT CSTE_ENT)+
+	: cste_array '..' cste_array (',' cste_array '..' cste_array)*
+		-> ^(BOUND cste_array cste_array)+
 	;
 
 dec_func
@@ -230,6 +230,12 @@ atom_aff
 idf_arg
 	: '(' ( exp ( ',' exp)* )? ')'
 		-> exp*
+	;
+
+cste_array
+	:
+	CSTE_ENT 
+	| '-'CSTE_ENT -> ^(UNAIRE CSTE_ENT)
 	;
 
 CSTE_ENT : '0'..'9'+ ;
