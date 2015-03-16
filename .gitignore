@@ -10,3 +10,5 @@ tree/output/*
 tree/*.class
 tds/input/*
 tds/output/*
+.classpath
+.project
