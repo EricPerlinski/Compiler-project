@@ -18,7 +18,7 @@ public class Test {
             name=tmp[tmp.length-1];
             //name=(name.split("."))[0];
         }else{
-            stream=new FileInputStream("test/correct/test-sujet.plic");    
+            stream=new FileInputStream("test/correct/multi_bloc.plic");    
         }
         
         ANTLRInputStream input = new ANTLRInputStream(stream);
@@ -37,8 +37,10 @@ public class Test {
         astParser.ASTParse();
         
         // TEST
-        dotWrite(astParser.getCurrent().toDot(),name);
+        //dotWrite(astParser.getCurrent().toDot(),name);
         //System.out.println(astParser.toString());
+        
+        astParser.getCurrent().afficherTds();
     }
 
     private static void dotWrite(String src, String name){
@@ -53,7 +55,7 @@ public class Test {
             }
 
             fw = new FileWriter(name_output, false);         
-             outputFile = new BufferedWriter(fw);
+            outputFile = new BufferedWriter(fw);
             outputFile.write(src);
             outputFile.flush();
             outputFile.close();

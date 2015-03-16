@@ -95,22 +95,7 @@ public class ASTParser {
 				//System.out.println(current.getVar().size());
 				if (current.getVar().size()>0) {
 					Declarations last = current.getVar().get(current.getVar().size()-1);
-					int last_size = 0;
-					switch (last.getType()) {
-						case integer:
-							last_size = 2;
-							break;
-						case bool:
-							last_size = 1;
-							break;
-						case array:
-							//TODO
-							break;
-						default:
-							last_size = 0;
-							break;						
-					}
-					d.setDeplacement(last.getDeplacement()+last_size);
+					d.setDeplacement(last.getDeplacement()+last.getSize());
 				}
 				current.addVar(d);
 			}
@@ -121,38 +106,27 @@ public class ASTParser {
 				Declarations d = new Declarations(Type.bool,t.getChild(i).getText(), 0);
 				if (current.getVar().size()>0) {
 					Declarations last = current.getVar().get(current.getVar().size()-1);
-					int last_size = 0;
-					switch (last.getType()) {
-						case integer:
-							last_size = 2;
-							break;
-						case bool:
-							last_size = 1;
-							break;
-						case array:
-							//TODO
-							break;
-						default:
-							last_size = 0;
-							break;						
-					}
-					d.setDeplacement(last.getDeplacement()+last_size);
+					d.setDeplacement(last.getDeplacement()+last.getSize());
 				}
-				current.addVar(d);
+				current.addVar(d); 
 			}
 			
 		}else if(t.getChild(0).getText().equalsIgnoreCase("array")){
 			
 				ArrayList<Bound> Bounds = new ArrayList<Bound>();
+				int dplt = 0;
 				if(t.getChild(0).getChild(0).getText().equalsIgnoreCase("BOUNDS")){
-					
+					dplt = 1;
 					for(int k = 0; k < t.getChild(0).getChild(0).getChildCount(); k++){
 						Bound b = new Bound(Integer.parseInt(t.getChild(0).getChild(0).getChild(k).getChild(0).getText()),
 								Integer.parseInt(t.getChild(0).getChild(0).getChild(k).getChild(1).getText()));
+						dplt *= b.getDim();
 						Bounds.add(b);
 					}
+					dplt *=2;
 				}
-				Declarations d = new Declarations(Type.array,t.getChild(1).getText(),0, Bounds);
+				Declarations d = new Declarations(Type.array,t.getChild(1).getText(),dplt, Bounds);
+				
 				current.addVar(d);
 		}
 		
