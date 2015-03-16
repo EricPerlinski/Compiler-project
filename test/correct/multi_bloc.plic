@@ -1,0 +1,34 @@
+do
+	integer var_main
+	function integer f1(param1_F1:integer, param2_F1:integer, param3_F1:integer )
+		integer var1_F1,var2_F2
+		function integer f2(param1_F2:integer, param2_F2:integer, param3_F2:integer )
+			integer var1_F2, var2_F2	
+			function integer f3(param1_F3:integer, param2_F3:integer, param3_F3:integer )
+				integer var1_F3, var2_F3
+				function integer f5(param1_F5:integer, param2_F5:integer, param3_F5:integer )
+					integer var1_F5, var2_F5
+					var1_F5=0
+				end
+				var1_F3=0
+			end
+			function integer f4(param1_F4:integer, param2_F4:integer, param3_F4:integer )
+				integer var1_F4, var2_F4
+				function boolean f6(param1_F6:boolean, param2_F6:boolean, param3_F6:boolean )
+					boolean var1_F6, var2_F6
+					var1_F6=0
+				end
+				var1_F4=0
+			end
+			var1_F2=0
+		end
+		var1_F1=1
+	end
+
+	function boolean ftab(tab1_ftab:array[0..4], tab1_ftab:array[0..4,3..7])
+		integer i
+		i=0
+	end
+
+	var_main=0
+end

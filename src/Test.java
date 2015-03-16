@@ -2,6 +2,7 @@ import java.io.FileInputStream;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.CommonTree;
 import parser_tools.ASTParser;
+import java.io.*;
 
 
 public class Test {
@@ -36,7 +37,33 @@ public class Test {
         astParser.ASTParse();
         
         // TEST
-        astParser.getCurrent().afficherTdsDot();
+        dotWrite(astParser.getCurrent().toDot(),name);
         //System.out.println(astParser.toString());
+    }
+
+    private static void dotWrite(String src, String name){
+        FileWriter fw =null;
+        BufferedWriter outputFile=null;
+        try{
+            String name_output=null;
+            if(name==null){
+                name_output="tsd/input/output.dot";
+            }else{
+                name_output="tds/input/"+name+".dot";
+            }
+
+            fw = new FileWriter(name_output, false);         
+             outputFile = new BufferedWriter(fw);
+            outputFile.write(src);
+            outputFile.flush();
+            outputFile.close();
+            System.out.println("fichier TDS "+name_output+" créé");
+            fw.close();
+            outputFile.close();
+        }
+        catch(Exception ioe){
+            System.out.print("Erreur : ");
+            ioe.printStackTrace();
+        }
     }
 }

@@ -108,7 +108,10 @@ public class Declarations {
 
 	public String toString(){
 		String str="";
-		str += "DECLARATION { \n type : "+type+"\n idf : "+idf+"\n deplacement : "+deplacement+"\n	bounds : ";
+		String parad = parAdresse?"\npasse par adresse\n":"";
+		str += "DECLARATION { \n type : "+type+"\n idf : "+idf
+				+parad
+				+"\n deplacement : "+deplacement+"\n	bounds : ";
 		for(int i=0;i<bounds.size();i++){
 			str += "\tdim"+i+":"+bounds.get(i).toString()+",\n";
 		}

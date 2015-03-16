@@ -32,7 +32,7 @@ public class Tree2img{
 			outputFile.write(end);
 			outputFile.flush();
 			outputFile.close();
-			System.out.println("fichier "+output+" créé");
+			System.out.println("fichier TREE "+output+" créé");
 			fw.close();
 			outputFile.close();
 		}

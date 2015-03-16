@@ -138,31 +138,38 @@ public class TDS {
 		}
 	}
 
-	public void afficherTdsDot(){
+	public String toDot(){
 		StringBuffer str=new StringBuffer();
 		str.append("digraph {rankdir = TB ; node[shape=none]; edge[tailclip=false];\n");
 
 		Stack<Integer> stack = new Stack<Integer>();
 		str.append(tds2dot(0));
 		stack.push(new Integer(0));
-		afficherTdsDotRec(str,stack);
-
+		int current=0;
+		afficherTdsDotRec(str,stack,1);
 
 		str.append("\n}");
-		System.out.println(str.toString());
+		return str.toString();
 	}
 
-	public void afficherTdsDotRec(StringBuffer str,Stack<Integer> stack){
+	public void afficherTdsDot(){
+		
+		System.out.println(toDot());
+	}
+
+	public int afficherTdsDotRec(StringBuffer str,Stack<Integer> stack,int max){
 		
 		for(int i=0;i<fils.size();i++){
+			max++;
 			Integer currentO=(stack.peek());
 			int current = ((int)currentO)+1;
-			str.append("\nelement_"+stack.peek()+":2 -> element_"+current+":port\n");
-			str.append(fils.get(i).tds2dot(current));
-			stack.push(new Integer(current));
-			fils.get(i).afficherTdsDotRec(str,stack);
+			str.append("\nelement_"+stack.peek()+":2 -> element_"+max+":port\n");
+			str.append(fils.get(i).tds2dot(max));
+			stack.push(new Integer(max));
+			max = fils.get(i).afficherTdsDotRec(str,stack,max+1);
 			stack.pop();
 		}
+		return max;
 		
 	}
 
@@ -182,7 +189,7 @@ public class TDS {
 		}
 
 		for(int i=0;i<var.size();i++){
-			str.append("<TR><TD BORDER=\"1\" WIDTH=\"100\">Param_"+i+" : "+var.get(i).toDot()+"</TD></TR>\n");
+			str.append("<TR><TD BORDER=\"1\" WIDTH=\"100\">var_"+i+" : "+var.get(i).toDot()+"</TD></TR>\n");
 		}
 
 		str.append("<TR><TD PORT=\"2\" BORDER=\"1\" WIDTH=\"40\"> </TD></TR></TABLE>>]\n");

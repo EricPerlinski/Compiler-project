@@ -1,6 +1,9 @@
 #!/bin/sh
 echo "\n\033[33m===== Analyse fichiers plic ====\033[0m"
 mkdir -p tree/input 
+mkdir -p tree/output
+mkdir -p tds/input
+mkdir -p tds/output
 
 if [ $# -eq 0 ] || [ $1 = '-c' -a $# -eq 1 ] || [ $1 = '-a' -a $# -eq 1 ]
 then
@@ -28,11 +31,11 @@ fi
 break;
 
 
-cd tree
-#echo "\n\033[33m===== Compilation Tree2img =====\033[0m"
-#javac Tree2img.java
-#echo "ok"
-echo "\n\033[33m========= Run Tree2img =========\033[0m"
-sh run.sh
 
+echo "\n\033[33m========= GENERATION TREE =========\033[0m"
+cd tree
+sh run.sh
+echo "\n\033[33m========= GENERATION TDS =========\033[0m"
+cd ../tds
+sh run.sh
 
