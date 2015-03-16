@@ -167,7 +167,7 @@ public class TDS {
 			max++;
 			Integer currentO=(stack.peek());
 			int current = ((int)currentO)+1;
-			str.append("\nelement_"+stack.peek()+":2 -> element_"+max+":port\n");
+			str.append("\nelement_"+stack.peek()+":2 -> element_"+max+":port:n\n");
 			str.append(fils.get(i).tds2dot(max));
 			stack.push(new Integer(max));
 			max = fils.get(i).afficherTdsDotRec(str,stack,max+1);
