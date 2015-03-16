@@ -96,7 +96,7 @@ public class ASTParser {
 			
 			for(int i = 1; i < t.getChildCount(); i++){
 				//TODO Ajouter t.getChild(i).getText() à la TDS
-				Declarations d = new Declarations(Type.integer,t.getChild(i).getText(), 0);
+				Declarations d = new Declarations(Type.integer,t.getChild(i).getText(), deplacement);
 				//System.out.println(current.getVar().size());
 				if (current.getVar().size()>0) {
 					Declarations last = current.getVar().get(current.getVar().size()-1);
@@ -108,7 +108,7 @@ public class ASTParser {
 			
 			for(int i = 1; i < t.getChildCount(); i++){
 				//TODO Ajouter t.getChild(i).getText() à la TDS
-				Declarations d = new Declarations(Type.bool,t.getChild(i).getText(), 0);
+				Declarations d = new Declarations(Type.bool,t.getChild(i).getText(), deplacement);
 				if (current.getVar().size()>0) {
 					Declarations last = current.getVar().get(current.getVar().size()-1);
 					d.setDeplacement(last.getDeplacement()+last.getSize());

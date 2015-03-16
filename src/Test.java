@@ -30,7 +30,7 @@ public class Test {
         PlicParser.root_return r = parser.root();
 
         CommonTree t = (CommonTree)r.getTree();
-        //Tree2img.run(t.toStringTree(),name);
+        Tree2img.run(t.toStringTree(),name);
 
         // Création du parseur d'AST pour la création des TDS
         ASTParser astParser = new ASTParser(t);

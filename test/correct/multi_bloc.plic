@@ -25,12 +25,12 @@ do
 		var1_F1=1
 	end
 
-	function boolean ftab(tab1_ftab:array[0..4], tab2_ftab:array[0..4,3..7])
+	function boolean ftab(tab1_ftab:array[0..4], i:integer, b:boolean, tabX:array[0..3,0..4,0..3], i2:integer, b2:boolean ,tab2_ftab:array[0..4,3..7],dernier_param:integer)
 		integer i
 		i=0
 	end
 
-	procedure ptab(tab1_ptab:array[0..4], tab2_ptab:array[0..4,3..7])
+	procedure ptab(tab1_ptab:array[5..4], tab2_ptab:array[0..4,3..7])
 		integer i
 		i=0
 	end
