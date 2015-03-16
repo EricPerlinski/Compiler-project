@@ -92,14 +92,52 @@ public class ASTParser {
 			for(int i = 1; i < t.getChildCount(); i++){
 				//TODO Ajouter t.getChild(i).getText() à la TDS
 				Declarations d = new Declarations(Type.integer,t.getChild(i).getText(), 0);
+				//System.out.println(current.getVar().size());
+				if (current.getVar().size()>0) {
+					Declarations last = current.getVar().get(current.getVar().size()-1);
+					int last_size = 0;
+					switch (last.getType()) {
+						case integer:
+							last_size = 2;
+							break;
+						case bool:
+							last_size = 1;
+							break;
+						case array:
+							//TODO
+							break;
+						default:
+							last_size = 0;
+							break;						
+					}
+					d.setDeplacement(last.getDeplacement()+last_size);
+				}
 				current.addVar(d);
-				 
 			}
 		}else if(t.getChild(0).getText().equalsIgnoreCase("boolean")){
 			
 			for(int i = 1; i < t.getChildCount(); i++){
 				//TODO Ajouter t.getChild(i).getText() à la TDS
 				Declarations d = new Declarations(Type.bool,t.getChild(i).getText(), 0);
+				if (current.getVar().size()>0) {
+					Declarations last = current.getVar().get(current.getVar().size()-1);
+					int last_size = 0;
+					switch (last.getType()) {
+						case integer:
+							last_size = 2;
+							break;
+						case bool:
+							last_size = 1;
+							break;
+						case array:
+							//TODO
+							break;
+						default:
+							last_size = 0;
+							break;						
+					}
+					d.setDeplacement(last.getDeplacement()+last_size);
+				}
 				current.addVar(d);
 			}
 			
