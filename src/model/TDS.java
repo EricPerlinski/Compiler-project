@@ -80,7 +80,14 @@ public class TDS {
 		}else{
 			return null;
 		}
-		
+	}
+	
+	public Declarations getLastVar() {
+		if(var.size()>0){
+			return var.get(var.size()-1);
+		}else{
+			return null;
+		}
 	}
 
 	public void setParams(ArrayList<Declarations> params) {

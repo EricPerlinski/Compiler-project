@@ -87,7 +87,10 @@ public class ASTParser {
 	
 	public void parse_variable(Tree t){
 	
-
+		int deplacement = 0;
+		if (current.getLastVar()!=null) {
+			deplacement = current.getLastVar().getDeplacement()+current.getLastVar().getSize();
+		}
 		
 		if(t.getChild(0).getText().equalsIgnoreCase("integer")){
 			
@@ -116,18 +119,14 @@ public class ASTParser {
 		}else if(t.getChild(0).getText().equalsIgnoreCase("array")){
 			
 				ArrayList<Bound> Bounds = new ArrayList<Bound>();
-				int dplt = 0;
 				if(t.getChild(0).getChild(0).getText().equalsIgnoreCase("BOUNDS")){
-					dplt = 1;
 					for(int k = 0; k < t.getChild(0).getChild(0).getChildCount(); k++){
 						Bound b = new Bound(Integer.parseInt(t.getChild(0).getChild(0).getChild(k).getChild(0).getText()),
 								Integer.parseInt(t.getChild(0).getChild(0).getChild(k).getChild(1).getText()));
-						dplt *= b.getDim();
 						Bounds.add(b);
 					}
-					dplt *=2;
 				}
-				Declarations d = new Declarations(Type.array,t.getChild(1).getText(),dplt, Bounds);
+				Declarations d = new Declarations(Type.array,t.getChild(1).getText(),deplacement, Bounds);
 				
 				current.addVar(d);
 		}

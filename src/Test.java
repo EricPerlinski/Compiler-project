@@ -18,7 +18,7 @@ public class Test {
             name=tmp[tmp.length-1];
             //name=(name.split("."))[0];
         }else{
-            stream=new FileInputStream("test/correct/multi_bloc.plic");    
+            stream=new FileInputStream("test/correct/test2.plic");    
         }
         
         ANTLRInputStream input = new ANTLRInputStream(stream);
