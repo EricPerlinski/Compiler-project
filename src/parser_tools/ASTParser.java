@@ -85,7 +85,7 @@ public class ASTParser {
 	
 	public void parse_variable(Tree t){
 	
-		
+
 		
 		if(t.getChild(0).getText().equalsIgnoreCase("integer")){
 			

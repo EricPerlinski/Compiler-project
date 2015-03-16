@@ -140,12 +140,14 @@ public class Declarations {
 			case bool:
 				return 1;
 			case array:
-				//TODO
-				break;
+				int size = 1;
+				for (int i=0; i<bounds.size(); i++) {
+					size *= bounds.get(i).getDim();
+				}
+				return size*2;
 			default:
 				return 0;			
 		}
-		return 0;
 	}
 	
 
