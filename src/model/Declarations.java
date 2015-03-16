@@ -131,5 +131,22 @@ public class Declarations {
 		return str.toString();
 	}
 	
+	/* Methods */
+	
+	public int getSize() {
+		switch (this.getType()) {
+			case integer:
+				return 2;
+			case bool:
+				return 1;
+			case array:
+				//TODO
+				break;
+			default:
+				return 0;			
+		}
+		return 0;
+	}
+	
 
 }
