@@ -12,7 +12,7 @@ do
 				end
 				var1_F3=0
 			end
-			function integer f4(param1_F4:integer, param2_F4:integer, param3_F4:integer )
+			function integer f4(adr param1_F4:integer, param2_F4:integer, param3_F4:integer )
 				integer var1_F4, var2_F4
 				function boolean f6(param1_F6:boolean, param2_F6:boolean, param3_F6:boolean )
 					boolean var1_F6, var2_F6
@@ -25,7 +25,12 @@ do
 		var1_F1=1
 	end
 
-	function boolean ftab(tab1_ftab:array[0..4], tab1_ftab:array[0..4,3..7])
+	function boolean ftab(tab1_ftab:array[0..4], tab2_ftab:array[0..4,3..7])
+		integer i
+		i=0
+	end
+
+	procedure ptab(tab1_ptab:array[0..4], tab2_ptab:array[0..4,3..7])
 		integer i
 		i=0
 	end
