@@ -6,17 +6,21 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Stack;
 
+import org.antlr.runtime.tree.CommonTree;
+import org.antlr.runtime.tree.Tree;
+
+
 
 public class Tree2img{
 
 	static private final String WITH_DELIMITER = "((?<=%1$s)|(?=%1$s))";
 
-	private String treeStr;
+	private CommonTree tree;
 	private String output;
 	private BufferedWriter outputFile;
 
-	public Tree2img(String t, String o){
-		treeStr=t;
+	public Tree2img(CommonTree t, String o){
+		tree=t;
 		output=o;
 	}
 
@@ -49,13 +53,36 @@ public class Tree2img{
 		}
 	}
 
-
 	private void parseTree() throws IOException{
 		Stack<String> stack = new Stack<String>();
 		stack.addElement("ROOT");
-		Stack<String> stackId = new Stack<String>();
-		stackId.addElement("ROOT");
-		String treeTab[] = treeStr.split(String.format(WITH_DELIMITER, "\\(|\\)|\\s"));
+		Stack<Integer> stackId = new Stack<Integer>();
+		stackId.addElement(0);
+		StringBuffer content = new StringBuffer();
+		parseTreeRec(tree,stackId,stack,0,content);
+		outputFile.write(content.toString());
+	}
+
+	private int parseTreeRec(CommonTree t, Stack<Integer> sid, Stack<String> s, int index, StringBuffer content) {
+		content.append("\t"+index+" [label=\""+  (t.getToken().getText()).replaceAll("('|\")", "\\\\$1")   +"\"]");
+		if(index>0){
+			content.append("\n\t"+sid.peek()+" -> "+index+" ;\n");
+		}
+		sid.push(index);
+		s.push(t.getToken().getText());
+		for(int i=0;i<t.getChildCount();i++){
+			index = parseTreeRec((CommonTree)(t.getChild(i)),sid,s,index+1,content);
+		}
+		s.pop();
+		sid.pop();
+		return index;
+	}
+
+
+	/*private void parseTree() throws IOException{
+		
+		
+		String treeTab[] = tree.split(String.format(WITH_DELIMITER, "\\(|\\)|\\s"));
 		boolean stackNext=false;
 		StringBuffer content = new StringBuffer();
 		int rand = 0;
@@ -88,13 +115,13 @@ public class Tree2img{
 			}
 		}
 		outputFile.write(content.toString());
-	}
+	}*/
 
 
 
 
 
-	public static void run(String treeInput,String name_output) {
+	public static void run(CommonTree treeInput,String name_output) {
 		
 		if(name_output==null){
 			name_output="tree/input/output.dot";
@@ -102,7 +129,7 @@ public class Tree2img{
 			name_output="tree/input/"+name_output+".dot";
 		}
 			
-		Tree2img tree2img = new Tree2img(treeInput.toString(),name_output);
+		Tree2img tree2img = new Tree2img(treeInput,name_output);
 		try {
 			tree2img.parse();
 		} catch (IOException e) {
