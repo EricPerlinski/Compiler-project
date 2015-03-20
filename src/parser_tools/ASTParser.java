@@ -31,6 +31,10 @@ public class ASTParser {
 		current.setIdf("Root");
 	}
 
+	public TDS getTds(){
+		return current;
+	}
+
 	public TDS getCurrent(){
 		return current;
 	}

@@ -3,12 +3,18 @@ import org.antlr.runtime.*;
 import org.antlr.runtime.tree.CommonTree;
 import parser_tools.ASTParser;
 import java.io.*;
+import dot.*;
+import model.*;
 
 
 public class Test {
 	
 	public static void main(String[] args) throws Exception {
 	
+        /*
+            ANALYSE SYNTAXIQUE
+        */
+
 		// Stream à modifier plus tard par System.in
 		FileInputStream stream=null;
         String name=null;
@@ -29,11 +35,14 @@ public class Test {
         PlicParser parser = new PlicParser(tokens);
         PlicParser.root_return r = parser.root();
 
-        CommonTree t = (CommonTree)r.getTree();
-        Tree2img.run(t,name);
+        // recuperation de l'AST
+        CommonTree ast = (CommonTree)r.getTree();
+        Tree2img.run(ast,name);
 
         // Création du parseur d'AST pour la création des TDS
-        ASTParser astParser = new ASTParser(t);
+        ASTParser astParser = new ASTParser(ast);
+        //recuperation de la TDS
+        TDS tds = astParser.getTds();
         astParser.ASTParse();
         
         // TEST
@@ -41,6 +50,12 @@ public class Test {
         //System.out.println(astParser.toString());
         
         //astParser.getCurrent().afficherTds();
+
+
+
+
+        // ANANLYSE SEMANTIQUE
+
     }
 
     private static void dotWrite(String src, String name){
