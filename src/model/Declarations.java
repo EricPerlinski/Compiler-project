@@ -122,11 +122,11 @@ public class Declarations {
 	public String toDot(){
 		StringBuffer str = new StringBuffer();
 
-		str.append("{"+(parAdresse?"adr ":"")+type+":"+idf);	
+		str.append(""+(parAdresse?"adr ":"")+type+":<B>"+idf+"</B>");	
 		for(int i=0;i<bounds.size();i++){
 			str.append("["+bounds.get(i).getLb()+".."+bounds.get(i).getUb()+"]");
 		}
-		str.append("#"+deplacement+"}");	
+		str.append(" # "+deplacement+"");	
 
 		return str.toString();
 	}

@@ -78,7 +78,7 @@ public class ASTParser {
 			parse_bloc_procedure(t);
 		}else 
 		/* Si c'est un bloc anonyme faire comme une fonction mais sans les params, types, ...*/
-		if(	t.getText().equals("BLOC") || t.getText().equals("IF_BLOC") || t.getText().equals("ELSE_BLOC") || t.getText().equals("FOR")){
+		if(	t.getText().equals("BLOC") /*|| t.getText().equals("IF_BLOC") || t.getText().equals("ELSE_BLOC") || t.getText().equals("FOR")*/){
 			parse_bloc_anonyme(t);
 		}
 		
@@ -91,8 +91,8 @@ public class ASTParser {
 		if (current.getLastVar()!=null) {
 			deplacement = current.getLastVar().getDeplacement()+current.getLastVar().getSize();
 		}
-		
-		if(t.getChild(0).getText().equalsIgnoreCase("integer")){
+		String nodeType = t.getChild(0).getText();
+		if(nodeType.equalsIgnoreCase("integer")){
 			
 			for(int i = 1; i < t.getChildCount(); i++){
 				//TODO Ajouter t.getChild(i).getText() à la TDS
@@ -104,7 +104,7 @@ public class ASTParser {
 				}
 				current.addVar(d);
 			}
-		}else if(t.getChild(0).getText().equalsIgnoreCase("boolean")){
+		}else if(nodeType.equalsIgnoreCase("boolean")){
 			
 			for(int i = 1; i < t.getChildCount(); i++){
 				//TODO Ajouter t.getChild(i).getText() à la TDS
@@ -116,22 +116,27 @@ public class ASTParser {
 				current.addVar(d); 
 			}
 			
-		}else if(t.getChild(0).getText().equalsIgnoreCase("array")){
+		}else if(nodeType.equalsIgnoreCase("array")){
 			
 				ArrayList<Bound> Bounds = new ArrayList<Bound>();
 				if(t.getChild(0).getChild(0).getText().equalsIgnoreCase("BOUNDS")){
-					for(int k = 0; k < t.getChild(0).getChild(0).getChildCount(); k++){
+					Tree currentNode = t.getChild(0).getChild(0);
+					for(int k = 0; k < currentNode.getChildCount(); k++){
+
+						Tree biTree = currentNode.getChild(k).getChild(0);
+						Tree bsTree = currentNode.getChild(k).getChild(1);
+						
 						int bi=1,bs=1;
-						if(t.getChild(0).getChild(0).getChild(k).getChild(0).getText().equalsIgnoreCase("unaire")){
-							bi =-1 * Integer.parseInt(t.getChild(0).getChild(0).getChild(k).getChild(0).getChild(0).getText());
+						if(biTree.getText().equalsIgnoreCase("unaire")){
+							bi =-1 * Integer.parseInt(biTree.getChild(0).getText());
 						}else{
-							bi =Integer.parseInt(t.getChild(0).getChild(0).getChild(k).getChild(0).getText());
+							bi =Integer.parseInt(biTree.getText());
 						}
 
-						if(t.getChild(0).getChild(0).getChild(k).getChild(1).getText().equalsIgnoreCase("unaire")){
-							bs =-1 * Integer.parseInt(t.getChild(0).getChild(0).getChild(k).getChild(1).getChild(0).getText());
+						if(bsTree.getText().equalsIgnoreCase("unaire")){
+							bs =-1 * Integer.parseInt(bsTree.getChild(0).getText());
 						}else{
-							bs =Integer.parseInt(t.getChild(0).getChild(0).getChild(k).getChild(1).getText());
+							bs =Integer.parseInt(bsTree.getText());
 						}
 
 						Bound b = new Bound(bi,bs);
@@ -150,6 +155,7 @@ public class ASTParser {
 		stack.push(current);
 		currentReg++;
 		current=new TDS(current,current.getNbImb()+1,currentReg);
+		current.setIdf("ANONYME BLOC");
 		(stack.peek()).addFils(current);
 
 		
@@ -169,16 +175,22 @@ public class ASTParser {
 		currentReg++;
 		current=new TDS(current,current.getNbImb()+1,currentReg);
 		(stack.peek()).addFils(current);
+
+
 		
 		//prototype
 		Tree t_proto = t.getChild(0);
 
+		//return type
 		current.setTypeRec(t_proto.getChild(0).getText()); 
 		current.setIdf(t_proto.getChild(1).getText());
 		
 		Tree t_2proto = t_proto.getChild(2);
-		
+
+
 		for(int k = 0; k < t_2proto.getChildCount(); k++){
+
+			int adr=(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("adr")?1:0);
 			
 			int deplacement=DEPLACEMENT_PARAM;
 			if(current.getLastParam()!=null){
@@ -186,38 +198,46 @@ public class ASTParser {
 			}
 
 
-			if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("integer")){
-				Declarations d = new Declarations(Type.integer,t_2proto.getChild(k).getChild(1).getText(),deplacement); 
+			Tree firstSon = t_2proto.getChild(k).getChild(0+adr);
+			Tree secondSon = t_2proto.getChild(k).getChild(1+adr);
+
+
+			if(firstSon.getText().equalsIgnoreCase("integer")){
+				Declarations d = new Declarations(Type.integer,secondSon.getText(),deplacement); 
 				current.addParam(d);
-			}else if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("boolean")){
-				Declarations d = new Declarations(Type.bool,t_2proto.getChild(k).getChild(1).getText(),deplacement); 
+			}else if(firstSon.getText().equalsIgnoreCase("boolean")){
+				Declarations d = new Declarations(Type.bool,secondSon.getText(),deplacement); 
 				current.addParam(d);
-			}else if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("array")){
+			}else if(firstSon.getText().equalsIgnoreCase("array")){
 				
 				ArrayList<Bound> Bounds = new ArrayList<Bound>();
-				
-				if(t_2proto.getChild(k).getChild(0).getChild(0).getText().equalsIgnoreCase("BOUNDS")){
+				Tree boundsnode = firstSon.getChild(0);
+
+				if(boundsnode.getText().equalsIgnoreCase("BOUNDS")){
 					
-					for(int l = 0; l < t_2proto.getChild(k).getChild(0).getChild(0).getChildCount(); l++){
-						
+					
+					for(int l = 0; l < boundsnode.getChildCount(); l++){
+						Tree biTree = boundsnode.getChild(l).getChild(0);
+						Tree bsTree = boundsnode.getChild(l).getChild(1);
 						int bi=1,bs=1;
-						if(t_2proto.getChild(k).getChild(0).getChild(0).getChild(l).getChild(0).getText().equalsIgnoreCase("unaire")){
-							bi =-1 * Integer.parseInt(t_2proto.getChild(k).getChild(0).getChild(0).getChild(l).getChild(0).getChild(0).getText());
+
+						if(biTree.getText().equalsIgnoreCase("unaire")){
+							bi =-1 * Integer.parseInt(biTree.getChild(0).getText());
 						}else{
-							bi =Integer.parseInt(t_2proto.getChild(k).getChild(0).getChild(0).getChild(l).getChild(0).getText());
+							bi =Integer.parseInt(biTree.getText());
 						}
 
-						if(t_2proto.getChild(k).getChild(0).getChild(0).getChild(l).getChild(1).getText().equalsIgnoreCase("unaire")){
-							bs =-1 * Integer.parseInt(t.getChild(0).getChild(0).getChild(k).getChild(1).getChild(1).getChild(0).getText());
+						if(bsTree.getText().equalsIgnoreCase("unaire")){
+							bs =-1 * Integer.parseInt(bsTree.getChild(0).getText());
 						}else{
-							bs =Integer.parseInt(t_2proto.getChild(k).getChild(0).getChild(0).getChild(l).getChild(1).getText());
+							bs =Integer.parseInt(bsTree.getText());
 						}
 
-						Bound b = new Bound(bi,bs);
+						Bound b = new Bound(bi,bs );
 						Bounds.add(b);
 					}
 				}
-				Declarations d = new Declarations(Type.array,t_2proto.getChild(k).getChild(1).getText(),deplacement, Bounds);
+				Declarations d = new Declarations(Type.array,secondSon.getText(),deplacement, Bounds);
 				current.addParam(d);
 				
 				
@@ -225,7 +245,7 @@ public class ASTParser {
 			}else if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("adr")){
 				
 				
-				if(t_2proto.getChild(k).getChild(1).getText().equalsIgnoreCase("integer")){
+				/*if(t_2proto.getChild(k).getChild(1).getText().equalsIgnoreCase("integer")){
 					Declarations d = new Declarations(Type.integer,t_2proto.getChild(k).getChild(2).getText(),deplacement,true); 
 					current.addParam(d);
 				}else if(t_2proto.getChild(k).getChild(1).getText().equalsIgnoreCase("boolean")){
@@ -263,7 +283,7 @@ public class ASTParser {
 					Declarations d = new Declarations(Type.array,t_2proto.getChild(k).getChild(2).getText(),deplacement, Bounds,true);
 					current.addParam(d);
 					
-				}
+				}*/
 			}
 		}
 		
@@ -294,6 +314,7 @@ public class ASTParser {
 		
 
 		current.setIdf(t_proto.getChild(0).getText());
+		current.setTypeRec("void");
 		
 		
 		Tree t_2proto = t_proto.getChild(1);
@@ -301,27 +322,34 @@ public class ASTParser {
 
 		
 		for(int k = 0; k < t_2proto.getChildCount(); k++){
+
+			int adr=(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("adr")?1:0);
 			
 			int deplacement=DEPLACEMENT_PARAM;
 			if(current.getLastParam()!=null){
 				deplacement= current.getLastParam().getDeplacement()-current.getLastParam().getSize();
 			}
 
-			if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("integer")){
-				Declarations d = new Declarations(Type.integer,t_2proto.getChild(k).getChild(1).getText(),deplacement); 
+			Tree firstSon = t_2proto.getChild(k).getChild(0+adr);
+			Tree secondSon = t_2proto.getChild(k).getChild(1+adr);
+
+			if(firstSon.getText().equalsIgnoreCase("integer")){
+				Declarations d = new Declarations(Type.integer,secondSon.getText(),deplacement); 
 				current.addParam(d);
-			}else if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("boolean")){
-				Declarations d = new Declarations(Type.bool,t_2proto.getChild(k).getChild(1).getText(),deplacement); 
+			}else if(firstSon.getText().equalsIgnoreCase("boolean")){
+				Declarations d = new Declarations(Type.bool,secondSon.getText(),deplacement); 
 				current.addParam(d);
-			}else if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("array")){
+			}else if(firstSon.getText().equalsIgnoreCase("array")){
 				
 				ArrayList<Bound> Bounds = new ArrayList<Bound>();
-				
-				if(t_2proto.getChild(k).getChild(0).getChild(0).getText().equalsIgnoreCase("BOUNDS")){
+				Tree boundsnode = firstSon.getChild(0);
+
+				if(boundsnode.getText().equalsIgnoreCase("BOUNDS")){
 					
-					for(int l = 0; l < t_2proto.getChild(k).getChild(0).getChild(0).getChildCount(); l++){
-						Tree biTree = t_2proto.getChild(k).getChild(0).getChild(0).getChild(l).getChild(0);
-						Tree bsTree = t_2proto.getChild(k).getChild(0).getChild(0).getChild(l).getChild(1);
+					
+					for(int l = 0; l < boundsnode.getChildCount(); l++){
+						Tree biTree = boundsnode.getChild(l).getChild(0);
+						Tree bsTree = boundsnode.getChild(l).getChild(1);
 						int bi=1,bs=1;
 
 						if(biTree.getText().equalsIgnoreCase("unaire")){
@@ -340,7 +368,7 @@ public class ASTParser {
 						Bounds.add(b);
 					}
 				}
-				Declarations d = new Declarations(Type.array,t_2proto.getChild(k).getChild(1).getText(),deplacement, Bounds);
+				Declarations d = new Declarations(Type.array,secondSon.getText(),deplacement, Bounds);
 				current.addParam(d);
 				
 				
@@ -348,7 +376,7 @@ public class ASTParser {
 			}else if(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("adr")){
 				
 				
-				
+				/*
 				if(t_2proto.getChild(k).getChild(1).getText().equalsIgnoreCase("integer")){
 					Declarations d = new Declarations(Type.integer,t_2proto.getChild(k).getChild(2).getText(),deplacement,true); 
 					current.addParam(d);
@@ -365,17 +393,20 @@ public class ASTParser {
 						
 						  for(int l = 0; l < boundsnode.getChildCount(); l++){
 
+						  	Tree biTree = boundsnode.getChild(l).getChild(0);
+						  	Tree bsTree = boundsnode.getChild(l).getChild(1);
+
 						  	int bi=1,bs=1;
-							if(boundsnode.getChild(l).getChild(0).getText().equalsIgnoreCase("unaire")){
-								bi =-1 * Integer.parseInt(boundsnode.getChild(l).getChild(0).getChild(0).getText());
+							if(biTree.getText().equalsIgnoreCase("unaire")){
+								bi =-1 * Integer.parseInt(biTree.getChild(0).getText());
 							}else{
-								bi =Integer.parseInt(boundsnode.getChild(l).getChild(0).getText());
+								bi =Integer.parseInt(biTree.getText());
 							}
 
-							if(boundsnode.getChild(l).getChild(1).getText().equalsIgnoreCase("unaire")){
-								bs =-1 * Integer.parseInt(boundsnode.getChild(l).getChild(1).getChild(0).getText());
+							if(bsTree.getText().equalsIgnoreCase("unaire")){
+								bs =-1 * Integer.parseInt(bsTree.getChild(0).getText());
 							}else{
-								bs =Integer.parseInt(boundsnode.getChild(l).getChild(1).getText());
+								bs =Integer.parseInt(bsTree.getText());
 							}
 
 							
@@ -387,8 +418,9 @@ public class ASTParser {
 					
 					Declarations d = new Declarations(Type.array,t_2proto.getChild(k).getChild(2).getText(),deplacement, Bounds,true);
 					current.addParam(d);
+
 					
-				}
+				}*/
 			}
 		}
 		

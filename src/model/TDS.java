@@ -197,23 +197,31 @@ public class TDS {
 	public String tds2dot(int index){
 		StringBuffer str = new StringBuffer();
 		str.append("element_"+index+"[label=<\n"+
-			"<TABLE BORDER=\"0\" CELLSPACING=\"0\">\n"+
-			"<TR><TD PORT=\"port\" BORDER=\"1\" WIDTH=\"100\"></TD></TR>\n"+
-			"<TR><TD BORDER=\"1\" WIDTH=\"100\">"+idf+"</TD></TR>\n");
+			"<TABLE BORDER=\"2\" CELLSPACING=\"0\">\n"+
+			"<TR><TD PORT=\"port\" BORDER=\"1\" WIDTH=\"150\"></TD></TR>\n");
+			
 
-		str.append("<TR><TD BORDER=\"1\" WIDTH=\"100\">nbReg : "+nbReg+"</TD></TR>\n");
-		str.append("<TR><TD BORDER=\"1\" WIDTH=\"100\">nbImb : "+nbImb+"</TD></TR>\n");
+		
+		//str.append("<TR><TD BORDER=\"1\"></TD></TR>\n");
 		if(typeRet!=null){
-			str.append("<TR><TD BORDER=\"1\" WIDTH=\"100\">type_ret : "+typeRet+"</TD></TR>\n");
+			str.append("<TR><TD BORDER=\"1\" WIDTH=\"150\">"+typeRet+" <B>"+idf+"</B></TD></TR>\n");
+		}else{
+			str.append("<TR><TD BORDER=\"1\" WIDTH=\"150\"><B>"+idf+"</B></TD></TR>\n");
 		}
-		for(int i=0;i<params.size();i++){
-			str.append("<TR><TD BORDER=\"1\" WIDTH=\"100\">Param_"+i+" : "+params.get(i).toDot()+"</TD></TR>\n");
+		//str.append("<TR><TD BORDER=\"2\" WIDTH=\"150\"><B>"+idf+"</B></TD></TR>\n");
+		
+		if(params.size()>0){
+			str.append("<TR><TD BORDER=\"1\"><B>PARAMETRES</B></TD></TR>\n");
+			for(int i=0;i<params.size();i++){
+				str.append("<TR><TD BORDER=\"1\" WIDTH=\"150\">"+params.get(i).toDot()+"</TD></TR>\n");
+			}
 		}
-
+		str.append("<TR><TD BORDER=\"1\"><B>VARIABLES</B></TD></TR>\n");
 		for(int i=0;i<var.size();i++){
-			str.append("<TR><TD BORDER=\"1\" WIDTH=\"100\">var_"+i+" : "+var.get(i).toDot()+"</TD></TR>\n");
+			str.append("<TR><TD BORDER=\"1\" WIDTH=\"150\">"+var.get(i).toDot()+"</TD></TR>\n");
 		}
-
+		str.append("<TR><TD BORDER=\"1\"></TD></TR>\n");
+		str.append("<TR><TD BORDER=\"1\">nbReg : "+nbReg+", nbImb : "+nbImb+"</TD></TR>\n");
 		str.append("<TR><TD PORT=\"2\" BORDER=\"1\" WIDTH=\"40\"> </TD></TR></TABLE>>]\n");
 		return str.toString();
 	}
