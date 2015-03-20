@@ -1,7 +1,7 @@
 import java.io.FileInputStream;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.CommonTree;
-import parser_tools.ASTParser;
+import parser_tools.*;
 import java.io.*;
 import dot.*;
 import model.*;
@@ -40,16 +40,16 @@ public class Test {
         Tree2img.run(ast,name);
 
         // Création du parseur d'AST pour la création des TDS
-        ASTParser astParser = new ASTParser(ast);
+        TdsBuilder tdsBuilder = new TdsBuilder(ast);
         //recuperation de la TDS
-        TDS tds = astParser.getTds();
-        astParser.ASTParse();
+        TDS tds = tdsBuilder.getTds();
+        tdsBuilder.ASTParse();
         
         // TEST
-        dotWrite(astParser.getCurrent().toDot(),name);
-        //System.out.println(astParser.toString());
+        Tds2img.dotWrite(tdsBuilder.getCurrent().toDot(),name);
+        //System.out.println(tdsBuilder.toString());
         
-        //astParser.getCurrent().afficherTds();
+        //tdsBuilder.getCurrent().afficherTds();
 
 
 
@@ -58,29 +58,5 @@ public class Test {
 
     }
 
-    private static void dotWrite(String src, String name){
-        FileWriter fw =null;
-        BufferedWriter outputFile=null;
-        try{
-            String name_output=null;
-            if(name==null){
-                name_output="tds/input/output.dot";
-            }else{
-                name_output="tds/input/"+name+".dot";
-            }
-
-            fw = new FileWriter(name_output, false);         
-            outputFile = new BufferedWriter(fw);
-            outputFile.write(src);
-            outputFile.flush();
-            outputFile.close();
-            System.out.println("fichier TDS "+name_output+" créé");
-            fw.close();
-            outputFile.close();
-        }
-        catch(Exception ioe){
-            System.out.print("Erreur : ");
-            ioe.printStackTrace();
-        }
-    }
+   
 }

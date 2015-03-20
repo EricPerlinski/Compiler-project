@@ -11,7 +11,7 @@ import model.Type;
 import org.antlr.runtime.tree.CommonTree;
 import org.antlr.runtime.tree.Tree;
 
-public class ASTParser {
+public class TdsBuilder {
 
 	private static final int DEPLACEMENT_PARAM=-2;
 	
@@ -23,7 +23,7 @@ public class ASTParser {
 	
 	/* Constructor */
 	
-	public ASTParser(CommonTree newC){
+	public TdsBuilder(CommonTree newC){
 		setC(newC);
 		setTableDesSymboles(new ArrayList<TDS>());
 		stack=new Stack<TDS>();
@@ -469,7 +469,7 @@ public class ASTParser {
 
 	@Override
 	public String toString() {
-		return "ASTParser [c=" + c + ", tableDesSymboles=" + stack.toString()
+		return "TdsBuilder [c=" + c + ", tableDesSymboles=" + stack.toString()
 				+ "]";
 	}
 
