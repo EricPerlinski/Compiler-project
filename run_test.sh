@@ -35,7 +35,9 @@ break;
 echo "\n\033[33m========= GENERATION TREE =========\033[0m"
 cd tree
 sh run.sh
+echo "OK"
 echo "\n\033[33m========= GENERATION TDS =========\033[0m"
 cd ../tds
 sh run.sh
+echo "OK"
 

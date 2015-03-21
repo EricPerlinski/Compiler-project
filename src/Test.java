@@ -1,6 +1,6 @@
 import java.io.FileInputStream;
 import org.antlr.runtime.*;
-import org.antlr.runtime.tree.CommonTree;
+import org.antlr.runtime.tree.*;
 import parser_tools.*;
 import java.io.*;
 import dot.*;
@@ -33,7 +33,16 @@ public class Test {
         PlicLexer lexer = new PlicLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         PlicParser parser = new PlicParser(tokens);
+    
         PlicParser.root_return r = parser.root();
+
+        int nbError = parser.getNumberOfSyntaxErrors();
+        if(nbError>0){
+            System.out.println("\033[31m*****  Il y a "+nbError+" erreur"+(nbError>1?"s":"")+" *****\033[0m");
+            return;
+        }
+
+
 
         // recuperation de l'AST
         CommonTree ast = (CommonTree)r.getTree();
@@ -55,6 +64,7 @@ public class Test {
 
 
         // ANANLYSE SEMANTIQUE
+        boolean semCheck = SemanticChecker.check(ast, tds);
 
     }
 
