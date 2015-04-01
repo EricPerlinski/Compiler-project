@@ -1,3 +1,5 @@
+.metadata
+.settings
 src/.metadata
 PlicParser.java
 PlicLexer.java
