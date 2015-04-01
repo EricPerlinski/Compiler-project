@@ -134,6 +134,27 @@ public class TDS {
 		return this.idf;
 	}
 
+	public Type getTypeOfVar(String v){
+		Type t;
+		for(int i=0;i<var.size();i++){
+			if(var.get(i).getIdf().equalsIgnoreCase(v)){
+				t=var.get(i).getType();
+				return t;
+			}
+		}
+		for(int i=0;i<params.size();i++){
+			if(params.get(i).getIdf().equalsIgnoreCase(v)){
+				t=params.get(i).getType();
+				return t;
+			}
+		}
+		if(pere!=null){
+			return pere.getTypeOfVar(v);
+		}else{
+			return null;
+		}
+	}
+
 
 	/* ToString */
 	
