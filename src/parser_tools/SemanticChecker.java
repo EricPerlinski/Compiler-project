@@ -18,25 +18,25 @@ public class SemanticChecker{
 		return result;
 	}
 
-	public static Type checkExp(Tree t, TDS tds, Type type){
+	public static Type getTypeExp(Tree t, TDS tds){
 		Type res=null;
 		String name=t.getText();
 		if(name.equals("+") || name.equals("-") || name.equals("*")){
-			Type t1 = checkExp(t.getChild(0), tds, type);
-			Type t2 = checkExp(t.getChild(1), tds, type);
+			Type t1 = getTypeExp(t.getChild(0), tds);
+			Type t2 = getTypeExp(t.getChild(1), tds);
 			if(t1!=null && t2!=null && t1==t2){
 				res=t1;
 			}else{
 				System.out.println("Opération "+name+" avec un "+t1.toString()+" et un "+t2.toString());
 			}
 		}else if(name.equals("==") || name.equals("!=")|| name.equals("<")|| name.equals("<=")|| name.equals(">")|| name.equals(">=")){
-			Type t1 = checkExp(t.getChild(0), tds, type);
-			Type t2 = checkExp(t.getChild(1), tds, type);
+			Type t1 = getTypeExp(t.getChild(0), tds);
+			Type t2 = getTypeExp(t.getChild(1), tds);
 			if(t1!=null && t2!=null && t1==t2 /*&& t1==Type.bool*/){
 				res=Type.bool;
 			}
 		}else if(name.equals("UNAIRE")){
-			res = checkExp(t.getChild(0), tds, type);
+			res = getTypeExp(t.getChild(0), tds);
 		}else if(name.equals("ARRAY")){
 			res = Type.integer;
 		}else if(name.equals("FUNC_CALL")){
