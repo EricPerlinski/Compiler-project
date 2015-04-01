@@ -133,6 +133,45 @@ public class TDS {
 	public String getIdf(){
 		return this.idf;
 	}
+	
+	public TDS getRoot(){
+		TDS root=this;
+		while(root.pere!=null){
+			root=root.pere;
+		}
+		return root;
+	}
+	
+	public static Type str2type(String t){
+		if(t.equals(Type.array.toString())){
+			return Type.array;
+		}else if(t.equals(Type.integer.toString())){
+			return Type.integer;
+		}else if(t.equals(Type.bool.toString())){
+			return Type.bool;
+		}
+		return null;
+	}
+	
+	public Type getTypeOfFunction(String f){
+		Type t=null;
+		TDS root=getRoot();
+		Stack<TDS> stack = new Stack<TDS>();
+		stack.push(root);
+		TDS tdsCurrent;
+		while(!stack.empty()){
+			tdsCurrent=stack.pop();
+			if(tdsCurrent.idf.equals(f)){
+				t=str2type(tdsCurrent.typeRet);
+				break;
+			}
+			for(int i=0;i<tdsCurrent.fils.size();i++){
+				stack.add(tdsCurrent.fils.get(i));
+			}
+		}
+		return t;
+	}
+	
 
 	public Type getTypeOfVar(String v){
 		Type t;

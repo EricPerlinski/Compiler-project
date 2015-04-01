@@ -3,8 +3,8 @@
 .metadata
 .settings
 src/.metadata
-plic/PlicParser.java
-plic/PlicLexer.java
+src/plic/PlicParser.java
+src/plic/PlicLexer.java
 antlr.jar
 bin/
 src/plic/Plic.tokens

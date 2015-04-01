@@ -5,6 +5,7 @@ import model.TDS;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.CommonTree;
+import org.antlr.runtime.tree.Tree;
 
 import parser_tools.SemanticChecker;
 import parser_tools.TdsBuilder;
@@ -73,7 +74,7 @@ public class Test {
         // ANANLYSE SEMANTIQUE
         boolean semCheck = SemanticChecker.check(ast, tds);
 
-
+       
     }
 
    
