@@ -186,7 +186,7 @@ public class TDS {
 		Stack<Integer> stack = new Stack<Integer>();
 		str.append(tds2dot(0));
 		stack.push(new Integer(0));
-		int current=0;
+		//int current=0;
 		afficherTdsDotRec(str,stack,1);
 
 		str.append("\n}");

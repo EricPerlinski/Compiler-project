@@ -1,9 +1,8 @@
 package parser_tools;
 
-import org.antlr.runtime.tree.*;
+import model.TDS;
 
-import plic.PlicParser;
-import model.*;
+import org.antlr.runtime.tree.Tree;
 
 public class SemanticChecker{
 
