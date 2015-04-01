@@ -1,10 +1,17 @@
 import java.io.FileInputStream;
-import org.antlr.runtime.*;
-import org.antlr.runtime.tree.*;
-import parser_tools.*;
-import java.io.*;
-import dot.*;
-import model.*;
+
+import model.TDS;
+
+import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.CommonTokenStream;
+import org.antlr.runtime.tree.CommonTree;
+
+import parser_tools.SemanticChecker;
+import parser_tools.TdsBuilder;
+import plic.PlicLexer;
+import plic.PlicParser;
+import dot.Tds2img;
+import dot.Tree2img;
 
 
 public class Test {
@@ -65,6 +72,7 @@ public class Test {
 
         // ANANLYSE SEMANTIQUE
         boolean semCheck = SemanticChecker.check(ast, tds);
+
 
     }
 
