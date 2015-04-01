@@ -1,3 +1,5 @@
+*.jar
+*.pdf
 .metadata
 .settings
 src/.metadata
