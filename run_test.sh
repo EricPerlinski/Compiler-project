@@ -12,7 +12,7 @@ then
 	for file in $list
 	do
 		echo "\n\033[32mFILE "$file"\033[0m"
-		java -classpath ".:antlr.jar:bin" Test "./test/correct/"$file # > "./tree/input/"$file.tree
+		java -classpath ".:antlr.jar:bin" plic.Test "./test/correct/"$file # > "./tree/input/"$file.tree
 	done
 #	cd ..
 fi
@@ -23,7 +23,7 @@ then
 	for file in $list
 	do
 		echo "\n\033[31mFILE "$file"\033[0m"
-		java -classpath ".:antlr.jar:bin" Test  "./test/incorrect/"$file # > "./tree/input/"$file.tree
+		java -classpath ".:antlr.jar:bin" plic.Test  "./test/incorrect/"$file # > "./tree/input/"$file.tree
 	done
 #	cd ..
 fi
