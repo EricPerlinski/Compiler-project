@@ -42,8 +42,7 @@ public class SemanticChecker{
 		case PlicParser.FOR:
 			check_forloop_type(ast, tds);
 			break;
-		case PlicParser.FUNCTION:
-		case PlicParser.PROCEDURE:
+		case PlicParser.PARAMS:
 			check_func_params(ast, tds);
 		}
 		
@@ -121,9 +120,11 @@ public class SemanticChecker{
 	public static boolean check_nbparams_func_call(Tree sub_tree, TDS tds) {
 		TDS tdsCurrent = tds.getTdsOfFunction(sub_tree.getChild(0).getText());
 		boolean res = true;
-		if (tdsCurrent.getParams().size()!=sub_tree.getChildCount()-1) {
-			System.out.println("Ligne "+sub_tree.getLine()+": erreur d'appel de fonction -> Mauvais nombre de paramètres");
-			res = false;
+		if(tdsCurrent!=null){
+			if (tdsCurrent.getParams().size()!=sub_tree.getChildCount()-1) {
+				System.out.println("Ligne "+sub_tree.getLine()+": erreur d'appel de fonction -> Mauvais nombre de paramètres");
+				res = false;
+			}
 		}
 		return res;
 	}
