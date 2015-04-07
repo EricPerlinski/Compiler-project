@@ -83,6 +83,16 @@ public class SemanticChecker{
 		return res;
 	}
 	
+	// Contrôle le type des conditions dans les structures if : doit être un boolean
+	public static boolean check_condition_type(Tree sub_tree, TDS tds) {
+		boolean res = true;
+		if (getTypeOfExp(sub_tree.getChild(0), tds)!=Type.bool) {
+			System.out.println("Erreur de type de condition : La condition n'est pas de type boolean");
+			res = false;
+		}
+		return res;
+	}
+	
 	// Retourne la TDS de définition de l'identifiant demandé afin de faciliter les contrôles sémantiques
 	public static TDS getTdsOfDef(String idf, TDS tds) {
 		TDS current = tds;
