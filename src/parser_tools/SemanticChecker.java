@@ -10,8 +10,6 @@ import plic.PlicParser;
 
 public class SemanticChecker{
 
-
-
 	public static boolean check(Tree ast, TDS tds){
 		boolean result=true;
 		
@@ -140,8 +138,30 @@ public class SemanticChecker{
 		
 		return res;
 	}
-
-
-
-
+	
+	   // t = arbre avec comme racine le noeud ARRAY
+    public static boolean isGoodTypesInArrayDimensions(Tree t, TDS tds) {
+        assert !t.getText().equalsIgnoreCase("ARRAY") : "t must be the ARRAY node";
+        boolean res = true;
+        for (int i = 1; i < t.getChildCount(); i++) {
+            Tree boundNode = t.getChild(i);
+            if (getTypeExp(boundNode, tds) != Type.integer) {
+                    System.out.println("Ligne " + boundNode.getLine() + ": Variable " + boundNode.getText() + ", type mismatch, must be an integer.");
+                    res = false;
+            }
+        }
+        return res;
+    }
+    // t = arbre avec comme racine le noeud ARRAY
+    public static boolean isGoodNumberOfIndexesInArrayDimensions(Tree t, TDS tds) {
+        assert !t.getText().equalsIgnoreCase("ARRAY") : "t must be the ARRAY node";
+        Tree idfNode = t.getChild(0);
+        int numberOfIndexes = t.getChildCount() - 1; //-1 pour enlever le idf
+        Declarations arrayDecl = tds.getDeclarationOfVar(idfNode.getText());
+        if(arrayDecl.getBounds().size() != numberOfIndexes) {
+            System.out.println("Ligne " + t.getLine() + ": Variable " + idfNode.getText() + ", wrong number of index.");
+            return false;
+        }
+        return true;
+    }
 }
