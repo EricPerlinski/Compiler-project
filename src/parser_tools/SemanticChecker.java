@@ -129,7 +129,7 @@ public class SemanticChecker{
 	
 	public static boolean check_forloop_type(Tree sub_tree, TDS tds) {
 		boolean res = true;
-		for (int i=0; i<sub_tree.getChildCount()-1; i++) {
+		for (int i=1; i<sub_tree.getChildCount()-1; i++) {
 			if (getTypeOfExp(sub_tree.getChild(i), tds)!=Type.integer) {
 				System.out.println("Erreur de type de boucle : Le "+i+"ème paramètre n'est pas de type integer");
 				res = false;
