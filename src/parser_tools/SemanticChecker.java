@@ -220,5 +220,15 @@ public class SemanticChecker{
         return true;
     }
     
- 
+    //À appeler impérativement sur un noeud array avant tout autre contrôle concernant les array
+    // t = arbre avec comme racine le noeud ARRAY
+    public static boolean isARealArrayType(Tree t, TDS tds) {
+        assert !t.getText().equalsIgnoreCase("ARRAY") : "t must be the ARRAY node";
+        Tree idfNode = t.getChild(0);
+        if (getTypeOfExp(idfNode, tds) != Type.array) {
+            System.out.println("Line " + t.getLine() + ": Variable " + idfNode.getText() + ", the type of the expression must be an array type.");
+            return false;
+        }
+        return true;
+    }
 }
