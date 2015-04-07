@@ -36,14 +36,8 @@ public class SemanticChecker{
 		Tree fg = sub_tree.getChild(0);
 		Tree fd = sub_tree.getChild(1);
 		
-		Type tfg = tds.getTypeOfVar(fg.getChild(0).getText());
-		Type tfd = null;
-		
-		if (fd.getChild(0).getType()==PlicParser.FUNC_CALL) {
-			tfd = tds.getTypeOfFunction(fd.getChild(0).getText());
-		} else {
-			tfd = tds.getTypeOfVar(fd.getChild(0).getText());
-		}
+		Type tfg = getTypeExp(fg.getChild(0), tds);
+		Type tfd = getTypeExp(fd.getChild(0), tds);
 		
 		if (tfg == tfd) {
 			return true;
@@ -55,8 +49,17 @@ public class SemanticChecker{
 	
 	// Contrôle la cohérence des types des paramètres à l'appel des fonctions
 	public static boolean check_func_call(Tree sub_tree, TDS tds) {
-		// TODO
-		return false;
+		TDS tdsCurrent = tds.getTdsOfFunction(sub_tree.getChild(0).getText());
+		Type typeCurrent = null;
+		boolean res = true;
+		for (int i=1; i<sub_tree.getChildCount()-1; i++) {
+			typeCurrent = getTypeExp(sub_tree.getChild(i), tds);
+			if (typeCurrent != tdsCurrent.getParams().get(i-1).getType()) {
+				System.out.println("Erreur d'appel de fonction : Le type du "+i+"eme paramètre est "+typeCurrent.toString()+" il devrait être de type "+tdsCurrent.getParams().get(i-1).getType().toString());
+				res = false;
+			}
+		}
+		return res;
 	}
 	
 	// Retourne la TDS de définition de l'identifiant demandé afin de faciliter les contrôles sémantiques
