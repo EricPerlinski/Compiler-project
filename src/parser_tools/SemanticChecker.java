@@ -117,7 +117,7 @@ public class SemanticChecker{
 				}
 			}
 			if(tfd!=null && tfg!=null){
-				System.out.println("Ligne "+sub_tree.getLine()+": erreur d'affectation : "+tfg.toString()+" != "+tfd.toString());
+				System.out.println("Line "+sub_tree.getLine()+": variable « " + fg.getChild(0).getText() + " », " +tfg.toString()+" is different from "+tfd.toString());
 			}
 
 			return false;
@@ -131,7 +131,7 @@ public class SemanticChecker{
 		boolean res = true;
 		if(tdsCurrent!=null){
 			if (tdsCurrent.getParams().size()!=sub_tree.getChildCount()-1) {
-				System.out.println("Ligne "+sub_tree.getLine()+": erreur d'appel de fonction -> Mauvais nombre de paramètres");
+				System.out.println("Line "+sub_tree.getLine()+": wrong call of the function « " + sub_tree.getChild(0).getText() + " » -> Wrong number of parameters");
 				res = false;
 			}
 		}
@@ -147,7 +147,7 @@ public class SemanticChecker{
 		for (int i=1; i<sub_tree.getChildCount()-1; i++) {
 			typeCurrent = getTypeOfExp(sub_tree.getChild(i), tds);
 			if (typeCurrent != tdsCurrent.getParams().get(i-1).getType()) {
-				System.out.println("Ligne "+sub_tree.getLine()+": erreur d'appel de fonction -> Le type du "+i+"eme paramètre est "+typeCurrent.toString()+" il devrait être de type "+tdsCurrent.getParams().get(i-1).getType().toString());
+				System.out.println("Line "+sub_tree.getLine()+": Wrong call of the function -> Wrong type of the parameter « " + sub_tree.getChild(i).getText() + " », it should be "+tdsCurrent.getParams().get(i-1).getType().toString());
 				res = false;
 			}
 		}
@@ -161,7 +161,7 @@ public class SemanticChecker{
 		Type typeCurrent = getTypeOfExp(sub_tree.getChild(0),tds);
 		Type typeDefined = TDS.str2type((tds.getTypeRet()));
 		if (typeCurrent!=typeDefined) {
-			System.out.println("Ligne "+sub_tree.getLine()+": erreur de type de retour de fonction -> La fonction "+sub_tree.getChild(0).getText()+" a pour type de retour "+typeDefined.toString()+" mais vous retournez un "+typeCurrent);
+			System.out.println("Line "+sub_tree.getLine()+": Wrong type of return -> The function « "+sub_tree.getParent().getParent().getChild(0).getChild(1).getText()+" » must return a "+typeDefined.toString()+" but it actually returns a "+typeCurrent);
 			res = false;
 		}
 		return res;
@@ -172,7 +172,7 @@ public class SemanticChecker{
 	public static boolean check_condition_type(Tree sub_tree, TDS tds) {
 		boolean res = true;
 		if (getTypeOfExp(sub_tree.getChild(0), tds)!=Type.bool) {
-			System.out.println("Ligne "+sub_tree.getLine()+": erreur de type de condition : La condition n'est pas de type boolean");
+			System.out.println("Line "+sub_tree.getLine()+": Wrong type of the condition, it should be of boolean type");
 			res = false;
 		}
 		return res;
@@ -185,8 +185,8 @@ public class SemanticChecker{
 		for (int i=0; i<sub_tree.getChildCount()-2; i++) {
 			String current = sub_tree.getChild(i).getChild(1).getText();
 			for (int j=i+1; j<sub_tree.getChildCount()-1; j++) {
-				if (current==sub_tree.getChild(j).getChild(1).getText()) {
-					System.out.println("Ligne "+sub_tree.getLine()+": erreur de prototypage de fonction -> 2 paramètres ont le même nom");
+				if (current.equals(sub_tree.getChild(j).getChild(1).getText())) {
+					System.out.println("Line "+sub_tree.getLine()+": Wron prototype of the function -> At least two parameters have the same identifier");
 					res = false;
 				}
 			}
@@ -227,7 +227,7 @@ public class SemanticChecker{
 		}else if(name.equals("==") || name.equals("!=")|| name.equals("<")|| name.equals("<=")|| name.equals(">")|| name.equals(">=")){
 			Type t1 = getTypeOfExp(t.getChild(0), tds);
 			Type t2 = getTypeOfExp(t.getChild(1), tds);
-			if(t1!=null && t2!=null && t1==t2 /*&& t1==Type.bool*/){
+			if( t1!=null && t2!=null && t1==t2 && (t1!=Type.bool || ( t1==Type.bool && (name.equals("==") || name.equals("!="))))){
 				res=Type.bool;
 			}
 		}else if(name.equals("UNAIRE")){
@@ -258,7 +258,7 @@ public class SemanticChecker{
         for (int i = 1; i < t.getChildCount(); i++) {
             Tree boundNode = t.getChild(i);
             if (getTypeOfExp(boundNode, tds) != Type.integer) {
-                    System.out.println("Line " + boundNode.getLine() + ": Variable " + boundNode.getText() + ", type mismatch, must be an integer.");
+                    System.out.println("Line " + boundNode.getLine() + ": variable « " + boundNode.getText() + " », type mismatch, must be an integer.");
                     res = false;
             }
         }
@@ -272,7 +272,7 @@ public class SemanticChecker{
         int numberOfIndexes = t.getChildCount() - 1; //-1 pour enlever l'idf
         Declaration arrayDecl = tds.getDeclarationOfVar(idfNode.getText());
         if(arrayDecl != null && arrayDecl.getBounds().size() != numberOfIndexes) {
-            System.out.println("Line " + t.getLine() + ": Variable " + idfNode.getText() + ", wrong number of index.");
+            System.out.println("Line " + t.getLine() + ": variable « " + idfNode.getText() + " », wrong number of index.");
             return false;
         }
         return true;
@@ -287,7 +287,7 @@ public class SemanticChecker{
             idfNode = t.getParent().getChild(1);
         }
         if (getTypeOfExp(idfNode, tds) != Type.array) {
-            System.out.println("Line " + t.getLine() + ": Variable " + idfNode.getText() + ", the type of the expression must be an array type.");
+            System.out.println("Line " + t.getLine() + ": variable « " + idfNode.getText() + " », the type of the expression must be an array type.");
             return false;
         }
         return true;
@@ -299,13 +299,13 @@ public class SemanticChecker{
         boolean res = true;
         Tree varNode = t.getChild(0);
         if(tds.getTypeOfVar(varNode.getText()) != Type.integer) {
-            System.out.println("Line " + t.getLine() + ": the variable " + varNode.getText() + " in for must be an integer.");
+            System.out.println("Line " + t.getLine() + ": the variable « " + varNode.getText() + " » in for must be an integer.");
             res = false;
         }
         for(int i = 1 ; i <= 2 ; i++) {
         Tree expNode = t.getChild(i);
             if(getTypeOfExp(expNode, tds) != Type.integer) {
-                System.out.println("Line " + t.getLine() + ": the expression " + expNode.getText() + " in for must be an integer.");
+                System.out.println("Line " + t.getLine() + ": the expression « " + expNode.getText() + " » in for must be an integer.");
                 res = false;
             }
         }
