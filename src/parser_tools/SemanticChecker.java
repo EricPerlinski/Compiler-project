@@ -211,9 +211,9 @@ public class SemanticChecker{
     public static boolean isGoodNumberOfIndexesInArrayDimensions(Tree t, TDS tds) {
         assert !t.getText().equalsIgnoreCase("ARRAY") : "t must be the ARRAY node";
         Tree idfNode = t.getChild(0);
-        int numberOfIndexes = t.getChildCount() - 1; //-1 pour enlever le idf
+        int numberOfIndexes = t.getChildCount() - 1; //-1 pour enlever l'idf
         Declaration arrayDecl = tds.getDeclarationOfVar(idfNode.getText());
-        if(arrayDecl.getBounds().size() != numberOfIndexes) {
+        if(arrayDecl != null && arrayDecl.getBounds().size() != numberOfIndexes) {
             System.out.println("Ligne " + t.getLine() + ": Variable " + idfNode.getText() + ", wrong number of index.");
             return false;
         }
