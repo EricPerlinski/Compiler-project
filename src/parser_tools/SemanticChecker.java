@@ -44,6 +44,12 @@ public class SemanticChecker{
 			break;
 		case PlicParser.PARAMS:
 			check_func_params(ast, tds);
+		case PlicParser.ARRAY:
+		    isARealArrayType(ast, tds);
+		    isGoodNumberOfIndexesInArrayDimensions(ast, tds);
+		    isGoodTypesInArrayDimensions(ast, tds);
+		    break;
+		    
 		}
 		
 		
