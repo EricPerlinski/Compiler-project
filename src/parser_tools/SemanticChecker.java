@@ -93,14 +93,15 @@ public class SemanticChecker{
 			}
 			if(tfd==null){
 				if(fd.getChild(0).getType()==PlicParser.FUNC_CALL){
-					System.out.println("fonction "+fd.getChild(0).getChild(0).getText()+" n'existe pas");
+					System.out.println("Ligne "+sub_tree.getLine()+": erreur fonction "+fd.getChild(0).getChild(0).getText()+" n'existe pas");
 				}else{
-					System.out.println(fd.getChild(0).getText()+" n'existe pas");
+					System.out.println("Ligne "+sub_tree.getLine()+": "+fd.getChild(0).getText()+" n'existe pas");
 				}
 			}
 			if(tfd!=null && tfg!=null){
-				System.out.println("Erreur d'affectation : "+tfg.toString()+" != "+tfd.toString());
+				System.out.println("Ligne "+sub_tree.getLine()+": erreur d'affectation : "+tfg.toString()+" != "+tfd.toString());
 			}
+
 			return false;
 		}
 	}
@@ -110,8 +111,8 @@ public class SemanticChecker{
 	public static boolean check_nbparams_func_call(Tree sub_tree, TDS tds) {
 		TDS tdsCurrent = tds.getTdsOfFunction(sub_tree.getChild(0).getText());
 		boolean res = true;
-		if (tds.getParams().size()!=sub_tree.getChildCount()-1) {
-			System.out.println("Erreur d'appel de fonction : Mauvais nombre de paramètres");
+		if (tdsCurrent.getParams().size()!=sub_tree.getChildCount()-1) {
+			System.out.println("Ligne "+sub_tree.getLine()+": erreur d'appel de fonction -> Mauvais nombre de paramètres");
 			res = false;
 		}
 		return res;
@@ -126,7 +127,7 @@ public class SemanticChecker{
 		for (int i=1; i<sub_tree.getChildCount()-1; i++) {
 			typeCurrent = getTypeOfExp(sub_tree.getChild(i), tds);
 			if (typeCurrent != tdsCurrent.getParams().get(i-1).getType()) {
-				System.out.println("Erreur d'appel de fonction : Le type du "+i+"eme paramètre est "+typeCurrent.toString()+" il devrait être de type "+tdsCurrent.getParams().get(i-1).getType().toString());
+				System.out.println("Ligne "+sub_tree.getLine()+": erreur d'appel de fonction -> Le type du "+i+"eme paramètre est "+typeCurrent.toString()+" il devrait être de type "+tdsCurrent.getParams().get(i-1).getType().toString());
 				res = false;
 			}
 		}
@@ -140,7 +141,7 @@ public class SemanticChecker{
 		Type typeCurrent = getTypeOfExp(sub_tree.getChild(0),tds);
 		Type typeDefined = TDS.str2type((tds.getTypeRet()));
 		if (typeCurrent!=typeDefined) {
-			System.out.println("Erreur de type de retour de fonction : La fonction "+sub_tree.getChild(0).getText()+" a pour type de retour "+typeDefined.toString()+" mais vous retournez un "+typeCurrent);
+			System.out.println("Ligne "+sub_tree.getLine()+": erreur de type de retour de fonction -> La fonction "+sub_tree.getChild(0).getText()+" a pour type de retour "+typeDefined.toString()+" mais vous retournez un "+typeCurrent);
 			res = false;
 		}
 		return res;
@@ -151,7 +152,7 @@ public class SemanticChecker{
 	public static boolean check_condition_type(Tree sub_tree, TDS tds) {
 		boolean res = true;
 		if (getTypeOfExp(sub_tree.getChild(0), tds)!=Type.bool) {
-			System.out.println("Erreur de type de condition : La condition n'est pas de type boolean");
+			System.out.println("Ligne "+sub_tree.getLine()+": erreur de type de condition : La condition n'est pas de type boolean");
 			res = false;
 		}
 		return res;
@@ -163,7 +164,7 @@ public class SemanticChecker{
 		boolean res = true;
 		for (int i=1; i<sub_tree.getChildCount()-1; i++) {
 			if (getTypeOfExp(sub_tree.getChild(i), tds)!=Type.integer) {
-				System.out.println("Erreur de type de boucle : Le "+i+"ème paramètre n'est pas de type integer");
+				System.out.println("Ligne "+sub_tree.getLine()+": erreur de type de boucle -> Le "+i+"ème paramètre n'est pas de type integer");
 				res = false;
 			}
 		}
@@ -171,10 +172,18 @@ public class SemanticChecker{
 	}
 	
 	// Contrôle si une fonction n'a pas 2 paramètres avec le même id et le même type
-	// Noeud racine je sais pas encore je suis dessus
+	// Noeud racine PARAMS
 	public static boolean check_func_params(Tree sub_tree, TDS tds) {
 		boolean res = true;
-		
+		for (int i=0; i<sub_tree.getChildCount()-2; i++) {
+			String current = sub_tree.getChild(i).getChild(1).getText();
+			for (int j=i+1; j<sub_tree.getChildCount()-1; j++) {
+				if (current==sub_tree.getChild(j).getChild(1).getText()) {
+					System.out.println("Ligne "+sub_tree.getLine()+": erreur de prototypage de fonction -> 2 paramètres ont le même nom");
+					res = false;
+				}
+			}
+		}
 		return res;
 	}
 	
