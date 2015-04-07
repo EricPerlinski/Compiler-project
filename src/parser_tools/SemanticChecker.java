@@ -1,8 +1,6 @@
 package parser_tools;
 
-import java.util.Stack;
-
-import model.Declarations;
+import model.Declaration;
 import model.TDS;
 import model.Type;
 
@@ -11,8 +9,6 @@ import org.antlr.runtime.tree.Tree;
 import plic.PlicParser;
 
 public class SemanticChecker{
-
-
 
 	public static boolean check(Tree ast, TDS tds){
 		boolean result=false;
@@ -72,8 +68,8 @@ public class SemanticChecker{
 		Tree fg = sub_tree.getChild(0);
 		Tree fd = sub_tree.getChild(1);
 		
-		Type tfg = getTypeExp(fg.getChild(0), tds);
-		Type tfd = getTypeExp(fd.getChild(0), tds);
+		Type tfg = getTypeOfExp(fg.getChild(0), tds);
+		Type tfd = getTypeOfExp(fd.getChild(0), tds);
 		
 		if (tfg == tfd) {
 			return true;
@@ -100,7 +96,7 @@ public class SemanticChecker{
 		Type typeCurrent = null;
 		boolean res = true;
 		for (int i=1; i<sub_tree.getChildCount()-1; i++) {
-			typeCurrent = getTypeExp(sub_tree.getChild(i), tds);
+			typeCurrent = getTypeOfExp(sub_tree.getChild(i), tds);
 			if (typeCurrent != tdsCurrent.getParams().get(i-1).getType()) {
 				System.out.println("Erreur d'appel de fonction : Le type du "+i+"eme paramètre est "+typeCurrent.toString()+" il devrait être de type "+tdsCurrent.getParams().get(i-1).getType().toString());
 				res = false;
@@ -109,16 +105,28 @@ public class SemanticChecker{
 		return res;
 	}
 	
+	// Contrôle la cohérence entre le type de retour d'une fonction et ce qui est effectivement retourné
+	public static boolean check_return_type(Tree sub_tree, TDS tds) {
+		boolean res = true;
+		Type typeCurrent = getTypeOfExp(sub_tree.getChild(0),tds);
+		Type typeDefined = TDS.str2type((tds.getTypeRet()));
+		if (typeCurrent!=typeDefined) {
+			System.out.println("Erreur de type de retour de fonction : La fonction "+sub_tree.getChild(0).getText()+" a pour type de retour "+typeDefined.toString()+" mais vous retournez un "+typeCurrent);
+			res = false;
+		}
+		return res;
+	}
+	
 	// Retourne la TDS de définition de l'identifiant demandé afin de faciliter les contrôles sémantiques
 	public static TDS getTdsOfDef(String idf, TDS tds) {
 		TDS current = tds;
 		do {
-			for (Declarations e : tds.getVar()) {
+			for (Declaration e : tds.getVar()) {
 				if (e.getIdf()==idf) {
 					return current;
 				}
 			}
-			for (Declarations e : tds.getParams()) {
+			for (Declaration e : tds.getParams()) {
 				if (e.getIdf()==idf) {
 					return current;
 				}
@@ -128,25 +136,25 @@ public class SemanticChecker{
 		return null;
 	}
 
-	public static Type getTypeExp(Tree t, TDS tds){
+	public static Type getTypeOfExp(Tree t, TDS tds){
 		Type res=null;
 		String name=t.getText();
 		if(name.equals("+") || name.equals("-") || name.equals("*")){
-			Type t1 = getTypeExp(t.getChild(0), tds);
-			Type t2 = getTypeExp(t.getChild(1), tds);
+			Type t1 = getTypeOfExp(t.getChild(0), tds);
+			Type t2 = getTypeOfExp(t.getChild(1), tds);
 			if(t1!=null && t2!=null && t1==t2){
 				res=t1;
 			}else{
 				System.out.println("Opération "+name+" avec un "+t1.toString()+" et un "+t2.toString());
 			}
 		}else if(name.equals("==") || name.equals("!=")|| name.equals("<")|| name.equals("<=")|| name.equals(">")|| name.equals(">=")){
-			Type t1 = getTypeExp(t.getChild(0), tds);
-			Type t2 = getTypeExp(t.getChild(1), tds);
+			Type t1 = getTypeOfExp(t.getChild(0), tds);
+			Type t2 = getTypeOfExp(t.getChild(1), tds);
 			if(t1!=null && t2!=null && t1==t2 /*&& t1==Type.bool*/){
 				res=Type.bool;
 			}
 		}else if(name.equals("UNAIRE")){
-			res = getTypeExp(t.getChild(0), tds);
+			res = getTypeOfExp(t.getChild(0), tds);
 		}else if(name.equals("ARRAY")){
 			res = Type.integer;
 		}else if(name.equals("FUNC_CALL")){
@@ -164,8 +172,30 @@ public class SemanticChecker{
 		
 		return res;
 	}
-
-
-
-
+	
+	   // t = arbre avec comme racine le noeud ARRAY
+    public static boolean isGoodTypesInArrayDimensions(Tree t, TDS tds) {
+        assert !t.getText().equalsIgnoreCase("ARRAY") : "t must be the ARRAY node";
+        boolean res = true;
+        for (int i = 1; i < t.getChildCount(); i++) {
+            Tree boundNode = t.getChild(i);
+            if (getTypeOfExp(boundNode, tds) != Type.integer) {
+                    System.out.println("Ligne " + boundNode.getLine() + ": Variable " + boundNode.getText() + ", type mismatch, must be an integer.");
+                    res = false;
+            }
+        }
+        return res;
+    }
+    // t = arbre avec comme racine le noeud ARRAY
+    public static boolean isGoodNumberOfIndexesInArrayDimensions(Tree t, TDS tds) {
+        assert !t.getText().equalsIgnoreCase("ARRAY") : "t must be the ARRAY node";
+        Tree idfNode = t.getChild(0);
+        int numberOfIndexes = t.getChildCount() - 1; //-1 pour enlever le idf
+        Declaration arrayDecl = tds.getDeclarationOfVar(idfNode.getText());
+        if(arrayDecl.getBounds().size() != numberOfIndexes) {
+            System.out.println("Ligne " + t.getLine() + ": Variable " + idfNode.getText() + ", wrong number of index.");
+            return false;
+        }
+        return true;
+    }
 }

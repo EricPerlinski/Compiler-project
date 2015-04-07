@@ -4,8 +4,8 @@ import java.util.*;
 
 public class TDS {
 
-	private ArrayList<Declarations> var; // Liste de déclarations pour les variables
-	private ArrayList<Declarations> params; // Liste de déclarations pour les paramètres
+	private ArrayList<Declaration> var; // Liste de déclarations pour les variables
+	private ArrayList<Declaration> params; // Liste de déclarations pour les paramètres
 	private ArrayList<TDS> fils; // lien vers les TDS des fils
 	private TDS pere; // lien vers la TDS du père
 	private int nbImb; // numero d'imbrication
@@ -15,7 +15,7 @@ public class TDS {
 	
 	/* Constructors */
 	
-	public TDS (ArrayList<Declarations> newVar, ArrayList<Declarations> newParams, ArrayList<TDS> newFils, TDS newPere, int newNbImb, int newNbReg){
+	public TDS (ArrayList<Declaration> newVar, ArrayList<Declaration> newParams, ArrayList<TDS> newFils, TDS newPere, int newNbImb, int newNbReg){
 		var = newVar;
 		params = newParams;
 		fils = newFils;
@@ -25,8 +25,8 @@ public class TDS {
 	}
 	
 	public TDS (TDS newPere, int newNbImb, int newNbReg){
-		var = new ArrayList<Declarations>();
-		params = new ArrayList<Declarations>();
+		var = new ArrayList<Declaration>();
+		params = new ArrayList<Declaration>();
 		fils = new ArrayList<TDS>();
 		pere = newPere;
 		nbImb = newNbImb;
@@ -34,8 +34,8 @@ public class TDS {
 	}
 	
 	public TDS (int newNbImb, int newNbReg){
-		var = new ArrayList<Declarations>();
-		params = new ArrayList<Declarations>();
+		var = new ArrayList<Declaration>();
+		params = new ArrayList<Declaration>();
 		fils = new ArrayList<TDS>();
 		pere = null;
 		nbImb = newNbImb;
@@ -48,7 +48,7 @@ public class TDS {
 		this.typeRet=type;
 	}
 	
-	public void addParam (Declarations newParam){
+	public void addParam (Declaration newParam){
 		this.params.add(newParam);
 	}
 
@@ -56,25 +56,25 @@ public class TDS {
 		this.fils.add(tds);
 	}
 	
-	public void addVar (Declarations newVar){
+	public void addVar (Declaration newVar){
 		this.var.add(newVar);
 	}
 
 	/* Getters & Setters */ 
 	
-	public ArrayList<Declarations> getVar() {
+	public ArrayList<Declaration> getVar() {
 		return var;
 	}
 
-	public void setVar(ArrayList<Declarations> var) {
+	public void setVar(ArrayList<Declaration> var) {
 		this.var = var;
 	}
 
-	public ArrayList<Declarations> getParams() {
+	public ArrayList<Declaration> getParams() {
 		return params;
 	}
 
-	public Declarations getLastParam(){
+	public Declaration getLastParam(){
 		if(params.size()>0){
 			return params.get(params.size()-1);
 		}else{
@@ -82,7 +82,7 @@ public class TDS {
 		}
 	}
 	
-	public Declarations getLastVar() {
+	public Declaration getLastVar() {
 		if(var.size()>0){
 			return var.get(var.size()-1);
 		}else{
@@ -90,7 +90,7 @@ public class TDS {
 		}
 	}
 
-	public void setParams(ArrayList<Declarations> params) {
+	public void setParams(ArrayList<Declaration> params) {
 		this.params = params;
 	}
 
@@ -132,6 +132,10 @@ public class TDS {
 
 	public String getIdf(){
 		return this.idf;
+	}
+	
+	public String getTypeRet() {
+		return this.typeRet;
 	}
 	
 	public TDS getRoot(){
@@ -182,24 +186,28 @@ public class TDS {
 	
 
 	public Type getTypeOfVar(String v){
-		Type t;
-		for(int i=0;i<var.size();i++){
-			if(var.get(i).getIdf().equalsIgnoreCase(v)){
-				t=var.get(i).getType();
-				return t;
-			}
-		}
-		for(int i=0;i<params.size();i++){
-			if(params.get(i).getIdf().equalsIgnoreCase(v)){
-				t=params.get(i).getType();
-				return t;
-			}
-		}
-		if(pere!=null){
-			return pere.getTypeOfVar(v);
-		}else{
-			return null;
-		}
+		return getDeclarationOfVar(v).getType();
+	}
+	
+	public Declaration getDeclarationOfVar(String v) {
+	    Declaration d;
+        for(int i=0;i<var.size();i++){
+            if(var.get(i).getIdf().equalsIgnoreCase(v)){
+                d=var.get(i);
+                return d;
+            }
+        }
+        for(int i=0;i<params.size();i++){
+            if(params.get(i).getIdf().equalsIgnoreCase(v)){
+                d=params.get(i);
+                return d;
+            }
+        }
+        if(pere!=null){
+            return pere.getDeclarationOfVar(v);
+        }else{
+            return null;
+        }
 	}
 
 
