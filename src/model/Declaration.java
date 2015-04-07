@@ -2,7 +2,7 @@ package model;
 
 import java.util.ArrayList;
 
-public class Declarations {
+public class Declaration {
 	
 	
 	/* Attributs de la classe Declarations */
@@ -19,7 +19,7 @@ public class Declarations {
 	
 	/* Constuctors */ 
 	
-	public Declarations(Type newType, String newIdf, int newDeplacement){
+	public Declaration(Type newType, String newIdf, int newDeplacement){
 		this.type = newType;
 		this.idf = newIdf;
 		this.deplacement = newDeplacement;
@@ -27,7 +27,7 @@ public class Declarations {
 		this.parAdresse = false;
 	}
 	
-	public Declarations(Type newType, String newIdf, int newDeplacement, ArrayList<Bound> newBounds){
+	public Declaration(Type newType, String newIdf, int newDeplacement, ArrayList<Bound> newBounds){
 		this.type = newType;
 		this.idf = newIdf;
 		this.deplacement = newDeplacement;
@@ -35,7 +35,7 @@ public class Declarations {
 		this.parAdresse = false;
 	}
 	
-	public Declarations(Type newType, String newIdf, int newDeplacement, boolean newParAdresse){
+	public Declaration(Type newType, String newIdf, int newDeplacement, boolean newParAdresse){
 		this.type = newType;
 		this.idf = newIdf;
 		this.deplacement = newDeplacement;
@@ -43,7 +43,7 @@ public class Declarations {
 		this.parAdresse = newParAdresse;
 	}
 	
-	public Declarations(Type newType, String newIdf, int newDeplacement, ArrayList<Bound> newBounds, boolean newParAdresse){
+	public Declaration(Type newType, String newIdf, int newDeplacement, ArrayList<Bound> newBounds, boolean newParAdresse){
 		this.type = newType;
 		this.idf = newIdf;
 		this.deplacement = newDeplacement;

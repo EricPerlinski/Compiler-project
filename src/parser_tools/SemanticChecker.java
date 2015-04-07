@@ -1,6 +1,6 @@
 package parser_tools;
 
-import model.Declarations;
+import model.Declaration;
 import model.TDS;
 import model.Type;
 
@@ -87,12 +87,12 @@ public class SemanticChecker{
 	public static TDS getTdsOfDef(String idf, TDS tds) {
 		TDS current = tds;
 		do {
-			for (Declarations e : tds.getVar()) {
+			for (Declaration e : tds.getVar()) {
 				if (e.getIdf()==idf) {
 					return current;
 				}
 			}
-			for (Declarations e : tds.getParams()) {
+			for (Declaration e : tds.getParams()) {
 				if (e.getIdf()==idf) {
 					return current;
 				}
@@ -157,7 +157,7 @@ public class SemanticChecker{
         assert !t.getText().equalsIgnoreCase("ARRAY") : "t must be the ARRAY node";
         Tree idfNode = t.getChild(0);
         int numberOfIndexes = t.getChildCount() - 1; //-1 pour enlever le idf
-        Declarations arrayDecl = tds.getDeclarationOfVar(idfNode.getText());
+        Declaration arrayDecl = tds.getDeclarationOfVar(idfNode.getText());
         if(arrayDecl.getBounds().size() != numberOfIndexes) {
             System.out.println("Ligne " + t.getLine() + ": Variable " + idfNode.getText() + ", wrong number of index.");
             return false;

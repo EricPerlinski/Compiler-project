@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 import model.Bound;
-import model.Declarations;
+import model.Declaration;
 import model.TDS;
 import model.Type;
 
@@ -100,10 +100,10 @@ public class TdsBuilder {
 			
 			for(int i = 1; i < t.getChildCount(); i++){
 				//TODO Ajouter t.getChild(i).getText() à la TDS
-				Declarations d = new Declarations(Type.integer,t.getChild(i).getText(), deplacement);
+				Declaration d = new Declaration(Type.integer,t.getChild(i).getText(), deplacement);
 				//System.out.println(current.getVar().size());
 				if (current.getVar().size()>0) {
-					Declarations last = current.getVar().get(current.getVar().size()-1);
+					Declaration last = current.getVar().get(current.getVar().size()-1);
 					d.setDeplacement(last.getDeplacement()+last.getSize());
 				}
 				current.addVar(d);
@@ -112,9 +112,9 @@ public class TdsBuilder {
 			
 			for(int i = 1; i < t.getChildCount(); i++){
 				//TODO Ajouter t.getChild(i).getText() à la TDS
-				Declarations d = new Declarations(Type.bool,t.getChild(i).getText(), deplacement);
+				Declaration d = new Declaration(Type.bool,t.getChild(i).getText(), deplacement);
 				if (current.getVar().size()>0) {
-					Declarations last = current.getVar().get(current.getVar().size()-1);
+					Declaration last = current.getVar().get(current.getVar().size()-1);
 					d.setDeplacement(last.getDeplacement()+last.getSize());
 				}
 				current.addVar(d); 
@@ -147,7 +147,7 @@ public class TdsBuilder {
 						Bounds.add(b);
 					}
 				}
-				Declarations d = new Declarations(Type.array,t.getChild(1).getText(),deplacement, Bounds);
+				Declaration d = new Declaration(Type.array,t.getChild(1).getText(),deplacement, Bounds);
 				
 				current.addVar(d);
 		}
@@ -207,10 +207,10 @@ public class TdsBuilder {
 
 
 			if(firstSon.getText().equalsIgnoreCase("integer")){
-				Declarations d = new Declarations(Type.integer,secondSon.getText(),deplacement); 
+				Declaration d = new Declaration(Type.integer,secondSon.getText(),deplacement); 
 				current.addParam(d);
 			}else if(firstSon.getText().equalsIgnoreCase("boolean")){
-				Declarations d = new Declarations(Type.bool,secondSon.getText(),deplacement); 
+				Declaration d = new Declaration(Type.bool,secondSon.getText(),deplacement); 
 				current.addParam(d);
 			}else if(firstSon.getText().equalsIgnoreCase("array")){
 				
@@ -241,7 +241,7 @@ public class TdsBuilder {
 						Bounds.add(b);
 					}
 				}
-				Declarations d = new Declarations(Type.array,secondSon.getText(),deplacement, Bounds);
+				Declaration d = new Declaration(Type.array,secondSon.getText(),deplacement, Bounds);
 				current.addParam(d);
 				
 				
@@ -338,10 +338,10 @@ public class TdsBuilder {
 			Tree secondSon = t_2proto.getChild(k).getChild(1+adr);
 
 			if(firstSon.getText().equalsIgnoreCase("integer")){
-				Declarations d = new Declarations(Type.integer,secondSon.getText(),deplacement); 
+				Declaration d = new Declaration(Type.integer,secondSon.getText(),deplacement); 
 				current.addParam(d);
 			}else if(firstSon.getText().equalsIgnoreCase("boolean")){
-				Declarations d = new Declarations(Type.bool,secondSon.getText(),deplacement); 
+				Declaration d = new Declaration(Type.bool,secondSon.getText(),deplacement); 
 				current.addParam(d);
 			}else if(firstSon.getText().equalsIgnoreCase("array")){
 				
@@ -372,7 +372,7 @@ public class TdsBuilder {
 						Bounds.add(b);
 					}
 				}
-				Declarations d = new Declarations(Type.array,secondSon.getText(),deplacement, Bounds);
+				Declaration d = new Declaration(Type.array,secondSon.getText(),deplacement, Bounds);
 				current.addParam(d);
 				
 				
