@@ -160,7 +160,6 @@ public class TDS {
 	public TDS getTdsOfFunction(String f) {
 		//on regarde si c'est un bloc fils
 		for(int i=0;i<fils.size();i++){
-			System.out.println(i+" : "+fils.get(i).getIdf());
 			if(fils.get(i).getIdf().equals(f)){
 				return fils.get(i);
 			}

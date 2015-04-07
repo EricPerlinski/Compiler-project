@@ -19,7 +19,7 @@ public class SemanticChecker{
 	}
 	
 	public static boolean checkRec(Tree ast, TDS tds){
-		System.out.println(ast.getText()+"("+tds.getNbImb()+":"+tds.getNbReg()+")");
+		//System.out.println(ast.getText()+"("+tds.getNbImb()+":"+tds.getNbReg()+")");
 		
 		
 		//Tester ici avec les fct semantiques
