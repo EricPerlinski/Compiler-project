@@ -212,7 +212,7 @@ public class SemanticChecker{
     //Ne pas oublier d'appeler isARealArrayType
 	// t = arbre avec comme racine le noeud ARRAY
     public static boolean isGoodTypesInArrayDimensions(Tree t, TDS tds) {
-        assert !t.getText().equalsIgnoreCase("ARRAY") : "t must be the ARRAY node";
+        assert !t.getText().equalsIgnoreCase("ARRAY") : "t must be a ARRAY node";
         boolean res = true;
         for (int i = 1; i < t.getChildCount(); i++) {
             Tree boundNode = t.getChild(i);
@@ -226,7 +226,7 @@ public class SemanticChecker{
     //Ne pas oublier d'appeler isARealArrayType
     // t = arbre avec comme racine le noeud ARRAY
     public static boolean isGoodNumberOfIndexesInArrayDimensions(Tree t, TDS tds) {
-        assert !t.getText().equalsIgnoreCase("ARRAY") : "t must be the ARRAY node";
+        assert !t.getText().equalsIgnoreCase("ARRAY") : "t must be a ARRAY node";
         Tree idfNode = t.getChild(0);
         int numberOfIndexes = t.getChildCount() - 1; //-1 pour enlever l'idf
         Declaration arrayDecl = tds.getDeclarationOfVar(idfNode.getText());
@@ -240,12 +240,31 @@ public class SemanticChecker{
     //À appeler impérativement sur un noeud array avant tout autre contrôle concernant les array
     // t = arbre avec comme racine le noeud ARRAY
     public static boolean isARealArrayType(Tree t, TDS tds) {
-        assert !t.getText().equalsIgnoreCase("ARRAY") : "t must be the ARRAY node";
+        assert !t.getText().equalsIgnoreCase("ARRAY") : "t must be a ARRAY node";
         Tree idfNode = t.getChild(0);
         if (getTypeOfExp(idfNode, tds) != Type.array) {
             System.out.println("Line " + t.getLine() + ": Variable " + idfNode.getText() + ", the type of the expression must be an array type.");
             return false;
         }
         return true;
+    }
+    
+    //t = arbre avec comme racine le noeud FOR
+    public static boolean areVarAndExprInForIntegers(Tree t, TDS tds) {
+        assert !t.getText().equalsIgnoreCase("FOR") : "t must be a FOR node";
+        boolean res = true;
+        Tree varNode = t.getChild(0);
+        if(tds.getTypeOfVar(varNode.getText()) != Type.integer) {
+            System.out.println("Line " + t.getLine() + ": the variable " + varNode.getText() + " in for must be an integer.");
+            return false;
+        }
+        for(int i = 1 ; i <= 2 ; i++) {
+        Tree expNode = t.getChild(i);
+            if(getTypeOfExp(expNode, tds) != Type.integer) {
+                System.out.println("Line " + t.getLine() + ": the expression " + expNode.getText() + " in for must be an integer.");
+                res = false;
+            }
+        }
+        return res;
     }
 }
