@@ -1,9 +1,12 @@
 package parser_tools;
 
+import model.Declarations;
 import model.TDS;
 import model.Type;
 
 import org.antlr.runtime.tree.Tree;
+
+import plic.PlicParser;
 
 public class SemanticChecker{
 
@@ -16,6 +19,57 @@ public class SemanticChecker{
 
 
 		return result;
+	}
+	
+	// Pas encore aboutie du tout ...
+	public static boolean check_aff_left(Tree sub_tree, TDS tds)
+	{
+		// On regarde si le premier fils est de type Array ou non
+		Tree fc = sub_tree.getChild(0);
+		if (fc.getType()==PlicParser.ARRAY) {
+			for (Declarations e : tds.getVar()) {
+				if (fc.getChild(0).getText().equalsIgnoreCase(e.getIdf()) && e.getType()!=Type.array) {
+					return false;
+				}
+			}
+			for (Declarations e : tds.getParams()) {
+				if (fc.getChild(0).getText().equalsIgnoreCase(e.getIdf()) && e.getType()!=Type.array) {
+					return false;
+				}
+			}
+		} else { // Sinon on vérifie dans la tds que le premier fils est bien du même type que le second 
+			Declarations res = null;
+			for (Declarations e : tds.getVar()) {
+				if (fc.getText().equalsIgnoreCase(e.getIdf())) {
+					res = e;
+				}
+			}
+			for (Declarations e : tds.getParams()) {
+				if (fc.getText().equalsIgnoreCase(e.getIdf())) {
+					res = e;
+				}
+			}
+		}
+		return true;
+	}
+	
+	// Retourne la TDS de définition de l'identifiant demandé afin de faciliter les contrôles sémantiques
+	public static TDS getTdsOfDef(String idf, TDS tds) {
+		TDS current = tds;
+		do {
+			for (Declarations e : tds.getVar()) {
+				if (e.getIdf()==idf) {
+					return current;
+				}
+			}
+			for (Declarations e : tds.getParams()) {
+				if (e.getIdf()==idf) {
+					return current;
+				}
+			}
+			current = current.getPere();
+		} while(current!=null);
+		return null;
 	}
 
 	public static Type getTypeExp(Tree t, TDS tds){
