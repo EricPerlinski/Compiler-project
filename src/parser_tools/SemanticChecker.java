@@ -1,5 +1,7 @@
 package parser_tools;
 
+import java.util.Stack;
+
 import model.Declarations;
 import model.TDS;
 import model.Type;
@@ -13,12 +15,46 @@ public class SemanticChecker{
 
 
 	public static boolean check(Tree ast, TDS tds){
-		boolean result=true;
+		boolean result=false;
 		
-
-
-
+		result = checkRec(ast, tds);
+		
 		return result;
+	}
+	
+	public static boolean checkRec(Tree ast, TDS tds){
+		System.out.println(ast.getText()+"("+tds.getNbImb()+":"+tds.getNbReg()+")");
+		
+		
+		//Tester ici avec les fct semantiques
+		// faire un mega switch case :D 
+		
+		
+		
+		
+		//fin test
+		
+		
+		boolean res=false;
+		TDS currentTDS = tds;
+		int nbTds=-1;
+		boolean bloc=false;
+		for(int i=0;i<ast.getChildCount();i++){
+			switch(ast.getChild(i).getType()){
+			case PlicParser.FUNCTION:
+			case PlicParser.PROCEDURE:
+			case PlicParser.BLOC:
+				nbTds++;
+				bloc=true;
+				break;
+			default:
+				bloc=false;
+			}
+			SemanticChecker.checkRec(ast.getChild(i), (bloc ? currentTDS.getFils().get(nbTds) : currentTDS));
+			bloc=false;
+		}
+		
+		return res;
 	}
 	
 	// On vérifie que la variable est bien définie dans le bloc courant ou ceux englobant
