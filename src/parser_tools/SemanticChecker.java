@@ -47,7 +47,18 @@ public class SemanticChecker{
 		}
 	}
 	
-	// Contrôle la cohérence des types des paramètres à l'appel des fonctions
+	// Contrôle le nombre de paramètres passés en argument lors de l'appel d'une fonction ou d'une procédure
+	public static boolean check_nbparams_func_call(Tree sub_tree, TDS tds) {
+		TDS tdsCurrent = tds.getTdsOfFunction(sub_tree.getChild(0).getText());
+		boolean res = true;
+		if (tds.getParams().size()!=sub_tree.getChildCount()-1) {
+			System.out.println("Erreur d'appel de fonction : Mauvais nombre de paramètres");
+			res = false;
+		}
+		return res;
+	}
+	
+	// Contrôle la cohérence des types des paramètres à l'appel des fonctions et des procédures
 	public static boolean check_func_call(Tree sub_tree, TDS tds) {
 		TDS tdsCurrent = tds.getTdsOfFunction(sub_tree.getChild(0).getText());
 		Type typeCurrent = null;
