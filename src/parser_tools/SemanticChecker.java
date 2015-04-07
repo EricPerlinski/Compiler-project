@@ -40,7 +40,7 @@ public class SemanticChecker{
 			check_condition_type(ast, tds);
 			break;
 		case PlicParser.FOR:
-			check_forloop_type(ast, tds);
+			areVarAndExprInForIntegers(ast, tds);
 			break;
 		case PlicParser.FUNCTION:
 		case PlicParser.PROCEDURE:
@@ -168,19 +168,6 @@ public class SemanticChecker{
 		return res;
 	}
 	
-	// Contrôle le type des bornes lors des boucles for : doivent être entiers
-	// Noeud racine FOR
-	public static boolean check_forloop_type(Tree sub_tree, TDS tds) {
-		boolean res = true;
-		for (int i=1; i<sub_tree.getChildCount()-1; i++) {
-			if (getTypeOfExp(sub_tree.getChild(i), tds)!=Type.integer) {
-				System.out.println("Ligne "+sub_tree.getLine()+": erreur de type de boucle -> Le "+i+"ème paramètre n'est pas de type integer");
-				res = false;
-			}
-		}
-		return res;
-	}
-	
 	// Contrôle si une fonction n'a pas 2 paramètres avec le même id et le même type
 	// Noeud racine PARAMS
 	public static boolean check_func_params(Tree sub_tree, TDS tds) {
@@ -302,7 +289,7 @@ public class SemanticChecker{
             System.out.println("Line " + t.getLine() + ": the variable " + varNode.getText() + " in for must be an integer.");
             return false;
         }
-        for(int i = 1 ; i <= 2 ; i++) {
+        for(int i = 1 ; i <= 3 ; i++) {
         Tree expNode = t.getChild(i);
             if(getTypeOfExp(expNode, tds) != Type.integer) {
                 System.out.println("Line " + t.getLine() + ": the expression " + expNode.getText() + " in for must be an integer.");
