@@ -63,6 +63,7 @@ public class SemanticChecker{
 	}
 	
 	// Contrôle la cohérence des types lors des affectations
+	// Noeud racine AFFECTATION
 	public static boolean check_aff(Tree sub_tree, TDS tds)
 	{
 		Tree fg = sub_tree.getChild(0);
@@ -80,6 +81,7 @@ public class SemanticChecker{
 	}
 	
 	// Contrôle le nombre de paramètres passés en argument lors de l'appel d'une fonction ou d'une procédure
+	// Noeud racine FUNC_CALL
 	public static boolean check_nbparams_func_call(Tree sub_tree, TDS tds) {
 		TDS tdsCurrent = tds.getTdsOfFunction(sub_tree.getChild(0).getText());
 		boolean res = true;
@@ -91,6 +93,7 @@ public class SemanticChecker{
 	}
 	
 	// Contrôle la cohérence des types des paramètres à l'appel des fonctions et des procédures
+	// Noeud racince FUNC_CALL
 	public static boolean check_func_call(Tree sub_tree, TDS tds) {
 		TDS tdsCurrent = tds.getTdsOfFunction(sub_tree.getChild(0).getText());
 		Type typeCurrent = null;
@@ -106,6 +109,7 @@ public class SemanticChecker{
 	}
 	
 	// Contrôle la cohérence entre le type de retour d'une fonction et ce qui est effectivement retourné
+	// Noeud racine RETURN
 	public static boolean check_return_type(Tree sub_tree, TDS tds) {
 		boolean res = true;
 		Type typeCurrent = getTypeOfExp(sub_tree.getChild(0),tds);
@@ -118,6 +122,7 @@ public class SemanticChecker{
 	}
 	
 	// Contrôle le type des conditions dans les structures if : doit être un boolean
+	// Noeud racine CONDITION ou IF je sais plus
 	public static boolean check_condition_type(Tree sub_tree, TDS tds) {
 		boolean res = true;
 		if (getTypeOfExp(sub_tree.getChild(0), tds)!=Type.bool) {
@@ -127,6 +132,8 @@ public class SemanticChecker{
 		return res;
 	}
 	
+	// Contrôle le type des bornes lors des boucles for : doivent être entiers
+	// Noeud racine FOR
 	public static boolean check_forloop_type(Tree sub_tree, TDS tds) {
 		boolean res = true;
 		for (int i=1; i<sub_tree.getChildCount()-1; i++) {
@@ -135,6 +142,14 @@ public class SemanticChecker{
 				res = false;
 			}
 		}
+		return res;
+	}
+	
+	// Contrôle si une fonction n'a pas 2 paramètres avec le même id et le même type
+	// Noeud racine je sais pas encore je suis dessus
+	public static boolean check_func_params(Tree sub_tree, TDS tds) {
+		boolean res = true;
+		
 		return res;
 	}
 	
