@@ -134,6 +134,10 @@ public class TDS {
 		return this.idf;
 	}
 	
+	public String getTypeRet() {
+		return this.typeRet;
+	}
+	
 	public TDS getRoot(){
 		TDS root=this;
 		while(root.pere!=null){

@@ -73,6 +73,18 @@ public class SemanticChecker{
 		return res;
 	}
 	
+	// Contrôle la cohérence entre le type de retour d'une fonction et ce qui est effectivement retourné
+	public static boolean check_return_type(Tree sub_tree, TDS tds) {
+		boolean res = true;
+		Type typeCurrent = getTypeExp(sub_tree.getChild(0),tds);
+		Type typeDefined = TDS.str2type((tds.getTypeRet()));
+		if (typeCurrent!=typeDefined) {
+			System.out.println("Erreur de type de retour de fonction : La fonction "+sub_tree.getChild(0).getText()+" a pour type de retour "+typeDefined.toString()+" mais vous retournez un "+typeCurrent);
+			res = false;
+		}
+		return res;
+	}
+	
 	// Retourne la TDS de définition de l'identifiant demandé afin de faciliter les contrôles sémantiques
 	public static TDS getTdsOfDef(String idf, TDS tds) {
 		TDS current = tds;
