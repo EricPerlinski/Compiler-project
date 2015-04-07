@@ -19,7 +19,7 @@ public class SemanticChecker{
 	}
 	
 	public static boolean checkRec(Tree ast, TDS tds){
-		System.out.println(ast.getText()+"("+tds.getNbImb()+":"+tds.getNbReg()+")");
+		//System.out.println(ast.getText()+"("+tds.getNbImb()+":"+tds.getNbReg()+")");
 		
 		
 		//Tester ici avec les fct semantiques
@@ -42,8 +42,7 @@ public class SemanticChecker{
 		case PlicParser.FOR:
 			areVarAndExprInForIntegers(ast, tds);
 			break;
-		case PlicParser.FUNCTION:
-		case PlicParser.PROCEDURE:
+		case PlicParser.PARAMS:
 			check_func_params(ast, tds);
 		}
 		
@@ -98,7 +97,7 @@ public class SemanticChecker{
 			return true;
 		} else {
 			if(tfg==null){
-				System.out.println(fg.getChild(0).getText()+" n'existe pas");
+				System.out.println("Ligne "+sub_tree.getLine()+": "+fg.getChild(0).getText()+" n'existe pas");
 
 			}
 			if(tfd==null){
@@ -121,9 +120,11 @@ public class SemanticChecker{
 	public static boolean check_nbparams_func_call(Tree sub_tree, TDS tds) {
 		TDS tdsCurrent = tds.getTdsOfFunction(sub_tree.getChild(0).getText());
 		boolean res = true;
-		if (tdsCurrent.getParams().size()!=sub_tree.getChildCount()-1) {
-			System.out.println("Ligne "+sub_tree.getLine()+": erreur d'appel de fonction -> Mauvais nombre de paramètres");
-			res = false;
+		if(tdsCurrent!=null){
+			if (tdsCurrent.getParams().size()!=sub_tree.getChildCount()-1) {
+				System.out.println("Ligne "+sub_tree.getLine()+": erreur d'appel de fonction -> Mauvais nombre de paramètres");
+				res = false;
+			}
 		}
 		return res;
 	}
@@ -212,7 +213,7 @@ public class SemanticChecker{
 			if(t1!=null && t2!=null && t1==t2){
 				res=t1;
 			}else{
-				System.out.println("Opération "+name+" avec un "+ (t1==null ? "null" : t1.toString()) +" et un "+(t2==null ? "null" : t2.toString()));
+				System.out.println("Ligne "+t.getLine()+": Opération "+name+" avec un "+ (t1==null ? "null" : t1.toString()) +" et un "+(t2==null ? "null" : t2.toString()));
 			}
 		}else if(name.equals("==") || name.equals("!=")|| name.equals("<")|| name.equals("<=")|| name.equals(">")|| name.equals(">=")){
 			Type t1 = getTypeOfExp(t.getChild(0), tds);
@@ -233,7 +234,7 @@ public class SemanticChecker{
 		}else if((res=tds.getTypeOfVar(name))!=null){
 			res=tds.getTypeOfVar(name);
 		}else{
-			System.out.println("Erreur name : "+name);
+			System.out.println("Ligne "+t.getLine()+": Erreur name : "+name);
 			res=null;
 		}
 		
