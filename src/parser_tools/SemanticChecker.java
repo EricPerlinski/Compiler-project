@@ -24,7 +24,28 @@ public class SemanticChecker{
 		
 		//Tester ici avec les fct semantiques
 		// faire un mega switch case :D 
-		
+		switch(ast.getType()){
+		case PlicParser.AFFECTATION:
+			check_aff(ast, tds);
+			break;
+		case PlicParser.FUNC_CALL:
+		case PlicParser.PROC_CALL:
+			check_nbparams_func_call(ast, tds);
+			check_func_call(ast, tds);
+			break;
+		case PlicParser.RETURN:
+			check_return_type(ast, tds);
+			break;
+		case PlicParser.CONDITION:
+			check_condition_type(ast, tds);
+			break;
+		case PlicParser.FOR:
+			check_forloop_type(ast, tds);
+			break;
+		case PlicParser.FUNCTION:
+		case PlicParser.PROCEDURE:
+			check_func_params(ast, tds);
+		}
 		
 		
 		
@@ -46,6 +67,7 @@ public class SemanticChecker{
 			default:
 				bloc=false;
 			}
+			
 			SemanticChecker.checkRec(ast.getChild(i), (bloc ? currentTDS.getFils().get(nbTds) : currentTDS));
 			bloc=false;
 		}
@@ -75,7 +97,21 @@ public class SemanticChecker{
 		if (tfg == tfd) {
 			return true;
 		} else {
-			System.out.println("Erreur d'affectation : "+tfg.toString()+" != "+tfd.toString());
+			if(tfg==null){
+				System.out.println(fg.getChild(0).getText()+" n'existe pas");
+
+			}
+			if(tfd==null){
+				if(fd.getChild(0).getType()==PlicParser.FUNC_CALL){
+					System.out.println("Ligne "+sub_tree.getLine()+": erreur fonction "+fd.getChild(0).getChild(0).getText()+" n'existe pas");
+				}else{
+					System.out.println("Ligne "+sub_tree.getLine()+": "+fd.getChild(0).getText()+" n'existe pas");
+				}
+			}
+			if(tfd!=null && tfg!=null){
+				System.out.println("Ligne "+sub_tree.getLine()+": erreur d'affectation : "+tfg.toString()+" != "+tfd.toString());
+			}
+
 			return false;
 		}
 	}
@@ -85,8 +121,8 @@ public class SemanticChecker{
 	public static boolean check_nbparams_func_call(Tree sub_tree, TDS tds) {
 		TDS tdsCurrent = tds.getTdsOfFunction(sub_tree.getChild(0).getText());
 		boolean res = true;
-		if (tds.getParams().size()!=sub_tree.getChildCount()-1) {
-			System.out.println("Erreur d'appel de fonction : Mauvais nombre de paramètres");
+		if (tdsCurrent.getParams().size()!=sub_tree.getChildCount()-1) {
+			System.out.println("Ligne "+sub_tree.getLine()+": erreur d'appel de fonction -> Mauvais nombre de paramètres");
 			res = false;
 		}
 		return res;
@@ -101,7 +137,7 @@ public class SemanticChecker{
 		for (int i=1; i<sub_tree.getChildCount()-1; i++) {
 			typeCurrent = getTypeOfExp(sub_tree.getChild(i), tds);
 			if (typeCurrent != tdsCurrent.getParams().get(i-1).getType()) {
-				System.out.println("Erreur d'appel de fonction : Le type du "+i+"eme paramètre est "+typeCurrent.toString()+" il devrait être de type "+tdsCurrent.getParams().get(i-1).getType().toString());
+				System.out.println("Ligne "+sub_tree.getLine()+": erreur d'appel de fonction -> Le type du "+i+"eme paramètre est "+typeCurrent.toString()+" il devrait être de type "+tdsCurrent.getParams().get(i-1).getType().toString());
 				res = false;
 			}
 		}
@@ -115,7 +151,7 @@ public class SemanticChecker{
 		Type typeCurrent = getTypeOfExp(sub_tree.getChild(0),tds);
 		Type typeDefined = TDS.str2type((tds.getTypeRet()));
 		if (typeCurrent!=typeDefined) {
-			System.out.println("Erreur de type de retour de fonction : La fonction "+sub_tree.getChild(0).getText()+" a pour type de retour "+typeDefined.toString()+" mais vous retournez un "+typeCurrent);
+			System.out.println("Ligne "+sub_tree.getLine()+": erreur de type de retour de fonction -> La fonction "+sub_tree.getChild(0).getText()+" a pour type de retour "+typeDefined.toString()+" mais vous retournez un "+typeCurrent);
 			res = false;
 		}
 		return res;
@@ -126,7 +162,7 @@ public class SemanticChecker{
 	public static boolean check_condition_type(Tree sub_tree, TDS tds) {
 		boolean res = true;
 		if (getTypeOfExp(sub_tree.getChild(0), tds)!=Type.bool) {
-			System.out.println("Erreur de type de condition : La condition n'est pas de type boolean");
+			System.out.println("Ligne "+sub_tree.getLine()+": erreur de type de condition : La condition n'est pas de type boolean");
 			res = false;
 		}
 		return res;
@@ -138,7 +174,7 @@ public class SemanticChecker{
 		boolean res = true;
 		for (int i=1; i<sub_tree.getChildCount()-1; i++) {
 			if (getTypeOfExp(sub_tree.getChild(i), tds)!=Type.integer) {
-				System.out.println("Erreur de type de boucle : Le "+i+"ème paramètre n'est pas de type integer");
+				System.out.println("Ligne "+sub_tree.getLine()+": erreur de type de boucle -> Le "+i+"ème paramètre n'est pas de type integer");
 				res = false;
 			}
 		}
@@ -146,10 +182,18 @@ public class SemanticChecker{
 	}
 	
 	// Contrôle si une fonction n'a pas 2 paramètres avec le même id et le même type
-	// Noeud racine je sais pas encore je suis dessus
+	// Noeud racine PARAMS
 	public static boolean check_func_params(Tree sub_tree, TDS tds) {
 		boolean res = true;
-		
+		for (int i=0; i<sub_tree.getChildCount()-2; i++) {
+			String current = sub_tree.getChild(i).getChild(1).getText();
+			for (int j=i+1; j<sub_tree.getChildCount()-1; j++) {
+				if (current==sub_tree.getChild(j).getChild(1).getText()) {
+					System.out.println("Ligne "+sub_tree.getLine()+": erreur de prototypage de fonction -> 2 paramètres ont le même nom");
+					res = false;
+				}
+			}
+		}
 		return res;
 	}
 	
@@ -181,7 +225,7 @@ public class SemanticChecker{
 			if(t1!=null && t2!=null && t1==t2){
 				res=t1;
 			}else{
-				System.out.println("Opération "+name+" avec un "+t1.toString()+" et un "+t2.toString());
+				System.out.println("Opération "+name+" avec un "+ (t1==null ? "null" : t1.toString()) +" et un "+(t2==null ? "null" : t2.toString()));
 			}
 		}else if(name.equals("==") || name.equals("!=")|| name.equals("<")|| name.equals("<=")|| name.equals(">")|| name.equals(">=")){
 			Type t1 = getTypeOfExp(t.getChild(0), tds);
@@ -194,7 +238,7 @@ public class SemanticChecker{
 		}else if(name.equals("ARRAY")){
 			res = Type.integer;
 		}else if(name.equals("FUNC_CALL")){
-			res = tds.getTypeOfFunction(name);
+			res = tds.getTypeOfFunction(t.getChild(0).getText());
 		}else if(name.equals("true") || name.equals("false")){
 			res = Type.bool;
 		}else if(name.matches("^\\p{Digit}+$")){
