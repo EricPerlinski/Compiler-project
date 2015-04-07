@@ -29,12 +29,22 @@ public class SemanticChecker{
 			check_aff(ast, tds);
 			break;
 		case PlicParser.FUNC_CALL:
+		case PlicParser.PROC_CALL:
 			check_nbparams_func_call(ast, tds);
 			check_func_call(ast, tds);
 			break;
 		case PlicParser.RETURN:
 			check_return_type(ast, tds);
 			break;
+		case PlicParser.CONDITION:
+			check_condition_type(ast, tds);
+			break;
+		case PlicParser.FOR:
+			check_forloop_type(ast, tds);
+			break;
+		case PlicParser.FUNCTION:
+		case PlicParser.PROCEDURE:
+			check_func_params(ast, tds);
 		}
 		
 		
@@ -215,7 +225,7 @@ public class SemanticChecker{
 			if(t1!=null && t2!=null && t1==t2){
 				res=t1;
 			}else{
-				System.out.println("Opération "+name+" avec un "+t1.toString()+" et un "+t2.toString());
+				System.out.println("Opération "+name+" avec un "+ (t1==null ? "null" : t1.toString()) +" et un "+(t2==null ? "null" : t2.toString()));
 			}
 		}else if(name.equals("==") || name.equals("!=")|| name.equals("<")|| name.equals("<=")|| name.equals(">")|| name.equals(">=")){
 			Type t1 = getTypeOfExp(t.getChild(0), tds);
