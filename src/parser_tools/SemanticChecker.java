@@ -127,6 +127,17 @@ public class SemanticChecker{
 		return res;
 	}
 	
+	public static boolean check_forloop_type(Tree sub_tree, TDS tds) {
+		boolean res = true;
+		for (int i=0; i<sub_tree.getChildCount()-1; i++) {
+			if (getTypeOfExp(sub_tree.getChild(i), tds)!=Type.integer) {
+				System.out.println("Erreur de type de boucle : Le "+i+"ème paramètre n'est pas de type integer");
+				res = false;
+			}
+		}
+		return res;
+	}
+	
 	// Retourne la TDS de définition de l'identifiant demandé afin de faciliter les contrôles sémantiques
 	public static TDS getTdsOfDef(String idf, TDS tds) {
 		TDS current = tds;
