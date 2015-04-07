@@ -21,6 +21,15 @@ public class SemanticChecker{
 		return result;
 	}
 	
+	// On vérifie que la variable est bien définie dans le bloc courant ou ceux englobant
+	public static boolean isDefined(String idf, TDS tds) {
+		if (getTdsOfDef(idf, tds)==null) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
 	// Pas encore aboutie du tout ...
 	public static boolean check_aff_left(Tree sub_tree, TDS tds)
 	{
