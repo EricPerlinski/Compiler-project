@@ -3,13 +3,79 @@ do
     array [0..5] tab2
     integer i
     boolean b
+    boolean b2
 
-    i[0] = 42
-    i=tab[2]
+    function integer fct (y:integer)
+        return(42)
+    end
+
+    procedure fct2 ()
+        write "42"
+    end
+
+    /*function integer fct3() /* n°11 */
+        /*return(false)*/
+    /*end*/
+
+    /*function boolean fct4()  n°11 */
+    /*    return(12) */
+    /*end*/
+
+    /*function array [0..3,0..4] fct5() /* n°11 */
+        /*return(false)*/
+    /*end*/
+
+    /*function array [0..3,0..4] fct6() /* n°11 */
+        /*return(12)*/
+    /*end*/
+
+    function integer fct7(y:integer, y:boolean) /* n°14 */
+        return(12)
+    end
+
+    function integer fct8(y:array[0..2], y:boolean) /* n°14 */
+        return(1)
+    end
+
+    function integer fct9(y:integer, y:array[0..2]) /* n°14 */
+        return(1)
+    end
+
+    i[0] = 42 /* n°1 */
+    i=tab[2] /* n°2 */
     b = false
-    tab[2,4]=tab[b]
+    b2 = false
+    tab[2,4]=tab[b] /* n°10 */
 
-    for tab in false..true do
+    for tab in false..true do   /* n°3 */
         write "ahaha"
     end
+
+    i = true /* n°6 */
+    i = tab /* n°6 */
+    b = 2 /* n°6 */
+    tab = 3 /* n°6 */
+
+    fct(i,b) /* n°8 */
+    fct2(i) /* n°8 */
+
+    fct(b) /* n°9 */
+    fct(tab) /* n°9 */
+    fct(tab2[2])
+
+    if true == true then write "42" /* n°12 */
+    fi
+
+    if b == b2 then write "42" /* n°12 */
+    fi
+
+    if 1 == 1 then write "42" /* n°12 */
+    fi
+
+    if b > b2 then write "42" /* n°12 */
+    fi
+
+
+
+
 end
