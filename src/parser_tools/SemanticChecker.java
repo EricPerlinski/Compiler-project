@@ -44,10 +44,13 @@ public class SemanticChecker{
 			break;
 		case PlicParser.PARAMS:
 			check_func_params(ast, tds);
+			break;
 		case PlicParser.ARRAY:
-		    isARealArrayType(ast, tds);
-		    isGoodNumberOfIndexesInArrayDimensions(ast, tds);
-		    isGoodTypesInArrayDimensions(ast, tds);
+		    boolean isRealArray = isARealArrayType(ast, tds);
+		    if(isRealArray) {
+		        isGoodNumberOfIndexesInArrayDimensions(ast, tds);
+		        isGoodTypesInArrayDimensions(ast, tds);
+		    }
 		    break;
 		    
 		}
@@ -280,6 +283,9 @@ public class SemanticChecker{
     public static boolean isARealArrayType(Tree t, TDS tds) {
         assert !t.getText().equalsIgnoreCase("ARRAY") : "t must be a ARRAY node";
         Tree idfNode = t.getChild(0);
+        if (idfNode.getText().equalsIgnoreCase("BOUNDS")) {
+            idfNode = t.getParent().getChild(1);
+        }
         if (getTypeOfExp(idfNode, tds) != Type.array) {
             System.out.println("Line " + t.getLine() + ": Variable " + idfNode.getText() + ", the type of the expression must be an array type.");
             return false;
@@ -294,9 +300,9 @@ public class SemanticChecker{
         Tree varNode = t.getChild(0);
         if(tds.getTypeOfVar(varNode.getText()) != Type.integer) {
             System.out.println("Line " + t.getLine() + ": the variable " + varNode.getText() + " in for must be an integer.");
-            return false;
+            res = false;
         }
-        for(int i = 1 ; i <= 3 ; i++) {
+        for(int i = 1 ; i <= 2 ; i++) {
         Tree expNode = t.getChild(i);
             if(getTypeOfExp(expNode, tds) != Type.integer) {
                 System.out.println("Line " + t.getLine() + ": the expression " + expNode.getText() + " in for must be an integer.");
