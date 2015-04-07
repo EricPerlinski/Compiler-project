@@ -97,7 +97,7 @@ public class SemanticChecker{
 			return true;
 		} else {
 			if(tfg==null){
-				System.out.println(fg.getChild(0).getText()+" n'existe pas");
+				System.out.println("Ligne "+sub_tree.getLine()+": "+fg.getChild(0).getText()+" n'existe pas");
 
 			}
 			if(tfd==null){
@@ -226,7 +226,7 @@ public class SemanticChecker{
 			if(t1!=null && t2!=null && t1==t2){
 				res=t1;
 			}else{
-				System.out.println("Opération "+name+" avec un "+ (t1==null ? "null" : t1.toString()) +" et un "+(t2==null ? "null" : t2.toString()));
+				System.out.println("Ligne "+t.getLine()+": Opération "+name+" avec un "+ (t1==null ? "null" : t1.toString()) +" et un "+(t2==null ? "null" : t2.toString()));
 			}
 		}else if(name.equals("==") || name.equals("!=")|| name.equals("<")|| name.equals("<=")|| name.equals(">")|| name.equals(">=")){
 			Type t1 = getTypeOfExp(t.getChild(0), tds);
@@ -247,7 +247,7 @@ public class SemanticChecker{
 		}else if((res=tds.getTypeOfVar(name))!=null){
 			res=tds.getTypeOfVar(name);
 		}else{
-			System.out.println("Erreur name : "+name);
+			System.out.println("Ligne "+t.getLine()+": Erreur name : "+name);
 			res=null;
 		}
 		
