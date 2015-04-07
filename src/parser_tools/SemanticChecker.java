@@ -13,17 +13,31 @@ public class SemanticChecker{
 	public static boolean check(Tree ast, TDS tds){
 		boolean result=false;
 		
-		result = checkRec(ast, tds);
+		checkRec(ast, tds, -1);
 		
 		return result;
 	}
 	
-	public static boolean checkRec(Tree ast, TDS tds){
+	public static int checkRec(Tree ast, TDS tds, int truc){
 		//System.out.println(ast.getText()+"("+tds.getNbImb()+":"+tds.getNbReg()+")");
-		
-		
+		//System.out.println("TDS : "+tds.getIdf());
+		//System.out.println("~~~~~~~~~~~ "+truc);
+		int nbTdsRec=-1;
+		boolean bloc=false;;
+		switch(ast.getType()){
+		case PlicParser.BLOC:
+		case PlicParser.FUNCTION:
+		case PlicParser.PROCEDURE:
+			truc++;
+			//System.out.println("+++++++++++++++++++++++");
+			bloc=true;
+			tds = tds.getFils().get(truc);
+			break;
+		}
 		//Tester ici avec les fct semantiques
 		// faire un mega switch case :D 
+	
+		
 		switch(ast.getType()){
 		case PlicParser.AFFECTATION:
 			check_aff(ast, tds);
@@ -47,31 +61,41 @@ public class SemanticChecker{
 		}
 		
 		
-		
 		//fin test
 		
-		
-		boolean res=false;
 		TDS currentTDS = tds;
 		int nbTds=-1;
-		boolean bloc=false;
+		//boolean bloc=false;
+		int res=truc;
+		if(bloc){
+			res=-1;
+		}
 		for(int i=0;i<ast.getChildCount();i++){
-			switch(ast.getChild(i).getType()){
+			/*switch(ast.getChild(i).getType()){
+
+			case PlicParser.BLOC:
 			case PlicParser.FUNCTION:
 			case PlicParser.PROCEDURE:
-			case PlicParser.BLOC:
 				nbTds++;
 				bloc=true;
+				//System.out.println("****** nbTds "+nbTds+" REC : "+nbTdsRec);
+				//if(nbTds>1) System.out.println("################################################");
 				break;
 			default:
 				bloc=false;
-			}
+				break;
+			}*/
 			
-			SemanticChecker.checkRec(ast.getChild(i), (bloc ? currentTDS.getFils().get(nbTds) : currentTDS));
-			bloc=false;
+			res = SemanticChecker.checkRec(ast.getChild(i), (false ? currentTDS.getFils().get(nbTds) : tds),res);
+			//System.out.println("RESULTAT "+res);
+			
 		}
-		
-		return res;
+		if(bloc){
+			return truc;
+		}else{
+			return res;
+		}
+		//return nbTdsRec;
 	}
 	
 	// On vérifie que la variable est bien définie dans le bloc courant ou ceux englobant
@@ -96,6 +120,7 @@ public class SemanticChecker{
 		if (tfg == tfd) {
 			return true;
 		} else {
+			//System.out.println(tds.toString());
 			if(tfg==null){
 				System.out.println("Ligne "+sub_tree.getLine()+": "+fg.getChild(0).getText()+" n'existe pas");
 
