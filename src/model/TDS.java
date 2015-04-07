@@ -186,24 +186,28 @@ public class TDS {
 	
 
 	public Type getTypeOfVar(String v){
-		Type t;
-		for(int i=0;i<var.size();i++){
-			if(var.get(i).getIdf().equalsIgnoreCase(v)){
-				t=var.get(i).getType();
-				return t;
-			}
-		}
-		for(int i=0;i<params.size();i++){
-			if(params.get(i).getIdf().equalsIgnoreCase(v)){
-				t=params.get(i).getType();
-				return t;
-			}
-		}
-		if(pere!=null){
-			return pere.getTypeOfVar(v);
-		}else{
-			return null;
-		}
+		return getDeclarationOfVar(v).getType();
+	}
+	
+	public Declarations getDeclarationOfVar(String v) {
+	    Declarations d;
+        for(int i=0;i<var.size();i++){
+            if(var.get(i).getIdf().equalsIgnoreCase(v)){
+                d=var.get(i);
+                return d;
+            }
+        }
+        for(int i=0;i<params.size();i++){
+            if(params.get(i).getIdf().equalsIgnoreCase(v)){
+                d=params.get(i);
+                return d;
+            }
+        }
+        if(pere!=null){
+            return pere.getDeclarationOfVar(v);
+        }else{
+            return null;
+        }
 	}
 
 
