@@ -158,7 +158,23 @@ public class TDS {
 	}
 	
 	public TDS getTdsOfFunction(String f) {
-		TDS root=getRoot();
+		//on regarde si c'est un bloc fils
+		for(int i=0;i<this.fils.size();i++){
+			if(fils.get(i).getIdf().equals(f)){
+				return fils.get(i);
+			}
+		}
+		//on regarde si c'est un frere (du coup ca peut etre récursifffff)
+		TDS pere = this.pere;
+		for(int i=0;i<pere.getFils().size();i++){
+			if(pere.getFils().get(i).getIdf().equals(f)){
+				return pere.getFils().get(i);
+			}
+		}
+		return null;
+		
+		
+		/*TDS root=getRoot();
 		Stack<TDS> stack = new Stack<TDS>();
 		stack.push(root);
 		TDS tdsCurrent = null;
@@ -171,7 +187,7 @@ public class TDS {
 				stack.add(tdsCurrent.fils.get(i));
 			}
 		}
-		return tdsCurrent;
+		return tdsCurrent;*/
 	}
 	
 	public Type getTypeOfFunction(String f){
