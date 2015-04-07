@@ -1,0 +1,15 @@
+do
+    array [0..3,0..4] tab
+    array [0..5] tab2
+    integer i
+    boolean b
+
+    i[0] = 42
+    i=tab[2]
+    b = false
+    tab[2,4]=tab[b]
+
+    for tab in false..true do
+        write "ahaha"
+    end
+end
