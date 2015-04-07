@@ -207,9 +207,9 @@ public class SemanticChecker{
 	// Noeud racine PARAMS
 	public static boolean check_func_params(Tree sub_tree, TDS tds) {
 		boolean res = true;
-		for (int i=0; i<sub_tree.getChildCount()-2; i++) {
+		for (int i=0; i<sub_tree.getChildCount()-1; i++) {
 			String current = sub_tree.getChild(i).getChild(1).getText();
-			for (int j=i+1; j<sub_tree.getChildCount()-1; j++) {
+			for (int j=i+1; j<sub_tree.getChildCount(); j++) {
 				if (current.equals(sub_tree.getChild(j).getChild(1).getText())) {
 					System.out.println("Line "+sub_tree.getLine()+": Wron prototype of the function -> At least two parameters have the same identifier");
 					res = false;
