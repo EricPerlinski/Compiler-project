@@ -194,6 +194,7 @@ public class SemanticChecker{
 		return res;
 	}
 	
+    //Ne pas oublier d'appeler isARealArrayType
 	// t = arbre avec comme racine le noeud ARRAY
     public static boolean isGoodTypesInArrayDimensions(Tree t, TDS tds) {
         assert !t.getText().equalsIgnoreCase("ARRAY") : "t must be the ARRAY node";
@@ -207,6 +208,7 @@ public class SemanticChecker{
         }
         return res;
     }
+    //Ne pas oublier d'appeler isARealArrayType
     // t = arbre avec comme racine le noeud ARRAY
     public static boolean isGoodNumberOfIndexesInArrayDimensions(Tree t, TDS tds) {
         assert !t.getText().equalsIgnoreCase("ARRAY") : "t must be the ARRAY node";
