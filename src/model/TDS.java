@@ -159,16 +159,18 @@ public class TDS {
 	
 	public TDS getTdsOfFunction(String f) {
 		//on regarde si c'est un bloc fils
-		for(int i=0;i<this.fils.size();i++){
+		for(int i=0;i<fils.size();i++){
 			if(fils.get(i).getIdf().equals(f)){
 				return fils.get(i);
 			}
 		}
 		//on regarde si c'est un frere (du coup ca peut etre récursifffff)
-		TDS pere = this.pere;
-		for(int i=0;i<pere.getFils().size();i++){
-			if(pere.getFils().get(i).getIdf().equals(f)){
-				return pere.getFils().get(i);
+		if(pere!=null){
+			TDS pere = this.pere;
+			for(int i=0;i<pere.getFils().size();i++){
+				if(pere.getFils().get(i).getIdf().equals(f)){
+					return pere.getFils().get(i);
+				}
 			}
 		}
 		return null;
@@ -202,7 +204,12 @@ public class TDS {
 	
 
 	public Type getTypeOfVar(String v){
-		return getDeclarationOfVar(v).getType();
+		Declaration d = getDeclarationOfVar(v);
+		if(d!=null){
+			return d.getType();
+		}else{
+			return null;
+		}
 	}
 	
 	public Declaration getDeclarationOfVar(String v) {

@@ -24,7 +24,18 @@ public class SemanticChecker{
 		
 		//Tester ici avec les fct semantiques
 		// faire un mega switch case :D 
-		
+		switch(ast.getType()){
+		case PlicParser.AFFECTATION:
+			check_aff(ast, tds);
+			break;
+		case PlicParser.FUNC_CALL:
+			check_nbparams_func_call(ast, tds);
+			check_func_call(ast, tds);
+			break;
+		case PlicParser.RETURN:
+			check_return_type(ast, tds);
+			break;
+		}
 		
 		
 		
@@ -46,6 +57,7 @@ public class SemanticChecker{
 			default:
 				bloc=false;
 			}
+			
 			SemanticChecker.checkRec(ast.getChild(i), (bloc ? currentTDS.getFils().get(nbTds) : currentTDS));
 			bloc=false;
 		}
@@ -75,7 +87,20 @@ public class SemanticChecker{
 		if (tfg == tfd) {
 			return true;
 		} else {
-			System.out.println("Erreur d'affectation : "+tfg.toString()+" != "+tfd.toString());
+			if(tfg==null){
+				System.out.println(fg.getChild(0).getText()+" n'existe pas");
+
+			}
+			if(tfd==null){
+				if(fd.getChild(0).getType()==PlicParser.FUNC_CALL){
+					System.out.println("fonction "+fd.getChild(0).getChild(0).getText()+" n'existe pas");
+				}else{
+					System.out.println(fd.getChild(0).getText()+" n'existe pas");
+				}
+			}
+			if(tfd!=null && tfg!=null){
+				System.out.println("Erreur d'affectation : "+tfg.toString()+" != "+tfd.toString());
+			}
 			return false;
 		}
 	}
@@ -194,7 +219,7 @@ public class SemanticChecker{
 		}else if(name.equals("ARRAY")){
 			res = Type.integer;
 		}else if(name.equals("FUNC_CALL")){
-			res = tds.getTypeOfFunction(name);
+			res = tds.getTypeOfFunction(t.getChild(0).getText());
 		}else if(name.equals("true") || name.equals("false")){
 			res = Type.bool;
 		}else if(name.matches("^\\p{Digit}+$")){
