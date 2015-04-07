@@ -13,8 +13,8 @@ public class SemanticChecker{
 
 
 	public static boolean check(Tree ast, TDS tds){
-		boolean result=false;
-
+		boolean result=true;
+		
 
 
 
@@ -30,36 +30,26 @@ public class SemanticChecker{
 		}
 	}
 	
-	// Pas encore aboutie du tout ...
-	public static boolean check_aff_left(Tree sub_tree, TDS tds)
+	public static boolean check_aff(Tree sub_tree, TDS tds)
 	{
-		// On regarde si le premier fils est de type Array ou non
-		Tree fc = sub_tree.getChild(0);
-		if (fc.getType()==PlicParser.ARRAY) {
-			for (Declarations e : tds.getVar()) {
-				if (fc.getChild(0).getText().equalsIgnoreCase(e.getIdf()) && e.getType()!=Type.array) {
-					return false;
-				}
-			}
-			for (Declarations e : tds.getParams()) {
-				if (fc.getChild(0).getText().equalsIgnoreCase(e.getIdf()) && e.getType()!=Type.array) {
-					return false;
-				}
-			}
-		} else { // Sinon on vérifie dans la tds que le premier fils est bien du même type que le second 
-			Declarations res = null;
-			for (Declarations e : tds.getVar()) {
-				if (fc.getText().equalsIgnoreCase(e.getIdf())) {
-					res = e;
-				}
-			}
-			for (Declarations e : tds.getParams()) {
-				if (fc.getText().equalsIgnoreCase(e.getIdf())) {
-					res = e;
-				}
-			}
+		Tree fg = sub_tree.getChild(0);
+		Tree fd = sub_tree.getChild(1);
+		
+		Type tfg = tds.getTypeOfVar(fg.getChild(0).getText());
+		Type tfd = null;
+		
+		if (fd.getChild(0).getType()==PlicParser.FUNC_CALL) {
+			tfd = tds.getTypeOfFunction(fd.getChild(0).getText());
+		} else {
+			tfd = tds.getTypeOfVar(fd.getChild(0).getText());
 		}
-		return true;
+		
+		if (tfg == tfd) {
+			return true;
+		} else {
+			System.out.println("Erreur d'affectation : "+tfg.toString()+" != "+tfd.toString());
+			return false;
+		}
 	}
 	
 	// Retourne la TDS de définition de l'identifiant demandé afin de faciliter les contrôles sémantiques
