@@ -30,6 +30,7 @@ public class SemanticChecker{
 		}
 	}
 	
+	// Contrôle la cohérence des types lors des affectations
 	public static boolean check_aff(Tree sub_tree, TDS tds)
 	{
 		Tree fg = sub_tree.getChild(0);
@@ -50,6 +51,12 @@ public class SemanticChecker{
 			System.out.println("Erreur d'affectation : "+tfg.toString()+" != "+tfd.toString());
 			return false;
 		}
+	}
+	
+	// Contrôle la cohérence des types des paramètres à l'appel des fonctions
+	public static boolean check_func_call(Tree sub_tree, TDS tds) {
+		// TODO
+		return false;
 	}
 	
 	// Retourne la TDS de définition de l'identifiant demandé afin de faciliter les contrôles sémantiques

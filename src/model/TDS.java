@@ -153,23 +153,31 @@ public class TDS {
 		return null;
 	}
 	
-	public Type getTypeOfFunction(String f){
-		Type t=null;
+	public TDS getTdsOfFunction(String f) {
 		TDS root=getRoot();
 		Stack<TDS> stack = new Stack<TDS>();
 		stack.push(root);
-		TDS tdsCurrent;
+		TDS tdsCurrent = null;
 		while(!stack.empty()){
 			tdsCurrent=stack.pop();
 			if(tdsCurrent.idf.equals(f)){
-				t=str2type(tdsCurrent.typeRet);
 				break;
 			}
 			for(int i=0;i<tdsCurrent.fils.size();i++){
 				stack.add(tdsCurrent.fils.get(i));
 			}
 		}
-		return t;
+		return tdsCurrent;
+	}
+	
+	public Type getTypeOfFunction(String f){
+		Type t=null;
+		TDS tdsCurrent = this.getTdsOfFunction(f);
+		if (tdsCurrent==null) {
+			return null;
+		} else {
+			return str2type(tdsCurrent.typeRet);
+		}
 	}
 	
 
