@@ -13,21 +13,21 @@ do
         write "42"
     end
 
-    /*function integer fct3() /* n°11 */
-        /*return(false)*/
-    /*end*/
+    function integer fct3() /* n°11 */
+        return(false)
+    end
 
-    /*function boolean fct4()  n°11 */
-    /*    return(12) */
-    /*end*/
+    function boolean fct4()  /* n°11 */
+        return(12)
+    end
 
-    /*function array [0..3,0..4] fct5() /* n°11 */
-        /*return(false)*/
-    /*end*/
+    function array [0..3,0..4] fct5() /* n°11 */
+        return(false)
+    end
 
-    /*function array [0..3,0..4] fct6() /* n°11 */
-        /*return(12)*/
-    /*end*/
+    function array [0..3,0..4] fct6() /* n°11 */
+        return(12)
+    end
 
     function integer fct7(y:integer, y:boolean) /* n°14 */
         return(12)

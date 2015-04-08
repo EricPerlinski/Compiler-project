@@ -147,7 +147,7 @@ public class TDS {
 	}
 	
 	public static Type str2type(String t){
-		if(t.equals(Type.array.toString())){
+		if(t.equalsIgnoreCase(Type.array.toString())){
 			return Type.array;
 		}else if(t.equals(Type.integer.toString())){
 			return Type.integer;

@@ -19,9 +19,6 @@ public class SemanticChecker{
 	}
 	
 	public static int checkRec(Tree ast, TDS tds, int truc){
-		//System.out.println(ast.getText()+"("+tds.getNbImb()+":"+tds.getNbReg()+")");
-		//System.out.println("TDS : "+tds.getIdf());
-		//System.out.println("~~~~~~~~~~~ "+truc);
 		int nbTdsRec=-1;
 		boolean bloc=false;;
 		switch(ast.getType()){
@@ -29,7 +26,6 @@ public class SemanticChecker{
 		case PlicParser.FUNCTION:
 		case PlicParser.PROCEDURE:
 			truc++;
-			//System.out.println("+++++++++++++++++++++++");
 			bloc=true;
 			tds = tds.getFils().get(truc);
 			break;
@@ -50,7 +46,7 @@ public class SemanticChecker{
 		case PlicParser.RETURN:
 			check_return_type(ast, tds);
 			break;
-		case PlicParser.CONDITION:
+		case PlicParser.CONDITION:			
 			check_condition_type(ast, tds);
 			break;
 		case PlicParser.FOR:
@@ -60,11 +56,13 @@ public class SemanticChecker{
 			check_func_params(ast, tds);
 			break;
 		case PlicParser.ARRAY:
-		    boolean isRealArray = isARealArrayType(ast, tds);
-		    if(isRealArray) {
-		        isGoodNumberOfIndexesInArrayDimensions(ast, tds);
-		        isGoodTypesInArrayDimensions(ast, tds);
-		    }
+			if(ast.getParent().getType()!=PlicParser.PROTOTYPE){
+			    boolean isRealArray = isARealArrayType(ast, tds);
+			    if(isRealArray) {
+			        isGoodNumberOfIndexesInArrayDimensions(ast, tds);
+			        isGoodTypesInArrayDimensions(ast, tds);
+			    }
+			}
 		    break;
 		    
 		}
@@ -79,32 +77,14 @@ public class SemanticChecker{
 		if(bloc){
 			res=-1;
 		}
-		for(int i=0;i<ast.getChildCount();i++){
-			/*switch(ast.getChild(i).getType()){
-
-			case PlicParser.BLOC:
-			case PlicParser.FUNCTION:
-			case PlicParser.PROCEDURE:
-				nbTds++;
-				bloc=true;
-				//System.out.println("****** nbTds "+nbTds+" REC : "+nbTdsRec);
-				//if(nbTds>1) System.out.println("################################################");
-				break;
-			default:
-				bloc=false;
-				break;
-			}*/
-			
+		for(int i=0;i<ast.getChildCount();i++){	
 			res = SemanticChecker.checkRec(ast.getChild(i), (false ? currentTDS.getFils().get(nbTds) : tds),res);
-			//System.out.println("RESULTAT "+res);
-			
 		}
 		if(bloc){
 			return truc;
 		}else{
 			return res;
 		}
-		//return nbTdsRec;
 	}
 	
 	// On vérifie que la variable est bien définie dans le bloc courant ou ceux englobant
@@ -131,14 +111,14 @@ public class SemanticChecker{
 		} else {
 			//System.out.println(tds.toString());
 			if(tfg==null){
-				System.out.println("Ligne "+sub_tree.getLine()+": "+fg.getChild(0).getText()+" n'existe pas");
+				System.out.println("Line "+sub_tree.getLine()+": "+fg.getChild(0).getText()+" n'existe pas");
 
 			}
 			if(tfd==null){
 				if(fd.getChild(0).getType()==PlicParser.FUNC_CALL){
-					System.out.println("Ligne "+sub_tree.getLine()+": erreur fonction "+fd.getChild(0).getChild(0).getText()+" n'existe pas");
+					System.out.println("Line "+sub_tree.getLine()+": error function "+fd.getChild(0).getChild(0).getText()+" does not exist");
 				}else{
-					System.out.println("Ligne "+sub_tree.getLine()+": "+fd.getChild(0).getText()+" n'existe pas");
+					System.out.println("Line "+sub_tree.getLine()+": "+fd.getChild(0).getText()+" does not exist");
 				}
 			}
 			if(tfd!=null && tfg!=null){
@@ -172,7 +152,7 @@ public class SemanticChecker{
 		for (int i=1; i<sub_tree.getChildCount()-1; i++) {
 			typeCurrent = getTypeOfExp(sub_tree.getChild(i), tds);
 			if (typeCurrent != tdsCurrent.getParams().get(i-1).getType()) {
-				System.out.println("Line "+sub_tree.getLine()+": Wrong call of the function -> Wrong type of the parameter « " + sub_tree.getChild(i).getText() + " », it should be "+tdsCurrent.getParams().get(i-1).getType().toString());
+				System.out.println("Line "+sub_tree.getLine()+": wrong call of the function -> Wrong type of the parameter « " + sub_tree.getChild(i).getText() + " », it should be "+tdsCurrent.getParams().get(i-1).getType().toString());
 				res = false;
 			}
 		}
@@ -184,9 +164,9 @@ public class SemanticChecker{
 	public static boolean check_return_type(Tree sub_tree, TDS tds) {
 		boolean res = true;
 		Type typeCurrent = getTypeOfExp(sub_tree.getChild(0),tds);
-		Type typeDefined = TDS.str2type((tds.getTypeRet()));
+		Type typeDefined = tds.getTypeOfFunction((sub_tree.getParent().getParent().getChild(0).getChild(1).getText()));
 		if (typeCurrent!=typeDefined) {
-			System.out.println("Line "+sub_tree.getLine()+": Wrong type of return -> The function « "+sub_tree.getParent().getParent().getChild(0).getChild(1).getText()+" » must return a "+typeDefined.toString()+" but it actually returns a "+typeCurrent);
+			System.out.println("Line "+sub_tree.getLine()+": wrong type of return -> The function « "+sub_tree.getParent().getParent().getChild(0).getChild(1).getText()+" » must return a "+(typeDefined!=null ? typeDefined.toString() : "null" )+" but it actually returns a "+typeCurrent);
 			res = false;
 		}
 		return res;
@@ -197,7 +177,7 @@ public class SemanticChecker{
 	public static boolean check_condition_type(Tree sub_tree, TDS tds) {
 		boolean res = true;
 		if (getTypeOfExp(sub_tree.getChild(0), tds)!=Type.bool) {
-			System.out.println("Line "+sub_tree.getLine()+": Wrong type of the condition, it should be of boolean type");
+			System.out.println("Line "+sub_tree.getLine()+": wrong type of the condition, it should be of boolean type");
 			res = false;
 		}
 		return res;
@@ -211,7 +191,7 @@ public class SemanticChecker{
 			String current = sub_tree.getChild(i).getChild(1).getText();
 			for (int j=i+1; j<sub_tree.getChildCount(); j++) {
 				if (current.equals(sub_tree.getChild(j).getChild(1).getText())) {
-					System.out.println("Line "+sub_tree.getLine()+": Wron prototype of the function -> At least two parameters have the same identifier");
+					System.out.println("Line "+sub_tree.getLine()+": wrong prototype of the function -> At least two parameters have the same identifier");
 					res = false;
 				}
 			}
@@ -247,7 +227,7 @@ public class SemanticChecker{
 			if(t1!=null && t2!=null && t1==t2){
 				res=t1;
 			}else{
-				System.out.println("Ligne "+t.getLine()+": Opération "+name+" avec un "+ (t1==null ? "null" : t1.toString()) +" et un "+(t2==null ? "null" : t2.toString()));
+				System.out.println("Line "+t.getLine()+": operator "+name+" applied to a "+ (t1==null ? "null" : t1.toString()) +" and a "+(t2==null ? "null" : t2.toString()));
 			}
 		}else if(name.equals("==") || name.equals("!=")|| name.equals("<")|| name.equals("<=")|| name.equals(">")|| name.equals(">=")){
 			Type t1 = getTypeOfExp(t.getChild(0), tds);
@@ -268,7 +248,8 @@ public class SemanticChecker{
 		}else if((res=tds.getTypeOfVar(name))!=null){
 			res=tds.getTypeOfVar(name);
 		}else{
-			System.out.println("Ligne "+t.getLine()+": Erreur name : "+name);
+			System.out.println(t.getText());
+			System.out.println("Line "+t.getLine()+": error name : "+name);
 			res=null;
 		}
 		
