@@ -69,9 +69,10 @@ public class Test {
         // tdsBuilder.getCurrent().afficherTds();
 
         // ANALYSE SEMANTIQUE
-        System.out.println("\n\033[31m");
+        System.out.println("--------------------------------");
+        //System.out.println("\n\033[31m");
         boolean semCheck = SemanticChecker.check(ast, tds);
-        System.out.println("\033[0m");
+        //System.out.println("\033[0m");
 
     }
 

@@ -213,7 +213,7 @@ atom
 	| 'false'
 	| CSTE_ENT
 	| IDF idf_arg 
-		-> ^(FUNC_CALL IDF idf_arg)
+		-> ^(FUNC_CALL IDF idf_arg?)
 	| atom_aff
 	;
 
@@ -229,7 +229,7 @@ atom_aff
 
 idf_arg
 	: '(' ( exp ( ',' exp)* )? ')'
-		-> exp*
+		-> (exp*)?
 	;
 
 cste_array

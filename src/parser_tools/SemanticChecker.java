@@ -78,7 +78,7 @@ public class SemanticChecker{
 			res=-1;
 		}
 		for(int i=0;i<ast.getChildCount();i++){	
-			res = SemanticChecker.checkRec(ast.getChild(i), (false ? currentTDS.getFils().get(nbTds) : tds),res);
+			res = SemanticChecker.checkRec(ast.getChild(i), tds,res);
 		}
 		if(bloc){
 			return truc;
@@ -147,13 +147,18 @@ public class SemanticChecker{
 	// Noeud racince FUNC_CALL
 	public static boolean check_func_call(Tree sub_tree, TDS tds) {
 		TDS tdsCurrent = tds.getTdsOfFunction(sub_tree.getChild(0).getText());
+		if(tdsCurrent==null){
+			return false;
+		}
 		Type typeCurrent = null;
 		boolean res = true;
-		for (int i=1; i<sub_tree.getChildCount()-1; i++) {
+		for (int i=1; i<sub_tree.getChildCount(); i++) {
 			typeCurrent = getTypeOfExp(sub_tree.getChild(i), tds);
-			if (typeCurrent != tdsCurrent.getParams().get(i-1).getType()) {
-				System.out.println("Line "+sub_tree.getLine()+": wrong call of the function -> Wrong type of the parameter « " + sub_tree.getChild(i).getText() + " », it should be "+tdsCurrent.getParams().get(i-1).getType().toString());
-				res = false;
+			if(i-1<tdsCurrent.getParams().size()){
+				if (typeCurrent != tdsCurrent.getParams().get(i-1).getType()) {
+					System.out.println("Line "+sub_tree.getLine()+": wrong call of the function -> Wrong type of the parameter « " + (sub_tree.getChild(i).getType()!=PlicParser.FUNC_CALL ? sub_tree.getChild(i).getText() : sub_tree.getChild(i).getChild(0).getText() ) + " », it should be "+tdsCurrent.getParams().get(i-1).getType().toString());
+					res = false;
+				}
 			}
 		}
 		return res;
