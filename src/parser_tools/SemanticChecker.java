@@ -248,7 +248,6 @@ public class SemanticChecker{
 		}else if((res=tds.getTypeOfVar(name))!=null){
 			res=tds.getTypeOfVar(name);
 		}else{
-			System.out.println(t.getText());
 			System.out.println("Line "+t.getLine()+": error name : "+name);
 			res=null;
 		}
