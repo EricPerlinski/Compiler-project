@@ -1,12 +1,17 @@
 package plic;
 
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import model.TDS;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.CommonTree;
+
+import asm.AsmGenerator;
 
 import parser_tools.SemanticChecker;
 import parser_tools.TdsBuilder;
@@ -85,10 +90,30 @@ public class Test {
         
         //ici le code est bon :D
         //Lancement de la generation de code
-
         
-        
-        
+        AsmGenerator asm = new AsmGenerator(name, ast, tds);
+        boolean errGen = asm.generate();
+        if(errGen){
+        	System.out.println("Erreur de generation de code");
+        }else{
+        	System.out.println(asm.getCode());
+        	writeAsm(name, asm.getCode().toString());
+        }    
+    }
+    
+    
+    
+    private static void writeAsm(String name, String code){
+    	BufferedWriter outputFile;
+		try {
+			outputFile = new BufferedWriter(new FileWriter("asm/src/"+name+".s"));
+			outputFile.write(code);
+	    	outputFile.close();
+		} catch (IOException e) {
+			System.out.println("Erreur ecriture fichier assembleur");
+			e.printStackTrace();
+		}
+    	
     }
 
 }

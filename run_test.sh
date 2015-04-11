@@ -4,6 +4,8 @@ mkdir -p tree/input
 mkdir -p tree/output
 mkdir -p tds/input
 mkdir -p tds/output
+mkdir -p asm/src
+mkdir -p asm/bin
 
 if [ $# -eq 0 ] || [ $1 = '-c' -a $# -eq 1 ] || [ $1 = '-a' -a $# -eq 1 ]
 then
