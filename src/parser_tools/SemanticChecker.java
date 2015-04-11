@@ -18,6 +18,14 @@ public class SemanticChecker{
 		return errorsBuff;
 	}
 	
+	public static int getNbErrors(){
+		return nbErrors;
+	}
+	
+	public static int getNbWarn(){
+		return nbWarn;
+	}
+	
 	private static void addError(String err){
 		nbErrors++;
 		errorsBuff.append("\n\033[31m");

@@ -68,8 +68,23 @@ public class Test {
         // ANALYSE SEMANTIQUE
         boolean errCheck = SemanticChecker.check(ast, tds);
         if(errCheck){
+        	int nbErr = SemanticChecker.getNbErrors();
+        	int nbWarn = SemanticChecker.getNbWarn();
         	System.out.println(SemanticChecker.getErrors());
+        	System.out.print("===> Please correct your ");
+        	if(nbErr>0){
+        		System.out.print("\033[31m"+nbErr+"\033[0m Errors ");
+        	}
+        	if(nbWarn>0){
+        		System.out.print("\033[33m"+nbErr+"\033[0m Warnings");
+        	}
+        	System.out.println(".");
+        	System.exit(1);
         }
+        
+        
+        //ici le code est bon :D
+        //Lancement de la generation de code
 
         
         
