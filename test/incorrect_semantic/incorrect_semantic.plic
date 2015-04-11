@@ -14,7 +14,7 @@ do
     end
 
     function integer fct3() /* n°11 */
-        return(false)
+        return(1)
     end
 
     function boolean fct4()  /* n°11 */
@@ -74,6 +74,8 @@ do
 
     if b > b2 then write "42" /* n°12 */
     fi
+
+    i=fct(fct2())
 
 
 

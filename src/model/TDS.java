@@ -193,7 +193,6 @@ public class TDS {
 	}
 	
 	public Type getTypeOfFunction(String f){
-		Type t=null;
 		TDS tdsCurrent = this.getTdsOfFunction(f);
 		if (tdsCurrent==null) {
 			return null;
@@ -280,8 +279,6 @@ public class TDS {
 		
 		for(int i=0;i<fils.size();i++){
 			max++;
-			Integer currentO=(stack.peek());
-			int current = ((int)currentO)+1;
 			str.append("\nelement_"+stack.peek()+":2 -> element_"+max+":port:n\n");
 			str.append(fils.get(i).tds2dot(max));
 			stack.push(new Integer(max));

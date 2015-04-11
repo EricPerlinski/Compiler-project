@@ -7,12 +7,9 @@ import model.TDS;
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.tree.CommonTree;
-import org.antlr.runtime.tree.Tree;
 
 import parser_tools.SemanticChecker;
 import parser_tools.TdsBuilder;
-import plic.PlicLexer;
-import plic.PlicParser;
 import dot.Tds2img;
 import dot.Tree2img;
 
@@ -69,11 +66,14 @@ public class Test {
         // tdsBuilder.getCurrent().afficherTds();
 
         // ANALYSE SEMANTIQUE
-        System.out.println("--------------------------------");
-        //System.out.println("\n\033[31m");
-        boolean semCheck = SemanticChecker.check(ast, tds);
-        //System.out.println("\033[0m");
+        boolean errCheck = SemanticChecker.check(ast, tds);
+        if(errCheck){
+        	System.out.println(SemanticChecker.getErrors());
+        }
 
+        
+        
+        
     }
 
 }

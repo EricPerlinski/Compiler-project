@@ -11,7 +11,6 @@ import org.antlr.runtime.tree.CommonTree;
 
 public class Tree2img{
 
-	static private final String WITH_DELIMITER = "((?<=%1$s)|(?=%1$s))";
 
 	private CommonTree tree;
 	private String output;
@@ -75,45 +74,6 @@ public class Tree2img{
 		sid.pop();
 		return index;
 	}
-
-
-	/*private void parseTree() throws IOException{
-		
-		
-		String treeTab[] = tree.split(String.format(WITH_DELIMITER, "\\(|\\)|\\s"));
-		boolean stackNext=false;
-		StringBuffer content = new StringBuffer();
-		int rand = 0;
-		for(int i=0;i<treeTab.length;i++){
-			rand = (int)(Math.random()*1000);
-			if(treeTab[i].trim().length()>0){
-				//System.out.println(i+" : "+treeTab[i]);
-				switch(treeTab[i].charAt(0)){
-				case '(':
-					stackNext=true;
-					break;
-				case ')':
-					stack.pop();
-					stackId.pop();
-					break;
-				default:
-					if(stackNext){
-						stackNext=false;
-						content.append("\t"+i+" [label=\""+treeTab[i]+"\"]");
-						content.append("\n\t"+stackId.peek()+" -> "+i+" ;\n");
-						stack.addElement(treeTab[i]);
-						stackId.addElement(""+i);
-					}else{
-						content.append("\t"+i+" [label=\""+treeTab[i]+"\"]");
-						content.append("\t"+stackId.peek()+" -> "+i+" ;\n");
-					}
-
-
-				}
-			}
-		}
-		outputFile.write(content.toString());
-	}*/
 
 
 
