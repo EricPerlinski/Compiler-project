@@ -73,6 +73,10 @@ public class TDS {
 	public ArrayList<Declaration> getParams() {
 		return params;
 	}
+	
+	public boolean isRoot(){
+		return pere==null;
+	}
 
 	public Declaration getLastParam(){
 		if(params.size()>0){
