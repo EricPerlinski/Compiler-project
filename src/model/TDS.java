@@ -231,7 +231,38 @@ public class TDS {
             return null;
         }
 	}
-
+	
+	
+	
+	
+	public Declaration getDeclarationOfLocaleVar(String v) {
+        for(int i=0;i<var.size();i++){
+            if(var.get(i).getIdf().equalsIgnoreCase(v)){
+                return var.get(i);
+            }
+        }
+        return null;
+	}
+	
+	public Declaration getDeclarationOfParam(String v) {
+		for(int i=0;i<params.size();i++){
+	        if(params.get(i).getIdf().equalsIgnoreCase(v)){
+	            return params.get(i);
+	        }
+	    }
+		return null;
+	}
+	
+	
+	public Declaration getDeclarationOfNeitherGlobalNorLocaleVar(String v) {
+	    TDS currentpere = pere;
+	    while(currentpere!=null && currentpere.getDeclarationOfLocaleVar(v) == null){
+	    		currentpere = pere.getPere();
+	    }
+		return currentpere.getDeclarationOfLocaleVar(v);
+	}
+	
+	
 
 	/* ToString */
 	

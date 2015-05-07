@@ -36,5 +36,35 @@ public class AsmGenerator {
 		addCodeln("//Prog "+name);
 		return false;
 	}
+	
+	
+	public void accessLocaleVar(String var){
+		addCodeln("LEA ("+Integer.toString(tds.getDeclarationOfLocaleVar(var).getDeplacement())+",A0),A1)");
+	}
+	
+	public void accessNeitherGlobalNorLocaleVar(String var){
+		addCodeln("MOVE #(Nx-Ny),DO");// TODO A modifier et à ajouter une fonction permettant de retrouver le niveau d'imbrication
+		addCodeln("MOVE A0,A2");
+		addCodeln("BOUCLE: MOVE(depl_stat,A2),A2"); // TODO A modifier
+		addCodeln("SUB #1,D0");
+		addCodeln("BNE BOUCLE");
+		addCodeln("LEA (depl,A2),A1");
+	}
+	
+	public void stackValue(){
+		addCodeln("MOVE (A1),-(A7)");
+	}
+	
+	public void accessAddressParam(String param){
+		addCodeln("MOVE ("+Integer.toString(tds.getDeclarationOfParam(param).getDeplacement())+",A0),A1");
+	}
 
+	public void accessValParam(String param){
+		addCodeln("LEA ("+Integer.toString(tds.getDeclarationOfParam(param).getDeplacement())+",A0),A1");
+	}
+	
+	public void accessRoutine(){
+		
+	}
+	
 }
