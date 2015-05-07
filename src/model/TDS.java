@@ -211,6 +211,25 @@ public class TDS {
 		}
 	}
 	
+	public int getDeepOfVar(String v){
+		int res=0;;
+        for(int i=0;i<var.size();i++){
+            if(var.get(i).getIdf().equalsIgnoreCase(v)){
+                return 0;
+            }
+        }
+        for(int i=0;i<params.size();i++){
+            if(params.get(i).getIdf().equalsIgnoreCase(v)){
+            	return 0;
+            }
+        }
+        if(pere!=null){
+            return 1+pere.getDeepOfVar(v);
+        }else{
+            return -1;
+        }
+	}
+	
 	public Declaration getDeclarationOfVar(String v) {
 	    Declaration d;
         for(int i=0;i<var.size();i++){
