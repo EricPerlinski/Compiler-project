@@ -4,6 +4,9 @@ import model.TDS;
 
 import org.antlr.runtime.tree.Tree;
 
+import parser_tools.SemanticChecker;
+import plic.PlicParser;
+
 public class AsmGenerator {
 	
 	private String name;
@@ -11,12 +14,19 @@ public class AsmGenerator {
 	private TDS tds;
 	
 	private StringBuffer asmBuff;
+
+	private int uniqId;
 	
 	public AsmGenerator(String name,Tree ast, TDS tds){
 		this.ast=ast;
 		this.tds=tds;
 		this.name=name;
+		this.uniqId=0;
 		asmBuff=new StringBuffer();
+	}
+
+	public int getUniqId(){
+		return uniqId++;
 	}
 	
 	public StringBuffer getCode(){
@@ -34,7 +44,64 @@ public class AsmGenerator {
 	
 	public boolean generate(){
 		addCodeln("//Prog "+name);
+		//init du programme
+		addCodeln("org 0x1000");
+		addCodeln("start debut");
+		//creation pile
+		addCodeln("stackSize equ 100");
+		addCodeln("stack rsb stackSize");
+
+		generateRec(tds, ast, -1);
+		
+		//TODO a mettre au debut du main
+		//debut du programme
+		//addCodeln("main");
+		//init de la pile
+		//addCodeln("ldw R15,#(stack+stackSize)");
+
+		
+		
+
+
+		//fin du programme
+		addCodeln("fin");
+
+
+		//fin du programme
+		addCodeln("trp #64");
 		return false;
+	}
+	
+	public int generateRec(TDS tds, Tree ast, int truc){
+		boolean bloc=false;;
+		switch(ast.getType()){
+		case PlicParser.BLOC:
+		case PlicParser.FUNCTION:
+		case PlicParser.PROCEDURE:
+			truc++;
+			bloc=true;
+			tds = tds.getFils().get(truc);
+			break;
+		}
+		// Generer de l'ASM suivant le type
+		switch(ast.getType()){
+		
+		}
+		//fin génération
+		
+		//boolean bloc=false;
+		int res=truc;
+		if(bloc){
+			res=-1;
+		}
+		for(int i=0;i<ast.getChildCount();i++){	
+			res = SemanticChecker.checkRec(ast.getChild(i), tds,res);
+		}
+		if(bloc){
+			return truc;
+		}else{
+			return res;
+		}
 	}
 	
 	
