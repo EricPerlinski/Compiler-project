@@ -50,6 +50,8 @@ public class AsmGenerator {
 		//creation pile
 		addCodeln("stackSize equ 100");
 		addCodeln("stack rsb stackSize");
+		
+		addCodeln("debut");
 
 		generateRec(tds, ast, -1);
 		
@@ -58,9 +60,6 @@ public class AsmGenerator {
 		//addCodeln("main");
 		//init de la pile
 		//addCodeln("ldw R15,#(stack+stackSize)");
-
-		
-		
 
 
 		//fin du programme
@@ -73,6 +72,7 @@ public class AsmGenerator {
 	}
 	
 	public int generateRec(TDS tds, Tree ast, int truc){
+		//System.out.println(ast.getText());
 		boolean bloc=false;;
 		switch(ast.getType()){
 		case PlicParser.BLOC:
@@ -85,22 +85,78 @@ public class AsmGenerator {
 		}
 		// Generer de l'ASM suivant le type
 		switch(ast.getType()){
-		
+		case PlicParser.FUNCTION:
+			function(ast,tds);
+			break;
+		case PlicParser.VARIABLE:
+			variable(ast, tds);
+			break;
 		}
 		//fin génération
 		
 		//boolean bloc=false;
-		int res=truc;
-		if(bloc){
-			res=-1;
-		}
+		int res=(bloc?-1:truc);
+		
 		for(int i=0;i<ast.getChildCount();i++){	
-			res = SemanticChecker.checkRec(ast.getChild(i), tds,res);
+			res = generateRec(tds,ast.getChild(i), res);
 		}
-		if(bloc){
-			return truc;
-		}else{
-			return res;
+		
+		
+		switch(ast.getType()){
+		case PlicParser.FUNCTION:
+			function_end(ast,tds);
+			break;
+		}
+		
+		return (bloc?truc:res);
+	}
+	
+	
+	
+	private void function(Tree ast, TDS tds){
+		addCodeln("//fonction "+tds.getIdf());
+		//etiquette de fonction
+		addCodeln(tds.getIdf());
+		
+		//TODO ajouter var locale ici ??
+		
+		//sauvegarde de la base
+		addCodeln("stw R14,-(R15)");
+		addCodeln("ldw R14, R15");
+		//sauvagarde du contexte
+		for(int i=0;i<=13;i++){
+			addCodeln("stw R"+i+",-(R15)");
+		}
+		//debut corps fonction
+		addCodeln("//Cords de la fonction");
+	}
+	
+	
+	private void function_end(Tree as, TDS tds){
+		//restauration du contexte
+		for(int i=13;i>=0;i--){
+			addCodeln("ldw R"+i+",(R15)+");
+		}
+		//restauration base
+		addCodeln("ldw R14,(R15)+");
+		addCodeln("//fin fonction "+tds.getIdf());
+	}
+	
+	private void variable(Tree ast, TDS tds){
+		if(ast.getChild(0).getText().equalsIgnoreCase("integer")){
+			addCodeln("//integer");
+			for(int i=1;i<ast.getChildCount();i++){
+				addCodeln(ast.getChild(i).getText()+" rsw 2");
+			}
+		}else if(ast.getChild(0).getText().equalsIgnoreCase("boolean")){
+			addCodeln("//boolean");
+			for(int i=1;i<ast.getChildCount();i++){
+				addCodeln(ast.getChild(i).getText()+" rsw 2");
+			}
+		}else if(ast.getChild(0).getText().equalsIgnoreCase("array")){
+			addCodeln("//array");
+			//TODO
+			addCodeln("//TODO");
 		}
 	}
 	
