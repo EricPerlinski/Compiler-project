@@ -1,0 +1,232 @@
+// fichier: tst_itoa_cisc.src
+// auteur: Alexandre Parodi
+// date: 9 mai 2013
+// Exemple de de code qui teste la fonction itoa
+//
+// code C correspondant:
+//
+// void main(void)
+// {
+// char text[7];
+// int value;
+// value = -23;
+// itoa(value, text, 10);
+// print(text);
+// }
+//
+
+sp          equ r15
+wr          equ r14
+bp          equ r13
+
+SP          equ r15
+WR          equ r14
+BP          equ r13
+
+EXIT_EXC   EQU   64    // n° d'exception de EXIT
+READ_EXC   EQU   65    // n° d'exception de READ  (lit 1 ligne)
+WRITE_EXC  EQU   66    // n° d'exception de WRITE (affiche texte)
+
+NUL         equ  0     // caractère NUL qui doit terminer une chaîne de caractères
+NULL        equ  0     // pointeur nul
+NIL         equ  0     // fin de liste chaînée
+
+STACK_ADRS  equ 0x1000 // adresse de base de pile
+LOAD_ADRS   equ 0xFE00 // adresse de chargement du programme
+
+            org LOAD_ADRS
+            start main_
+
+// PROGRAMME MAIN supposé généré automatiquement par le compilateur
+
+// void main(void)
+// initialise pointeur de pile sp et pointeur de base d'environnement bp
+main_   ldw sp, #STACK_ADRS // pile sera au dessus de STACK_ADRS
+        ldw bp, #NIL        // bp initial (fin de liste chaînée d'environnements)
+
+// { // ouverture du bloc englobant de main
+// LNK crée environnement du main pour permettre des variables locales 
+// mais sans encore les réserver     
+        stw bp, -(sp)
+        ldw bp, sp
+
+// char toto[7];
+   // réserve 7+1 = 8 caractères en pile
+   // (entier pair supérieur à 7 demandé pour pas désaligner pile)
+        adi sp, sp, #-8   // réserve place pour text sur pile (8 octets); 
+                          // déplacement du début du tableau est -8
+
+// int value;
+        adi sp, sp, #-2   // réserve place pour variable value;
+                          // déplacement de value est -10
+
+// value = -23; 
+        ldw r0, #-23      // charge r0 avec -23 = C2(23) = FFE9
+        stw r0, (bp)-10   // sauve r0 à l'adresse bp-10       
+
+// itoa(value, text, 10); // appelle itoa avec i = value, p = text, b = 10
+
+        ldw r0, #10       // charge 10 (pour base décimale) dans r0
+        stw r0, -(sp)     // empile contenu de r0 (paramètre b)
+
+        adi bp, r0, #-8   // r0 = bp - 8 = adresse du tableau text
+        stw r0, -(sp)     // empile contenu de r0 (paramètre p)
+
+        ldw r0, (bp)-10   // charge r0 avec value
+        stw r0, -(sp)     // empile contenu de r0 (paramètre i)
+
+        jsr @itoa_        // appelle fonction itoa d'adresse itoa_
+
+        adi sp, sp, #6    // nettoie la pile des paramètres 
+                          // de taille totale 6 octets
+
+// print(text);
+
+        adi bp, r0, #-8   // r0 = bp - 8 = adresse du tableau text
+        stw r0, -(sp)     // empile contenu de r0 (paramètre p)
+        
+        jsr @print_       // appelle fonction print d'adresse print_
+
+        adi sp, sp, #2    // nettoie la pile des paramètres
+                          // de taille totale 2 octets
+
+// }  // fermeture du bloc englobant de main
+        ldw sp, bp        // abandonne variables locales de main
+        ldw bp, (sp)+     // dépile ancien bp dans bp
+        trp #EXIT_EXC     // lance trappe EXIT
+        jea @main_        // revient au début du main 
+                          // si on relance la simulation après EXIT
+
+//============================================================================================
+
+// FONCTIONS PRé-DéFINIES EN LANAGAGE D'ASSEMBLAGE
+
+// char *itoa(int i, char *p, int b);
+//
+// i entier à convertir
+// p pointeur du tampon déjà alloué en mémoire où copier la chaîne de caractères
+// b base de numération utilisée (de 2 à 36 inclus car il n'y a que 36 chiffres; par exemple: 2, 4, 8, 10, 16)
+//
+// Convertit un entier en chaîne de caractères codée en ASCII
+// (cette fonction fait partie de la bibliothèque standard portable C stdlib et est normalement écrite en C).
+// Limitation ici: b doit être pair.
+// Retourne le pointeur sur la chaîne de caractère
+//
+// Ce programme terminera automatiquement la chaîne de caractères par NUL;
+// le tampon devrait avoir une taille suffisante (par exemple sizeof(int)*8+1 octets pour b=2)
+// Si la base = 10 et que l'entier est négatif la chaîne de caractères est précédée d'un signe moins (-);
+// pour toute autre base, la valeur i est considérée non signée.
+// Les 36 chiffres utilisables sont dans l'ordre: 0, 1, 2,..., 9, A, B, C, ... , Z .
+// Aucune erreur n'est gérée.
+     
+
+ITOA_I      equ 4      // offset du paramètre i
+ITOA_P      equ 6      // offset du paramètre p
+ITOA_B      equ 8      // offset du paramètre b
+
+ASCII_MINUS equ 45     // code ASCII de -
+ASCII_PLUS  equ 43     // code ASCII de +
+ASCII_SP    equ 32     // code ASCII d'espace SP
+ASCII_0     equ 48     // code ASCII de zéro (les autres chiffres jusqu'à 9 suivent dans l'ordre)
+ASCII_A     equ 65     // code ASCII de A (les autres lettres jusqu'à Z suivent dans l'ordre alphabétique)
+
+// LNK: crée environnement du main pour permettre des variables locales 
+// mais sans encore les réserver
+itoa_   stw bp, -(sp)
+        ldw bp, sp
+
+// récupération des paramètres depuis pile vers registres
+        ldw r0, (bp)ITOA_I    // r0 = i    
+        ldw r1, (bp)ITOA_B    // r1 = b
+        
+// gère le signe: normalement itoa gère des int c'est à dire des entiers signés, 
+// mais en fait seulement pour b=10;
+// dans ce cas calcule le signe dans r3 et charge r0 avec la valeur absolue de i
+        ldq ASCII_SP, r3      // code ASCII de espace (SPace) -> r3
+        ldq 10, wr            // 10 -> wr
+        cmp r1, wr            // charge les indicateurs de b - 10
+        bne NOSIGN-$-2        // si non égal (donc si b != 10) saute en NOSIGN, sinon calcule signe
+        ldq ASCII_PLUS, r3    // charge le code ASCII du signe plus + dans r3
+        tst r0                // charge les indicateurs de r0 et donc de i
+        bge POSIT-$-2         // saute en POSIT si i >= 0
+        neg r0, r0            // change le signe de r0
+        ldq ASCII_MINUS, r3   // charge le code ASCII du signe moins - dans r3
+POSIT   NOP                   // r3 = code ASCII de signe: SP pour aucun, - ou +
+
+
+// convertit l'entier i en chiffres et les empile de droite à gauche
+NOSIGN  ldw r2, r0            // r2 <- r0
+CNVLOOP ldw r0, r2            // r0 <- r2
+   
+   // effectue "créativement" la division par b supposé pair (car l'instruction div est hélas signée ...)
+   // d=2*d' , D = d * q + r  , D = 2*D'+r" , D' = d' * q + r' => r = 2*r'+r"
+   // un bug apparaît avec SRL R0, R0 avec R0 = 2 : met CF à 1 !!
+        srl r1, r1            // r1 = b/2
+        ani r0, r4, #1        // ANd Immédiate entre r0 et 00...01 vers r4:
+                              // bit n°0 de r0 -> r4; r4 = reste" de r0/2
+        srl r0, r0            // r0 / 2 -> r0
+        div r0, r1, r2        // quotient = r0 / r1 -> r2, reste' = r0 % r1 -> r0
+        shl r0, r0            // r0 = 2 * reste'
+        add r0, r4, r0        // r0 = reste = 2 * reste' + reste" => r0 = chiffre
+        shl r1, r1            // r1 = b
+
+        adq -10, r0           // chiffre - 10 -> r0 
+        bge LETTER-$-2        // saute en LETTER si chiffre >= 10
+        adq 10+ASCII_0, r0    // ajoute 10 => r0 = chiffre, ajoute code ASCII de 0 
+                              // => r0 = code ASCII de chiffre
+        bmp STKCHR-$-2        // saute en STKCHR 
+
+LETTER  adq ASCII_A, r0       // r0 = ASCII(A) pour chiffre = 10, ASCII(B) pour 11 ...
+                              // ajoute code ASCII de A => r = code ASCII de chiffre
+STKCHR  stw r0, -(sp)         // empile code ASCII du chiffre 
+                              // (sur un mot complet pour pas désaligner pile)
+        tst r2                // charge les indicateurs en fonction du quotient ds r2)
+        bne CNVLOOP-$-2       // boucle si quotient non nul; sinon sort
+
+// les caractères sont maintenant empilés : gauche en haut et droit en bas
+
+// recopie les caractères dans le tampon dans le bon ordre: de gauche à droite
+        ldw r1, (bp)ITOA_P    // r1 pointe sur le début du tampon déjà alloué 
+        stb r3, (r1)+         // copie le signe dans le tampon
+CPYLOOP ldw r0, (sp)+         // dépile code du chiffre gauche (sur un mot) dans r0
+        stb r0, (r1)+         // copie code du chiffre dans un Byte du tampon de gauche à droite
+        cmp sp, bp            // compare sp et sa valeur avant empilement des caractères qui était bp
+        bne CPYLOOP-$-2       // boucle s'il reste au moins un chiffre sur la pile
+        ldq NUL, r0           // charge le code du caractère NUL dans r0
+        stb r0, (r1)+         // sauve code NUL pour terminer la chaîne de caractères
+
+// termine
+        ldw r0, (bp)ITOA_P    // retourne le pointeur sur la chaîne de caractères
+
+    // UNLINK: fermeture de l'environnement de la fonction itoa
+        ldw sp, bp            // sp <- bp : abandonne infos locales; sp pointe sur ancinne valeur de bp
+        ldw bp, (sp)+         // dépile ancienne valeur de bp dans bp; sp pointe sur adresse de retour
+
+        rts                   // retourne au programme appelant
+
+//-----------------------------------------------------------------------------------------------------
+
+// void print(char* p)     // imprime le texte pointé par paramètre p
+
+// prépare l'environnement de la fonction appelée (prologue) :
+
+print_     LDQ 0, R1      // R1 = taille données locales (ici 0) de fonction appelée
+
+     // LINK R1        // crée et lie l'environnement de fonction appelée
+           STW BP, -(SP)  // empile le contenu du registre BP
+           LDW BP, SP     // charge contenu SP ds BP qui pointe sur sa sauvegarde
+           SUB SP, R1, SP // réserve R1 octets sur la pile pour la variable locale z
+
+// charge R0 avec le paramètre p de déplacement 4
+           LDW R0, (BP)4  // R0 = M[BP + 4]
+
+// affiche texte pointé par R0
+           TRP #WRITE_EXC // lance trappe n° WRITE_EXC: affiche texte d'adresse R0
+
+// fin de la fonction (épilogue) :
+
+    // UNLINK 
+           LDW SP, BP    // charge SP avec contenu de BP: abandon infos locales
+           LDW BP, (SP)+ // dépile ancien BP dans BP
+
+           RTS  // retour au programme appelant
