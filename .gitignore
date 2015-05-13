@@ -16,7 +16,6 @@ asm/bin/*
 
 bin/
 
-*.pdf
 *.jar
 antlr.jar
 
