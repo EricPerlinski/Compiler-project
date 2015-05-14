@@ -19,6 +19,8 @@ public class AsmGenerator {
 
 	private int uniqId;
 
+	
+	
 	private static final int INT_SIZE = 2;
 	private static final int BOOL_SIZE = 2;
 
@@ -73,6 +75,17 @@ public class AsmGenerator {
 		addCodeln("LDW SP, #STACK_ADRS");
 		addCodeln("LDW BP, SP");
 		
+		//0 dans RO
+		addCodeln("LDW R0, #0");
+		//on met 0 pour l'@ de retour
+		addCodeln("STW R0, -(SP)");
+		//on met 0 pour le DYN
+		addCodeln("STW R0, -(SP)");
+		//on charge BP sur DYN
+		addCodeln("LDW BP, SP");
+		//on met 0 pour STATIC
+		addCodeln("STW R0, -(SP)");
+				
 		//ArrayList<Declaration> vars = tds.getRoot().getVar();
 		//addCodeln("LDQ "+tds.getsizeofvar()+",R1"); // R1 = taille données locales prog.principal
 								   // 2 variables * 2 octets / variable ici
@@ -220,7 +233,7 @@ public class AsmGenerator {
 		Tree right = ast.getChild(1).getChild(0);
 		expr(right, tds);
 		int depl = tds.getDeclarationOfVar(left.getText()).getDeplacement();
-		addCodeln("STW R0, (BP)-"+depl);
+		addCodeln("STW R0, (BP)"+depl);
 	}
 
 	private void expr(Tree ast, TDS tds){
@@ -241,7 +254,7 @@ public class AsmGenerator {
 			}else{
 				//une variable, on le charge depuis la pile
 				int depl = tds.getDeclarationOfVar(ast.getText()).getDeplacement();
-				addCodeln("LDW R0, (BP)-"+depl);
+				addCodeln("LDW R0, (BP)"+depl);
 				if(num_fils!=-1){
 					addCodeln("STW R0, -(SP)");
 				}
@@ -277,6 +290,7 @@ public class AsmGenerator {
 					addCodeln("STW R"+(num_fils+1)+", -(SP)");
 				}
 			}else if(ast.getText().equalsIgnoreCase("unaire")){
+				addCodeln("LDW R1, (SP)+");
 				addCodeln("NEG R1, R"+(num_fils+1));
 				if(num_fils!=-1){
 					addCodeln("STW R0, -(SP)");

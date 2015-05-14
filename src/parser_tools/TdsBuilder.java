@@ -13,7 +13,8 @@ import org.antlr.runtime.tree.Tree;
 
 public class TdsBuilder {
 
-	private static final int DEPLACEMENT_PARAM=-2;
+	private static final int DEPLACEMENT_PARAM=4;
+	private static final int DEPLACEMENT_LOCAL=-2;
 	
 	private CommonTree c;
 	private ArrayList<TDS> tableDesSymboles;
@@ -91,9 +92,9 @@ public class TdsBuilder {
 	
 	public void parse_variable(Tree t){
 	
-		int deplacement = 0;
+		int deplacement = DEPLACEMENT_LOCAL;
 		if (current.getLastVar()!=null) {
-			deplacement = current.getLastVar().getDeplacement()+current.getLastVar().getSize();
+			deplacement = current.getLastVar().getDeplacement()-current.getLastVar().getSize();
 		}
 		String nodeType = t.getChild(0).getText();
 		if(nodeType.equalsIgnoreCase("integer")){
@@ -331,7 +332,7 @@ public class TdsBuilder {
 			
 			int deplacement=DEPLACEMENT_PARAM;
 			if(current.getLastParam()!=null){
-				deplacement= current.getLastParam().getDeplacement()-current.getLastParam().getSize();
+				deplacement= current.getLastParam().getDeplacement()+current.getLastParam().getSize();
 			}
 
 			Tree firstSon = t_2proto.getChild(k).getChild(0+adr);
