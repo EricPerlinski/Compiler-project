@@ -49,22 +49,39 @@ public class AsmGenerator {
 
 	public boolean generate(){
 		addCodeln("//Prog "+name);
-		//init du programme
-		addCodeln("org 0x1000");
-		addCodeln("start main_");
 		//modification nom des registres
 		addCodeln("//renomage registres");
-		addCodeln("BP equ R14");
-		addCodeln("SP equ R15");
+		addCodeln("SP EQU R15");
+		addCodeln("WR EQU R14");
+		addCodeln("BP EQU R13");
+		addCodeln("EXIT_EXC EQU 64");
+		addCodeln("READ_EXC EQU 65");
+		addCodeln("WRITE_EXC EQU 66");
+		addCodeln("STACK_ADRS EQU 0x1000");
+		addCodeln("LOAD_ADRS EQU 0xF000");
+		addCodeln("NIL EQU 0");
+		//init du programme
+		addCodeln("ORG LOAD_ADRS");
+		addCodeln("START main_");
 		//creation pile
 		addCodeln("stackSize equ 100");
 		addCodeln("stack rsb stackSize");
 
 		addCodeln("main_");
-
+		
+		addCodeln("LDW SP, #STACK_ADRS");
+		addCodeln("LDQ NIL, BP");
+		
+		
+		//ArrayList<Declaration> vars = tds.getRoot().getVar();
+		//addCodeln("LDQ "+i+",R1"); // R1 = taille données locales prog.principal
+								   // 2 variables * 2 octets / variable ici
 		generateRec(tds, ast, -1);
-
+		
 		//TODO a mettre au debut du main
+		
+		
+
 		//debut du programme
 		//addCodeln("main");
 		//init de la pile
@@ -133,6 +150,20 @@ public class AsmGenerator {
 	}
 
 
+	public void function_call(Tree ast, TDS tds){
+		//empilage des params
+		
+		
+		//execution fct
+		
+		
+		//recuperation du resultat dans R0
+		
+		
+		
+		//depilage params
+	}
+
 
 	private void function(Tree ast, TDS tds){
 		addCodeln("//fonction "+tds.getIdf());
@@ -144,18 +175,19 @@ public class AsmGenerator {
 		//sauvegarde de la base
 		addCodeln("stw BP,-(SP)");
 		addCodeln("ldw BP, SP");
+		
 		//sauvagarde du contexte
-		for(int i=0;i<=13;i++){
+		for(int i=0;i<=12;i++){
 			addCodeln("stw R"+i+",-(R15)");
 		}
 		//debut corps fonction
-		addCodeln("//Cords de la fonction");
+		addCodeln("//Corps de la fonction");
 	}
 
 
 	private void function_end(Tree as, TDS tds){
 		//restauration du contexte
-		for(int i=13;i>=0;i--){
+		for(int i=12;i>=0;i--){
 			addCodeln("ldw R"+i+",(R15)+");
 		}
 		//restauration base
@@ -231,12 +263,6 @@ public class AsmGenerator {
 	}
 	
 	
-	public void function_call(Tree ast, TDS tds){
-		//empilage des params
-		//execution fct
-		//recuperation du resultat dans R0
-		//depilage params
-	}
 
 
 	public void accessLocaleVar(String var){

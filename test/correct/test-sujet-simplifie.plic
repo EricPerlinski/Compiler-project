@@ -1,0 +1,17 @@
+/* Un exemple de programme très simple encore plus simple */
+do
+	integer i, j, maximum
+	
+	function integer fMax (x: integer, y: integer)
+		integer result
+		result = x
+		return (result)
+	end /* function */
+
+	
+	i = -3
+	read j /* previously j = 0 */
+	maximum = fMax(i, j)
+	write maximum
+end
+
