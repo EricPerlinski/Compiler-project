@@ -1,17 +1,10 @@
 do
 
-	integer i, j,k
-	
+	boolean b,c,d
 
-	i=-2
-	j=-4
-	k = i - j + 5
-	
-	j=1+2+3+4
-	j=1-2-3-4
-	j=1*2*3*4
-	i=1+2*3-4
-	k=k+1+k+i+i+j-12*4*3+2*4
+	b=true
+	c=false
+	d=true+false+true
 	
 	write i
 

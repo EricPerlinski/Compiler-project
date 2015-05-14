@@ -273,13 +273,14 @@ public class TDS {
 			if(var.get(i).getType().equals(Type.integer)){
 				res += 2;
 			}else if (var.get(i).getType().equals(Type.bool)){
-				res += 1;
+				res += 2;
 			}else if (var.get(i).getType().equals(Type.array)){
 				ArrayList<Bound> a = var.get(i).getBounds(); 
 				int subres = 1;
 				for(int j = 0; j < a.size(); j++){
 					subres *= a.get(j).getUb() - a.get(j).getLb() +1;
 				}
+				subres *= 2;
 				res += subres;
 			}
 		}
@@ -292,13 +293,14 @@ public class TDS {
 			if(params.get(i).getType().equals(Type.integer)){
 				res += 2;
 			}else if (params.get(i).getType().equals(Type.bool)){
-				res += 1;
+				res += 2;
 			}else if (params.get(i).getType().equals(Type.array)){
 				ArrayList<Bound> a = params.get(i).getBounds(); 
 				int subres = 1;
 				for(int j = 0; j < a.size(); j++){
 					subres *= a.get(j).getUb() - a.get(j).getLb() +1;
 				}
+				subres *= 2;
 				res += subres;
 			}
 		}

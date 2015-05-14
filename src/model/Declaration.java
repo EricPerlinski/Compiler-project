@@ -138,7 +138,7 @@ public class Declaration {
 			case integer:
 				return 2;
 			case bool:
-				return 1;
+				return 2;
 			case array:
 				int size = 1;
 				for (int i=0; i<bounds.size(); i++) {
