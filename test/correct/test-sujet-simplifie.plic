@@ -12,6 +12,5 @@ do
 	i = -3
 	j = 5
 	maximum = fMax(i, j)
-	write maximum
 end
 
