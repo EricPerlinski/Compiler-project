@@ -231,11 +231,7 @@ public class AsmGenerator {
 		addCodeln ("LDW BP, (SP)"); // charge BP avec ancien BP
 		addCodeln ("ADQ 2,SP"); // supprime l'ancien BP de la pile
 		
-		// RTS // retour au programme appelant:
-		addCodeln ("LDW WR, (SP)"); // charge WR avec l'adresse de retour
-		addCodeln ("ADQ 2,SP"); // incremente le pointeur de pile SP
-		addCodeln ("JEA (WR)"); // saute a l'instruction d'adresse absolue dans WR
-		
+		addCodeln("RTS"); // retour au programme appelant
 	}
 
 	private void variable(Tree ast, TDS tds){
