@@ -49,7 +49,13 @@ echo "\n\033[33m========= GENERATION TREE =========\033[0m"
 cd tree
 sh run.sh
 echo "OK"
+cd ..
 echo "\n\033[33m========= GENERATION TDS =========\033[0m"
-cd ../tds
+cd tds
 sh run.sh
 echo "OK"
+cd ..
+echo "\n\033[33m========= GENERATION IUP =========\033[0m"
+cd asm
+sh compileAsm.sh
+cd ..
