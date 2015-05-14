@@ -1,6 +1,8 @@
 do
 
-	integer i, j, k
+	integer i, j,k
+	
+
 	i=-2
 	j=4
 	k = i + j + 5
