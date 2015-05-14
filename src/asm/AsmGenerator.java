@@ -1,5 +1,7 @@
 package asm;
 
+import java.util.Stack;
+
 import model.TDS;
 
 import org.antlr.runtime.tree.Tree;
@@ -8,15 +10,18 @@ import parser_tools.SemanticChecker;
 import plic.PlicParser;
 
 public class AsmGenerator {
-	
+
 	private String name;
 	private Tree ast;
 	private TDS tds;
-	
+
 	private StringBuffer asmBuff;
 
 	private int uniqId;
-	
+
+	private static final int INT_SIZE = 2;
+	private static final int BOOL_SIZE = 2;
+
 	public AsmGenerator(String name,Tree ast, TDS tds){
 		this.ast=ast;
 		this.tds=tds;
@@ -28,33 +33,37 @@ public class AsmGenerator {
 	public int getUniqId(){
 		return uniqId++;
 	}
-	
+
 	public StringBuffer getCode(){
 		return asmBuff;
 	}
-	
+
 	private void addCode(String code){
 		asmBuff.append(code);
 	}
-	
+
 	private void addCodeln(String code){
 		addCode(code);
 		asmBuff.append("\n");
 	}
-	
+
 	public boolean generate(){
 		addCodeln("//Prog "+name);
 		//init du programme
 		addCodeln("org 0x1000");
-		addCodeln("start debut");
+		addCodeln("start main_");
+		//modification nom des registres
+		addCodeln("//renomage registres");
+		addCodeln("BP equ R14");
+		addCodeln("SP equ R15");
 		//creation pile
 		addCodeln("stackSize equ 100");
 		addCodeln("stack rsb stackSize");
-		
-		addCodeln("debut");
+
+		addCodeln("main_");
 
 		generateRec(tds, ast, -1);
-		
+
 		//TODO a mettre au debut du main
 		//debut du programme
 		//addCodeln("main");
@@ -70,7 +79,7 @@ public class AsmGenerator {
 		addCodeln("trp #64");
 		return false;
 	}
-	
+
 	public int generateRec(TDS tds, Tree ast, int truc){
 		//System.out.println(ast.getText());
 		boolean bloc=false;;
@@ -91,38 +100,41 @@ public class AsmGenerator {
 		case PlicParser.VARIABLE:
 			variable(ast, tds);
 			break;
+		case PlicParser.AFFECTATION:
+			affectaction(ast,tds);
+			break;
 		}
 		//fin génération
-		
+
 		//boolean bloc=false;
 		int res=(bloc?-1:truc);
-		
+
 		for(int i=0;i<ast.getChildCount();i++){	
 			res = generateRec(tds,ast.getChild(i), res);
 		}
-		
-		
+
+
 		switch(ast.getType()){
 		case PlicParser.FUNCTION:
 			function_end(ast,tds);
 			break;
 		}
-		
+
 		return (bloc?truc:res);
 	}
-	
-	
-	
+
+
+
 	private void function(Tree ast, TDS tds){
 		addCodeln("//fonction "+tds.getIdf());
 		//etiquette de fonction
-		addCodeln(tds.getIdf());
-		
+		addCodeln(tds.getIdf()+"_");
+
 		//TODO ajouter var locale ici ??
-		
+
 		//sauvegarde de la base
-		addCodeln("stw R14,-(R15)");
-		addCodeln("ldw R14, R15");
+		addCodeln("stw BP,-(SP)");
+		addCodeln("ldw BP, SP");
 		//sauvagarde du contexte
 		for(int i=0;i<=13;i++){
 			addCodeln("stw R"+i+",-(R15)");
@@ -130,28 +142,28 @@ public class AsmGenerator {
 		//debut corps fonction
 		addCodeln("//Cords de la fonction");
 	}
-	
-	
+
+
 	private void function_end(Tree as, TDS tds){
 		//restauration du contexte
 		for(int i=13;i>=0;i--){
 			addCodeln("ldw R"+i+",(R15)+");
 		}
 		//restauration base
-		addCodeln("ldw R14,(R15)+");
+		addCodeln("ldw BP,(SP)+");
 		addCodeln("//fin fonction "+tds.getIdf());
 	}
-	
+
 	private void variable(Tree ast, TDS tds){
 		if(ast.getChild(0).getText().equalsIgnoreCase("integer")){
 			addCodeln("//integer");
 			for(int i=1;i<ast.getChildCount();i++){
-				addCodeln(ast.getChild(i).getText()+" rsw 2");
+				addCodeln("ADQ -"+INT_SIZE+", SP //var "+ast.getChild(i).getText());
 			}
 		}else if(ast.getChild(0).getText().equalsIgnoreCase("boolean")){
 			addCodeln("//boolean");
 			for(int i=1;i<ast.getChildCount();i++){
-				addCodeln(ast.getChild(i).getText()+" rsw 2");
+				addCodeln("ADQ -"+BOOL_SIZE+", SP //var "+ast.getChild(i).getText());
 			}
 		}else if(ast.getChild(0).getText().equalsIgnoreCase("array")){
 			addCodeln("//array");
@@ -159,12 +171,60 @@ public class AsmGenerator {
 			addCodeln("//TODO");
 		}
 	}
-	
-	
+
+	private void affectaction(Tree ast, TDS tds){
+		Tree left = ast.getChild(0).getChild(0);
+		Tree right = ast.getChild(1).getChild(0);
+		System.out.println(ast.getText());
+		expr(right, tds);
+		int depl = tds.getDeclarationOfVar(left.getText()).getDeplacement();
+		addCodeln("STW R0, (SP)"+depl);
+	}
+
+	private void expr(Tree ast, TDS tds){
+		// met le resultat de l'exp dans R0
+		expr_rec(ast, tds,0);
+	}
+
+	private void expr_rec(Tree ast, TDS tds, int num_fils){
+
+		if(ast.getChildCount()==0){
+			//bas de l'arbre
+			if(ast.getText().matches("^\\p{Digit}+$")){
+				//un nombre on le met dans le registre directement
+				addCodeln("LDW R"+(num_fils+1)+", #"+ast.getText());
+			}else{
+				//une variable, on le charge depuis la pile
+				int depl = tds.getDeclarationOfVar(ast.getText()).getDeplacement();
+				addCodeln("LDW R"+(num_fils+1)+", (BP)"+depl);
+			}
+		}else{
+			for(int i=0;i<ast.getChildCount();i++){
+				if(ast.getType()==PlicParser.FUNC_CALL){
+					//TODO appel fonction
+				}else{
+					expr_rec(ast.getChild(i), tds, i); 
+					if(ast.getText().equalsIgnoreCase("+")){
+						addCodeln("ADD R1, R2, R0");
+					}else if(ast.getText().equalsIgnoreCase("-")){
+						addCodeln("SUB R1, R2, R0");
+					}else if(ast.getText().equalsIgnoreCase("*")){
+						addCodeln("MUL R1, R2, R0");
+					}else if(ast.getText().equalsIgnoreCase("unaire")){
+						addCodeln("NEG R1, R0");
+					}
+				}
+			}
+		}
+
+
+	}
+
+
 	public void accessLocaleVar(String var){
 		addCodeln("LEA ("+Integer.toString(tds.getDeclarationOfLocaleVar(var).getDeplacement())+",A0),A1)");
 	}
-	
+
 	public void accessNeitherGlobalNorLocaleVar(String var){
 		addCodeln("MOVE #(Nx-Ny),DO");// TODO A modifier et à ajouter une fonction permettant de retrouver le niveau d'imbrication
 		addCodeln("MOVE A0,A2");
@@ -173,11 +233,11 @@ public class AsmGenerator {
 		addCodeln("BNE BOUCLE");
 		addCodeln("LEA (depl,A2),A1");
 	}
-	
+
 	public void stackValue(){
 		addCodeln("MOVE (A1),-(A7)");
 	}
-	
+
 	public void accessAddressParam(String param){
 		addCodeln("MOVE ("+Integer.toString(tds.getDeclarationOfParam(param).getDeplacement())+",A0),A1");
 	}
@@ -185,9 +245,9 @@ public class AsmGenerator {
 	public void accessValParam(String param){
 		addCodeln("LEA ("+Integer.toString(tds.getDeclarationOfParam(param).getDeplacement())+",A0),A1");
 	}
-	
+
 	public void accessRoutine(){
-		
+
 	}
-	
+
 }
