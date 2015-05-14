@@ -61,14 +61,9 @@ public class AsmGenerator {
 		addCodeln("stack rsb stackSize");
 
 		addCodeln("main_");
-
+		addCodeln("LDW BP, SP");
 		generateRec(tds, ast, -1);
 
-		//TODO a mettre au debut du main
-		//debut du programme
-		//addCodeln("main");
-		//init de la pile
-		//addCodeln("ldw R15,#(stack+stackSize)");
 
 
 		//fin du programme
@@ -83,7 +78,7 @@ public class AsmGenerator {
 	public int generateRec(TDS tds, Tree ast, int truc){
 		//System.out.println(ast.getText());
 		boolean bloc=false;
-		
+
 		// NE PAS MODIFIER
 		switch(ast.getType()){
 		case PlicParser.BLOC:
@@ -95,9 +90,9 @@ public class AsmGenerator {
 			break;
 		}
 		// FIN DE NE PAS MODIFIER
-		
-		
-		
+
+
+
 		// Generer de l'ASM suivant le type
 		switch(ast.getType()){
 		case PlicParser.FUNCTION:
@@ -187,7 +182,7 @@ public class AsmGenerator {
 		Tree right = ast.getChild(1).getChild(0);
 		expr(right, tds);
 		int depl = tds.getDeclarationOfVar(left.getText()).getDeplacement();
-		addCodeln("STW R0, (SP)"+depl);
+		addCodeln("STW R0, (BP)-"+depl);
 	}
 
 	private void expr(Tree ast, TDS tds){
@@ -201,12 +196,17 @@ public class AsmGenerator {
 			//bas de l'arbre
 			if(ast.getText().matches("^\\p{Digit}+$")){
 				//un nombre on le met dans le registre directement
-				addCodeln("LDW R"+(num_fils+1)+", #"+ast.getText());
-				addCodeln("STW R0 -(SP)");
+				addCodeln("LDW R0, #"+ast.getText());
+				if(num_fils!=-1){
+					addCodeln("STW R0, -(SP)");
+				}
 			}else{
 				//une variable, on le charge depuis la pile
 				int depl = tds.getDeclarationOfVar(ast.getText()).getDeplacement();
-				addCodeln("LDW R"+(num_fils+1)+", (BP)"+depl);
+				addCodeln("LDW R0, (BP)-"+depl);
+				if(num_fils!=-1){
+					addCodeln("STW R0, -(SP)");
+				}
 			}
 		}else{
 			for(int i=0;i<ast.getChildCount();i++){
@@ -217,20 +217,39 @@ public class AsmGenerator {
 				}
 			}
 			if(ast.getText().equalsIgnoreCase("+")){
+				addCodeln("LDW R1, (SP)+");
+				addCodeln("LDW R2, (SP)+");
 				addCodeln("ADD R1, R2, R"+(num_fils+1));
+				if(num_fils!=-1){
+					addCodeln("STW R"+(num_fils+1)+", -(SP)");
+				}
+
 			}else if(ast.getText().equalsIgnoreCase("-")){
-				addCodeln("SUB R1, R2, R"+(num_fils+1));
+				addCodeln("LDW R1, (SP)+");
+				addCodeln("LDW R2, (SP)+");
+				addCodeln("SUB R2, R1, R"+(num_fils+1));
+				if(num_fils!=-1){
+					addCodeln("STW R"+(num_fils+1)+", -(SP)");
+				}
 			}else if(ast.getText().equalsIgnoreCase("*")){
+				addCodeln("LDW R1, (SP)+");
+				addCodeln("LDW R2, (SP)+");
 				addCodeln("MUL R1, R2, R"+(num_fils+1));
+				if(num_fils!=-1){
+					addCodeln("STW R"+(num_fils+1)+", -(SP)");
+				}
 			}else if(ast.getText().equalsIgnoreCase("unaire")){
 				addCodeln("NEG R1, R"+(num_fils+1));
+				if(num_fils!=-1){
+					addCodeln("STW R0, -(SP)");
+				}
 			}
 		}
 
 
 	}
-	
-	
+
+
 	public void function_call(Tree ast, TDS tds){
 		//empilage des params
 		//execution fct
