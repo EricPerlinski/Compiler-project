@@ -186,6 +186,21 @@ public class AsmGenerator {
 		
 		addCodeln("JSR @"+ast.getChild(0).getText()+"_");
 		
+		
+		
+		//Fin de la fonction 
+		
+		
+		// nettoyage de la pile par le programme appelant 	
+		addCodeln("ADQ "+tds.getSizeOfParams()+",SP");
+		//restauration des registres
+		for(int i=10;i>=0;i--){
+			addCodeln("ldw R"+i+",(SP)+");
+		}
+		//restauration base
+		addCodeln("ldw BP,(SP)+");
+		addCodeln("//fin fonction "+tds.getIdf());
+		
 	}
 
 
@@ -204,7 +219,13 @@ public class AsmGenerator {
 		//debut corps fonction
 		addCodeln("//Corps de la fonction");
 		
+	}
+
+
+	private void function_end(Tree as, TDS tds){
 		
+		// sauvegarde du resultat dans R0
+		addCodeln("LDW RO, (BP)-2");
 		//fin de la fonction
 		addCodeln ("LDW SP, BP"); // charge SP avec contenu de BP: abandon infos locales
 		addCodeln ("LDW BP, (SP)"); // charge BP avec ancien BP
@@ -215,20 +236,6 @@ public class AsmGenerator {
 		addCodeln ("ADQ 2,SP"); // incremente le pointeur de pile SP
 		addCodeln ("JEA (WR)"); // saute a l'instruction d'adresse absolue dans WR
 		
-		
-	}
-
-
-	private void function_end(Tree as, TDS tds){
-		// nettoyage de la pile par le programme appelant 	
-		addCode("ADQ "+tds.getSizeOfParams()+",SP");
-		//restauration des registres
-		for(int i=10;i>=0;i--){
-			addCodeln("ldw R"+i+",(SP)+");
-		}
-		//restauration base
-		addCodeln("ldw BP,(SP)+");
-		addCodeln("//fin fonction "+tds.getIdf());
 	}
 
 	private void variable(Tree ast, TDS tds){
