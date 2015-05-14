@@ -225,7 +225,7 @@ public class AsmGenerator {
 	private void function_end(Tree as, TDS tds){
 		
 		// sauvegarde du resultat dans R0
-		addCodeln("LDW RO, (BP)-2");
+		addCodeln("LDW R0, (BP)-2");
 		//fin de la fonction
 		addCodeln ("LDW SP, BP"); // charge SP avec contenu de BP: abandon infos locales
 		addCodeln ("LDW BP, (SP)"); // charge BP avec ancien BP
