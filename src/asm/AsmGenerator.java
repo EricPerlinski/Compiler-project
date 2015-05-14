@@ -76,7 +76,6 @@ public class AsmGenerator {
 		addCodeln("LDW SP, #STACK_ADRS");
 		//addCodeln("LDW BP, SP");
 		
-		
 		//0 dans RO
 		addCodeln("LDW R0, #0");
 		//on met 0 pour l'@ de retour
@@ -87,10 +86,9 @@ public class AsmGenerator {
 		addCodeln("LDW BP, SP");
 		//on met 0 pour STATIC
 		addCodeln("STW R0, -(SP)");
-		
-		
+				
 		//ArrayList<Declaration> vars = tds.getRoot().getVar();
-		//addCodeln("LDQ "+i+",R1"); // R1 = taille données locales prog.principal
+		//addCodeln("LDQ "+tds.getsizeofvar()+",R1"); // R1 = taille données locales prog.principal
 								   // 2 variables * 2 octets / variable ici
 		generateRec(tds, ast, -1);
 		
