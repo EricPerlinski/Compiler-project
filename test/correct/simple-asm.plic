@@ -3,9 +3,13 @@ do
 	integer i, j, k
 	i=-2
 	j=4
-	
 	k = i + j + 5
-
+	
+	j=1+2+3+4
+	j=1-2-3-4
+	j=1*2*3*4
+	i=1+2*3-4
+	
 	write i
 
 end

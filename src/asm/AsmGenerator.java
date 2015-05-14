@@ -82,7 +82,9 @@ public class AsmGenerator {
 
 	public int generateRec(TDS tds, Tree ast, int truc){
 		//System.out.println(ast.getText());
-		boolean bloc=false;;
+		boolean bloc=false;
+		
+		// NE PAS MODIFIER
 		switch(ast.getType()){
 		case PlicParser.BLOC:
 		case PlicParser.FUNCTION:
@@ -92,6 +94,10 @@ public class AsmGenerator {
 			tds = tds.getFils().get(truc);
 			break;
 		}
+		// FIN DE NE PAS MODIFIER
+		
+		
+		
 		// Generer de l'ASM suivant le type
 		switch(ast.getType()){
 		case PlicParser.FUNCTION:
@@ -102,6 +108,9 @@ public class AsmGenerator {
 			break;
 		case PlicParser.AFFECTATION:
 			affectaction(ast,tds);
+			break;
+		case PlicParser.FUNC_CALL:
+			function_call(ast, tds);
 			break;
 		}
 		//fin génération
@@ -173,9 +182,9 @@ public class AsmGenerator {
 	}
 
 	private void affectaction(Tree ast, TDS tds){
+		addCodeln("//******");
 		Tree left = ast.getChild(0).getChild(0);
 		Tree right = ast.getChild(1).getChild(0);
-		System.out.println(ast.getText());
 		expr(right, tds);
 		int depl = tds.getDeclarationOfVar(left.getText()).getDeplacement();
 		addCodeln("STW R0, (SP)"+depl);
@@ -183,7 +192,7 @@ public class AsmGenerator {
 
 	private void expr(Tree ast, TDS tds){
 		// met le resultat de l'exp dans R0
-		expr_rec(ast, tds,0);
+		expr_rec(ast, tds,-1);
 	}
 
 	private void expr_rec(Tree ast, TDS tds, int num_fils){
@@ -193,6 +202,7 @@ public class AsmGenerator {
 			if(ast.getText().matches("^\\p{Digit}+$")){
 				//un nombre on le met dans le registre directement
 				addCodeln("LDW R"+(num_fils+1)+", #"+ast.getText());
+				addCodeln("STW R0 -(SP)");
 			}else{
 				//une variable, on le charge depuis la pile
 				int depl = tds.getDeclarationOfVar(ast.getText()).getDeplacement();
@@ -204,20 +214,28 @@ public class AsmGenerator {
 					//TODO appel fonction
 				}else{
 					expr_rec(ast.getChild(i), tds, i); 
-					if(ast.getText().equalsIgnoreCase("+")){
-						addCodeln("ADD R1, R2, R0");
-					}else if(ast.getText().equalsIgnoreCase("-")){
-						addCodeln("SUB R1, R2, R0");
-					}else if(ast.getText().equalsIgnoreCase("*")){
-						addCodeln("MUL R1, R2, R0");
-					}else if(ast.getText().equalsIgnoreCase("unaire")){
-						addCodeln("NEG R1, R0");
-					}
 				}
+			}
+			if(ast.getText().equalsIgnoreCase("+")){
+				addCodeln("ADD R1, R2, R"+(num_fils+1));
+			}else if(ast.getText().equalsIgnoreCase("-")){
+				addCodeln("SUB R1, R2, R"+(num_fils+1));
+			}else if(ast.getText().equalsIgnoreCase("*")){
+				addCodeln("MUL R1, R2, R"+(num_fils+1));
+			}else if(ast.getText().equalsIgnoreCase("unaire")){
+				addCodeln("NEG R1, R"+(num_fils+1));
 			}
 		}
 
 
+	}
+	
+	
+	public void function_call(Tree ast, TDS tds){
+		//empilage des params
+		//execution fct
+		//recuperation du resultat dans R0
+		//depilage params
 	}
 
 
