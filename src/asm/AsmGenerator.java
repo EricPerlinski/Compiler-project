@@ -88,9 +88,7 @@ public class AsmGenerator {
 		//on met 0 pour STATIC
 		addCodeln("STW R0, -(SP)");
 				
-		//ArrayList<Declaration> vars = tds.getRoot().getVar();
-		//addCodeln("LDQ "+tds.getsizeofvar()+",R1"); // R1 = taille données locales prog.principal
-								   // 2 variables * 2 octets / variable ici
+		
 		generateRec(tds, ast, -1);
 		
 		//TODO a mettre au debut du main
@@ -166,49 +164,74 @@ public class AsmGenerator {
 	}
 
 
+	
 	public void function_call(Tree ast, TDS tds){
-		//empilage des params
 		
+		//Sauvegarde registres
+		for(int i=1;i<=10;i++){
+			addCodeln("stw R"+i+",-(SP)");
+		}
+		
+		
+		// Preparation de l'environnement du programme principal 
+		// empile les parametres de la fonction 
+		int currentdeplacement = tds.getSizeOfParams();
+		for (int i = tds.getParams().size()-1; i == 0 ; i--){
+			addCodeln("LDW R1, (BP)-"+currentdeplacement);
+			addCodeln("STW R1, -(SP)");
+			currentdeplacement += tds.getParams().get(i).getSize();
+		}
 		
 		//execution fct
 		
-		
-		//recuperation du resultat dans R0
-		
+		addCodeln("JSR @"+ast.getChild(0).getText()+"_");
 		
 		
-		//depilage params
+		
+		//Fin de la fonction 
+		
+		
+		// nettoyage de la pile par le programme appelant 	
+		addCodeln("ADQ "+tds.getSizeOfParams()+",SP");
+		//restauration des registres
+		for(int i=10;i>=0;i--){
+			addCodeln("ldw R"+i+",(SP)+");
+		}
+		//restauration base
+		addCodeln("ldw BP,(SP)+");
+		addCodeln("//fin fonction "+tds.getIdf());
+		
 	}
 
 
 	private void function(Tree ast, TDS tds){
 		addCodeln("//fonction "+tds.getIdf());
 		//etiquette de fonction
-		addCodeln(tds.getIdf()+"_");
-
-		//TODO ajouter var locale ici ??
-
+		
+		addCodeln(tds.getIdf()+"_ LDQ "+tds.getSizeOfVar()+",R1"); // R1 = taille donnees locales de fonction appelee
+			
 		//sauvegarde de la base
 		addCodeln("stw BP,-(SP)");
 		addCodeln("ldw BP, SP");
 		
-		//sauvagarde du contexte
-		for(int i=0;i<=12;i++){
-			addCodeln("stw R"+i+",-(R15)");
-		}
+		addCodeln("SUB SP, R1, SP"); //reserve R1 octets sur la pile pour les variables locales
+		
 		//debut corps fonction
 		addCodeln("//Corps de la fonction");
+		
 	}
 
 
 	private void function_end(Tree as, TDS tds){
-		//restauration du contexte
-		for(int i=12;i>=0;i--){
-			addCodeln("ldw R"+i+",(R15)+");
-		}
-		//restauration base
-		addCodeln("ldw BP,(SP)+");
-		addCodeln("//fin fonction "+tds.getIdf());
+		
+		// sauvegarde du resultat dans R0
+		addCodeln("LDW R0, (BP)-2");
+		//fin de la fonction
+		addCodeln ("LDW SP, BP"); // charge SP avec contenu de BP: abandon infos locales
+		addCodeln ("LDW BP, (SP)"); // charge BP avec ancien BP
+		addCodeln ("ADQ 2,SP"); // supprime l'ancien BP de la pile
+		
+		addCodeln("RTS"); // retour au programme appelant
 	}
 
 	private void variable(Tree ast, TDS tds){
