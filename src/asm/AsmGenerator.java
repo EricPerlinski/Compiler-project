@@ -2,6 +2,7 @@ package asm;
 
 import java.util.Stack;
 
+import model.Declaration;
 import model.TDS;
 
 import org.antlr.runtime.tree.Tree;
@@ -69,11 +70,11 @@ public class AsmGenerator {
 		addCodeln("stackSize equ 100");
 		addCodeln("stack rsb stackSize");
 
-		addCodeln("main_");
+		addCodeln("\n\nmain_");
 
 		
 		addCodeln("LDW SP, #STACK_ADRS");
-		addCodeln("LDW BP, SP");
+		//addCodeln("LDW BP, SP");
 		
 		
 		//0 dans RO
@@ -253,13 +254,29 @@ public class AsmGenerator {
 				if(num_fils!=-1){
 					addCodeln("STW R0, -(SP)");
 				}
-			}else{
+			}else if(tds.getDeclarationOfVar(ast.getText())!=null){
+				Declaration decl = tds.getDeclarationOfVar(ast.getText());
+				int deep = tds.getDeepOfVar(ast.getText());
 				//une variable, on le charge depuis la pile
-				int depl = tds.getDeclarationOfVar(ast.getText()).getDeplacement();
-				addCodeln("LDW R0, (BP)"+depl);
+				int depl = decl.getDeplacement();
+				
+				addCodeln("LDW WR, BP");
+				while(deep>0){
+					//on parcours le chainage static
+					addCodeln("LDW WR, (WR)");
+					deep--;
+				}
+				
+				addCodeln("LDW R0, (WR)"+depl);
 				if(num_fils!=-1){
 					addCodeln("STW R0, -(SP)");
 				}
+			}else if(tds.getTdsOfFunction(ast.getText())!=null){
+				//TODO faire appel de fct
+				
+			}else{
+				//erreur ? 
+				System.out.println("ERREUR");
 			}
 		}else{
 			for(int i=0;i<ast.getChildCount();i++){

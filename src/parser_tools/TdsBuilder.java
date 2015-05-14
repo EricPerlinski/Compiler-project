@@ -96,6 +96,7 @@ public class TdsBuilder {
 		if (current.getLastVar()!=null) {
 			deplacement = current.getLastVar().getDeplacement()-current.getLastVar().getSize();
 		}
+		System.out.println("DEPLACEMENT "+deplacement+" ***************************************");
 		String nodeType = t.getChild(0).getText();
 		if(nodeType.equalsIgnoreCase("integer")){
 			
@@ -105,7 +106,7 @@ public class TdsBuilder {
 				//System.out.println(current.getVar().size());
 				if (current.getVar().size()>0) {
 					Declaration last = current.getVar().get(current.getVar().size()-1);
-					d.setDeplacement(last.getDeplacement()+last.getSize());
+					d.setDeplacement(last.getDeplacement()-last.getSize());
 				}
 				current.addVar(d);
 			}
@@ -116,7 +117,7 @@ public class TdsBuilder {
 				Declaration d = new Declaration(Type.bool,t.getChild(i).getText(), deplacement);
 				if (current.getVar().size()>0) {
 					Declaration last = current.getVar().get(current.getVar().size()-1);
-					d.setDeplacement(last.getDeplacement()+last.getSize());
+					d.setDeplacement(last.getDeplacement()-last.getSize());
 				}
 				current.addVar(d); 
 			}
@@ -199,7 +200,7 @@ public class TdsBuilder {
 			
 			int deplacement=DEPLACEMENT_PARAM;
 			if(current.getLastParam()!=null){
-				deplacement= current.getLastParam().getDeplacement()-current.getLastParam().getSize();
+				deplacement= current.getLastParam().getDeplacement()+current.getLastParam().getSize();
 			}
 
 
