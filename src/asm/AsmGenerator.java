@@ -71,11 +71,10 @@ public class AsmGenerator {
 
 		
 		addCodeln("LDW SP, #STACK_ADRS");
-		addCodeln("LDQ NIL, BP");
-		
+		addCodeln("LDW BP, SP");
 		
 		//ArrayList<Declaration> vars = tds.getRoot().getVar();
-		//addCodeln("LDQ "+i+",R1"); // R1 = taille données locales prog.principal
+		//addCodeln("LDQ "+tds.getsizeofvar()+",R1"); // R1 = taille données locales prog.principal
 								   // 2 variables * 2 octets / variable ici
 		generateRec(tds, ast, -1);
 		

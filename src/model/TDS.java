@@ -267,6 +267,25 @@ public class TDS {
         return null;
 	}
 	
+	public int getSizeOfVar(){
+		int res = 0;
+		for(int i = 0; i < var.size(); i++){
+			if(var.get(i).getType().equals(Type.integer)){
+				res += 2;
+			}else if (var.get(i).getType().equals(Type.bool)){
+				res += 1;
+			}else if (var.get(i).getType().equals(Type.array)){
+				ArrayList<Bound> a = var.get(i).getBounds(); 
+				int subres = 1;
+				for(int j = 0; j < a.size(); j++){
+					subres *= a.get(j).getUb() - a.get(j).getLb() +1;
+				}
+				res += subres;
+			}
+		}
+		return res; 
+	}
+	
 	public Declaration getDeclarationOfParam(String v) {
 		for(int i=0;i<params.size();i++){
 	        if(params.get(i).getIdf().equalsIgnoreCase(v)){
