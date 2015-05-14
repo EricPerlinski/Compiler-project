@@ -231,7 +231,7 @@ public class AsmGenerator {
 	}
 	
 	
-	public void fonction_call(Tree ast, TDS tds){
+	public void function_call(Tree ast, TDS tds){
 		//empilage des params
 		//execution fct
 		//recuperation du resultat dans R0
