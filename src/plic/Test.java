@@ -35,7 +35,8 @@ public class Test {
             name = tmp[tmp.length - 1];
             // name=(name.split("."))[0];
         } else {
-            stream = new FileInputStream("test/correct/test2.plic");
+            stream = new FileInputStream("test/correct/simple-asm.plic");
+            name = "simple-asm";
         }
 
         ANTLRInputStream input = new ANTLRInputStream(stream);
