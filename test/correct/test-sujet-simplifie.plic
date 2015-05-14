@@ -10,7 +10,7 @@ do
 
 	
 	i = -3
-	read j /* previously j = 0 */
+	j = 5
 	maximum = fMax(i, j)
 	write maximum
 end
