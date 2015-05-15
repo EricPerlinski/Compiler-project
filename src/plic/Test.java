@@ -97,7 +97,7 @@ public class Test {
         if(errGen){
         	System.out.println("Erreur de generation de code");
         }else{
-        	System.out.println(asm.getCode());
+        	//System.out.println(asm.getCode());
         	writeAsm(name, asm.getCode().toString());
         }    
     }

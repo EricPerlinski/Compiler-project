@@ -21,8 +21,8 @@ public class AsmGenerator {
 
 	private int uniqId;
 
-	
-	
+
+
 	private static final int INT_SIZE = 2;
 	private static final int BOOL_SIZE = 2;
 
@@ -73,11 +73,11 @@ public class AsmGenerator {
 
 		addCodeln("\n\nmain_");
 
-		
+
 		addCodeln("LDW SP, #STACK_ADRS");
 		//addCodeln("LDW BP, SP");
-		
-		//0 dans RO
+
+		//0 dans R0
 		addCodeln("LDW R0, #0");
 		//on met 0 pour l'@ de retour
 		addCodeln("STW R0, -(SP)");
@@ -87,13 +87,13 @@ public class AsmGenerator {
 		addCodeln("LDW BP, SP");
 		//on met 0 pour STATIC
 		addCodeln("STW R0, -(SP)");
-				
-		
+
+
 		generateRec(tds, ast, -1);
-		
+
 		//TODO a mettre au debut du main
-		
-		
+
+
 
 		//debut du programme
 		//addCodeln("main");
@@ -140,9 +140,6 @@ public class AsmGenerator {
 		case PlicParser.AFFECTATION:
 			affectaction(ast,tds);
 			break;
-		case PlicParser.FUNC_CALL:
-			function_call(ast, tds);
-			break;
 		}
 		//fin génération
 
@@ -164,74 +161,85 @@ public class AsmGenerator {
 	}
 
 
-	
+
 	public void function_call(Tree ast, TDS tds){
+		TDS tds_func = tds.getTdsOfFunction(ast.getChild(0).getText());
+		addCodeln("//debut appel fonction "+tds_func.getIdf());
 		
 		//Sauvegarde registres
 		for(int i=1;i<=10;i++){
 			addCodeln("stw R"+i+",-(SP)");
 		}
-		
-		
+
+
 		// Preparation de l'environnement du programme principal 
 		// empile les parametres de la fonction 
-		int currentdeplacement = tds.getSizeOfParams();
-		for (int i = tds.getParams().size()-1; i == 0 ; i--){
-			addCodeln("LDW R1, (BP)-"+currentdeplacement);
-			addCodeln("STW R1, -(SP)");
-			currentdeplacement += tds.getParams().get(i).getSize();
+		for (int i = tds_func.getParams().size()-1; i >= 0 ; i--){
+			addCodeln("//empile "+tds_func.getParams().get(i).getIdf());
+			boolean b = tds_func.getParams().get(i).getType()==Type.bool;
+			expr(ast.getChild(i+1),tds,b);
+			addCodeln("STW R0, -(SP)");
 		}
-		
+
 		//execution fct
-		
+		addCodeln("//appel fct");
 		addCodeln("JSR @"+ast.getChild(0).getText()+"_");
-		
-		
-		
+
+
+
 		//Fin de la fonction 
-		
-		
+		for (int i = 0; i<tds_func.getParams().size() ; i++){
+			addCodeln("//depile "+tds_func.getParams().get(i).getIdf());
+			addCodeln("LDW R1, (SP)+");
+		}
+
+
 		// nettoyage de la pile par le programme appelant 	
-		addCodeln("ADQ "+tds.getSizeOfParams()+",SP");
+		//addCodeln("ADQ "+tds_func.getSizeOfParams()+",SP");
+		
 		//restauration des registres
 		for(int i=10;i>=0;i--){
 			addCodeln("ldw R"+i+",(SP)+");
 		}
 		//restauration base
 		addCodeln("ldw BP,(SP)+");
-		addCodeln("//fin fonction "+tds.getIdf());
-		
+		addCodeln("//fin appel fonction "+tds_func.getIdf());
+
 	}
 
 
 	private void function(Tree ast, TDS tds){
 		addCodeln("//fonction "+tds.getIdf());
+		//saut à la fin de la fct
+		addCodeln("JMP #end_"+tds.getIdf()+"_ -$-2");
 		//etiquette de fonction
-		
-		addCodeln(tds.getIdf()+"_ LDQ "+tds.getSizeOfVar()+",R1"); // R1 = taille donnees locales de fonction appelee
-			
+		addCodeln(tds.getIdf()+"_"); 
+		addCodeln("LDQ "+tds.getSizeOfVar()+",R1"); // R1 = taille donnees locales de fonction appelee
+
 		//sauvegarde de la base
 		addCodeln("stw BP,-(SP)");
 		addCodeln("ldw BP, SP");
-		
+
 		addCodeln("SUB SP, R1, SP"); //reserve R1 octets sur la pile pour les variables locales
-		
+
 		//debut corps fonction
 		addCodeln("//Corps de la fonction");
-		
+
 	}
 
 
 	private void function_end(Tree as, TDS tds){
-		
+
 		// sauvegarde du resultat dans R0
 		addCodeln("LDW R0, (BP)-2");
 		//fin de la fonction
 		addCodeln ("LDW SP, BP"); // charge SP avec contenu de BP: abandon infos locales
 		addCodeln ("LDW BP, (SP)"); // charge BP avec ancien BP
 		addCodeln ("ADQ 2,SP"); // supprime l'ancien BP de la pile
-		
+
 		addCodeln("RTS"); // retour au programme appelant
+		//label de fin de fct
+		addCodeln("end_"+tds.getIdf()+"_");
 	}
 
 	private void variable(Tree ast, TDS tds){
@@ -259,7 +267,6 @@ public class AsmGenerator {
 		//TODO verifier type de la gauche
 		Declaration decl = tds.getDeclarationOfVar(left.getText());
 		boolean bool = (decl.getType()==Type.bool);
-		if(bool) System.out.println("BOOOOOOOOOOOOOOOOOOOOOOOOOOOL");
 		expr(right, tds,bool);
 		addCodeln("STW R0, (BP)"+decl.getDeplacement());
 	}
@@ -270,7 +277,6 @@ public class AsmGenerator {
 	}
 
 	private void expr_rec(Tree ast, TDS tds, int num_fils, boolean bool){
-
 		if(ast.getChildCount()==0){
 			//bas de l'arbre
 			if(ast.getText().equalsIgnoreCase("true")){
@@ -294,6 +300,7 @@ public class AsmGenerator {
 				int deep = tds.getDeepOfVar(ast.getText());
 				//une variable, on le charge depuis la pile
 				int depl = decl.getDeplacement();
+
 				
 				addCodeln("LDW WR, BP");
 				while(deep>0){
@@ -301,154 +308,156 @@ public class AsmGenerator {
 					addCodeln("LDW WR, (WR)");
 					deep--;
 				}
-				
+
 				addCodeln("LDW R0, (WR)"+depl);
 				if(num_fils!=-1){
 					addCodeln("STW R0, -(SP)");
 				}
-			}else if(tds.getTdsOfFunction(ast.getText())!=null){
-				//TODO faire appel de fct
-				
 			}else{
 				//erreur ? 
 				System.out.println("ERREUR");
 			}
 		}else{
-			for(int i=0;i<ast.getChildCount();i++){
-				if(ast.getType()==PlicParser.FUNC_CALL){
-					//TODO appel fonction
-				}else{
-					expr_rec(ast.getChild(i), tds, i, bool); 
-				}
-			}
-			if(ast.getText().equalsIgnoreCase("+")){
-				addCodeln("LDW R1, (SP)+");
-				addCodeln("LDW R2, (SP)+");
-				addCodeln("ADD R1, R2, R"+(num_fils+1));
-				if(bool){
-					//si c'est un bool on met le resultat à 0 ou 1
-					String label = "bool_"+getUniqId()+"_";
-					addCodeln("LDW R1, #0");
-					addCodeln("CMP RO, R1");
-					addCodeln("JEQ "+label);
-					addCodeln("LDW RR"+(num_fils+1)+", #1");
-					addCodeln(label);
-				}
-				if(num_fils!=-1){
-					addCodeln("STW R"+(num_fils+1)+", -(SP)");
-				}
-
-			}else if(ast.getText().equalsIgnoreCase("-")){
-				addCodeln("LDW R1, (SP)+");
-				addCodeln("LDW R2, (SP)+");
-				addCodeln("SUB R2, R1, R"+(num_fils+1));
-				if(bool){
-					//si c'est un bool on met le resultat à 0 ou 1
-					String label = "bool_"+getUniqId()+"_";
-					addCodeln("LDW R1, #0");
-					addCodeln("CMP RO, R1");
-					addCodeln("JEQ "+label);
-					addCodeln("LDW RR"+(num_fils+1)+", #1");
-					addCodeln(label);
-				}
-				if(num_fils!=-1){
-					addCodeln("STW R"+(num_fils+1)+", -(SP)");
-				}
-			}else if(ast.getText().equalsIgnoreCase("*")){
-				addCodeln("LDW R1, (SP)+");
-				addCodeln("LDW R2, (SP)+");
-				addCodeln("MUL R1, R2, R"+(num_fils+1));
-				if(bool){
-					//si c'est un bool on met le resultat à 0 ou 1
-					String label = "bool_"+getUniqId()+"_";
-					addCodeln("LDW R1, #0");
-					addCodeln("CMP RO, R1");
-					addCodeln("JEQ "+label);
-					addCodeln("LDW RR"+(num_fils+1)+", #1");
-					addCodeln(label);
-				}
-				if(num_fils!=-1){
-					addCodeln("STW R"+(num_fils+1)+", -(SP)");
-				}
-			}else if(ast.getText().equalsIgnoreCase("unaire")){
-				addCodeln("LDW R1, (SP)+");
-				addCodeln("NEG R1, R"+(num_fils+1));
+			if(ast.getType()==PlicParser.FUNC_CALL){
+				function_call(ast, tds);
 				if(num_fils!=-1){
 					addCodeln("STW R0, -(SP)");
 				}
-			}else if(ast.getText().equalsIgnoreCase("==")){
-				addCodeln("LDW R1, (SP)+");
-				addCodeln("LDW R2, (SP)+");
-				addCodeln("CMP R1, R2");
-				int id = getUniqId();
-				String label = "equals_"+id+"_";
-				addCodeln("JEQ "+label);
-				addCodeln("LDW R0, #0");
-				addCodeln("LDW R0, #0");
-				addCodeln(label);
-				addCodeln("LDW R0, #1");
-				addCodeln("end_"+label);
-			}else if(ast.getText().equalsIgnoreCase("!=")){
-				addCodeln("LDW R1, (SP)+");
-				addCodeln("LDW R2, (SP)+");
-				addCodeln("CMP R1, R2");
-				int id = getUniqId();
-				String label = "not_equals_"+id+"_";
-				addCodeln("JNE "+label);
-				addCodeln("LDW R0, #0");
-				addCodeln("LDW R0, #0");
-				addCodeln(label);
-				addCodeln("LDW R0, #1");
-				addCodeln("end_"+label);
-			}else if(ast.getText().equalsIgnoreCase(">")){
-				addCodeln("LDW R1, (SP)+");
-				addCodeln("LDW R2, (SP)+");
-				addCodeln("CMP R1, R2");
-				int id = getUniqId();
-				String label = "greater_"+id+"_";
-				addCodeln("JGT "+label);
-				addCodeln("LDW R0, #0");
-				addCodeln("LDW R0, #0");
-				addCodeln(label);
-				addCodeln("LDW R0, #1");
-				addCodeln("end_"+label);
-			}else if(ast.getText().equalsIgnoreCase(">=")){
-				addCodeln("LDW R1, (SP)+");
-				addCodeln("LDW R2, (SP)+");
-				addCodeln("CMP R1, R2");
-				int id = getUniqId();
-				String label = "greate_equals_"+id+"_";
-				addCodeln("JGE "+label);
-				addCodeln("LDW R0, #0");
-				addCodeln("LDW R0, #0");
-				addCodeln(label);
-				addCodeln("LDW R0, #1");
-				addCodeln("end_"+label);
-			}else if(ast.getText().equalsIgnoreCase("<")){
-				addCodeln("LDW R1, (SP)+");
-				addCodeln("LDW R2, (SP)+");
-				addCodeln("CMP R1, R2");
-				int id = getUniqId();
-				String label = "lower"+id+"_";
-				addCodeln("JLW "+label);
-				addCodeln("LDW R0, #0");
-				addCodeln("LDW R0, #0");
-				addCodeln(label);
-				addCodeln("LDW R0, #1");
-				addCodeln("end_"+label);
-			}else if(ast.getText().equalsIgnoreCase("<=")){
-				addCodeln("LDW R1, (SP)+");
-				addCodeln("LDW R2, (SP)+");
-				addCodeln("CMP R1, R2");
-				int id = getUniqId();
-				String label = "lower_equals_"+id+"_";
-				addCodeln("JLE "+label);
-				addCodeln("LDW R0, #0");
-				addCodeln("LDW R0, #0");
-				addCodeln(label);
-				addCodeln("LDW R0, #1");
-				addCodeln("end_"+label);
+			}else{
+				for(int i=0;i<ast.getChildCount();i++){
+					expr_rec(ast.getChild(i), tds, i, bool); 
+
+				}
+				if(ast.getText().equalsIgnoreCase("+")){
+					addCodeln("LDW R1, (SP)+");
+					addCodeln("LDW R2, (SP)+");
+					addCodeln("ADD R1, R2, R"+(num_fils+1));
+					if(bool){
+						//si c'est un bool on met le resultat à 0 ou 1
+						String label = "bool_"+getUniqId()+"_";
+						addCodeln("LDW R1, #0");
+						addCodeln("CMP R0, R1");
+						addCodeln("JEQ #"+label);
+						addCodeln("LDW R"+(num_fils+1)+", #1");
+						addCodeln(label);
+					}
+					if(num_fils!=-1){
+						addCodeln("STW R"+(num_fils+1)+", -(SP)");
+					}
+
+				}else if(ast.getText().equalsIgnoreCase("-")){
+					addCodeln("LDW R1, (SP)+");
+					addCodeln("LDW R2, (SP)+");
+					addCodeln("SUB R2, R1, R"+(num_fils+1));
+					if(bool){
+						//si c'est un bool on met le resultat à 0 ou 1
+						String label = "bool_"+getUniqId()+"_";
+						addCodeln("LDW R1, #0");
+						addCodeln("CMP R0, R1");
+						addCodeln("JEQ #"+label);
+						addCodeln("LDW R"+(num_fils+1)+", #1");
+						addCodeln(label);
+					}
+					if(num_fils!=-1){
+						addCodeln("STW R"+(num_fils+1)+", -(SP)");
+					}
+				}else if(ast.getText().equalsIgnoreCase("*")){
+					addCodeln("LDW R1, (SP)+");
+					addCodeln("LDW R2, (SP)+");
+					addCodeln("MUL R1, R2, R"+(num_fils+1));
+					if(bool){
+						//si c'est un bool on met le resultat à 0 ou 1
+						String label = "bool_"+getUniqId()+"_";
+						addCodeln("LDW R1, #0");
+						addCodeln("CMP R0, R1");
+						addCodeln("JEQ #"+label);
+						addCodeln("LDW R"+(num_fils+1)+", #1");
+						addCodeln(label);
+					}
+					if(num_fils!=-1){
+						addCodeln("STW R"+(num_fils+1)+", -(SP)");
+					}
+				}else if(ast.getText().equalsIgnoreCase("unaire")){
+					addCodeln("LDW R1, (SP)+");
+					addCodeln("NEG R1, R"+(num_fils+1));
+					if(num_fils!=-1){
+						addCodeln("STW R0, -(SP)");
+					}
+				}else if(ast.getText().equalsIgnoreCase("==")){
+					addCodeln("LDW R1, (SP)+");
+					addCodeln("LDW R2, (SP)+");
+					addCodeln("CMP R1, R2");
+					int id = getUniqId();
+					String label = "equals_"+id+"_";
+					addCodeln("JEQ #"+label);
+					addCodeln("LDW R0, #0");
+					addCodeln("LDW R0, #0");
+					addCodeln(label);
+					addCodeln("LDW R0, #1");
+					addCodeln("end_"+label);
+				}else if(ast.getText().equalsIgnoreCase("!=")){
+					addCodeln("LDW R1, (SP)+");
+					addCodeln("LDW R2, (SP)+");
+					addCodeln("CMP R1, R2");
+					int id = getUniqId();
+					String label = "not_equals_"+id+"_";
+					addCodeln("JNE "+label);
+					addCodeln("LDW R0, #0");
+					addCodeln("LDW R0, #0");
+					addCodeln(label);
+					addCodeln("LDW R0, #1");
+					addCodeln("end_"+label);
+				}else if(ast.getText().equalsIgnoreCase(">")){
+					addCodeln("LDW R1, (SP)+");
+					addCodeln("LDW R2, (SP)+");
+					addCodeln("CMP R1, R2");
+					int id = getUniqId();
+					String label = "greater_"+id+"_";
+					addCodeln("JGT "+label);
+					addCodeln("LDW R0, #0");
+					addCodeln("LDW R0, #0");
+					addCodeln(label);
+					addCodeln("LDW R0, #1");
+					addCodeln("end_"+label);
+				}else if(ast.getText().equalsIgnoreCase(">=")){
+					addCodeln("LDW R1, (SP)+");
+					addCodeln("LDW R2, (SP)+");
+					addCodeln("CMP R1, R2");
+					int id = getUniqId();
+					String label = "greate_equals_"+id+"_";
+					addCodeln("JGE "+label);
+					addCodeln("LDW R0, #0");
+					addCodeln("LDW R0, #0");
+					addCodeln(label);
+					addCodeln("LDW R0, #1");
+					addCodeln("end_"+label);
+				}else if(ast.getText().equalsIgnoreCase("<")){
+					addCodeln("LDW R1, (SP)+");
+					addCodeln("LDW R2, (SP)+");
+					addCodeln("CMP R1, R2");
+					int id = getUniqId();
+					String label = "lower"+id+"_";
+					addCodeln("JLW "+label);
+					addCodeln("LDW R0, #0");
+					addCodeln("LDW R0, #0");
+					addCodeln(label);
+					addCodeln("LDW R0, #1");
+					addCodeln("end_"+label);
+				}else if(ast.getText().equalsIgnoreCase("<=")){
+					addCodeln("LDW R1, (SP)+");
+					addCodeln("LDW R2, (SP)+");
+					addCodeln("CMP R1, R2");
+					int id = getUniqId();
+					String label = "lower_equals_"+id+"_";
+					addCodeln("JLE "+label);
+					addCodeln("LDW R0, #0");
+					addCodeln("LDW R0, #0");
+					addCodeln(label);
+					addCodeln("LDW R0, #1");
+					addCodeln("end_"+label);
+				}
 			}
+
 		}
 
 
