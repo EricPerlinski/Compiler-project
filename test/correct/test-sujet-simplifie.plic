@@ -4,7 +4,7 @@ do
 	
 	function integer fMax (x: integer, y: integer)
 		integer result
-		result = x
+		result = x - y
 		return (result)
 	end /* function */
 

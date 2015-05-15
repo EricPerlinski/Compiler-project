@@ -96,7 +96,6 @@ public class TdsBuilder {
 		if (current.getLastVar()!=null) {
 			deplacement = current.getLastVar().getDeplacement()-current.getLastVar().getSize();
 		}
-		System.out.println("DEPLACEMENT "+deplacement+" ***************************************");
 		String nodeType = t.getChild(0).getText();
 		if(nodeType.equalsIgnoreCase("integer")){
 			

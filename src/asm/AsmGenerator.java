@@ -20,6 +20,7 @@ public class AsmGenerator {
 	private StringBuffer asmBuff;
 
 	private int uniqId;
+	private int tab=0;
 
 
 
@@ -33,6 +34,18 @@ public class AsmGenerator {
 		this.uniqId=0;
 		asmBuff=new StringBuffer();
 	}
+	
+	private void emptyLine(){
+		addCode("\n");
+	}
+	
+	private void addTab(){
+		tab++;
+	}
+	
+	private void removeTab(){
+		tab--;
+	}
 
 	public int getUniqId(){
 		return uniqId++;
@@ -43,6 +56,9 @@ public class AsmGenerator {
 	}
 
 	private void addCode(String code){
+		for(int i=0;i<tab;i++){
+			asmBuff.append("\t");
+		}
 		asmBuff.append(code);
 	}
 
@@ -71,7 +87,7 @@ public class AsmGenerator {
 		addCodeln("stackSize equ 100");
 		addCodeln("stack rsb stackSize");
 
-		addCodeln("\n\nRoot_");
+		addCodeln("Root_");
 
 
 		addCodeln("LDW SP, #STACK_ADRS");
@@ -162,7 +178,7 @@ public class AsmGenerator {
 		
 		//si le pere de la fct appelé c'est moi alors vrai
 		boolean fils=tds_func.getPere().getIdf().equals(tds.getIdf());
-		
+		emptyLine();
 		addCodeln("//debut appel fonction "+tds_func.getIdf());
 		
 		//Sauvegarde registres
@@ -173,6 +189,7 @@ public class AsmGenerator {
 
 		// Preparation de l'environnement du programme principal 
 		// empile les parametres de la fonction 
+		emptyLine();
 		for (int i = tds_func.getParams().size()-1; i >= 0 ; i--){
 			addCodeln("//empile "+tds_func.getParams().get(i).getIdf());
 			boolean b = tds_func.getParams().get(i).getType()==Type.bool;
@@ -180,6 +197,7 @@ public class AsmGenerator {
 			addCodeln("STW R0, -(SP)");
 		}
 		
+		emptyLine();
 		addCodeln("//chainage static");
 		if(fils){
 			//le chainage static pointe sur moi
@@ -192,12 +210,14 @@ public class AsmGenerator {
 		}
 
 		//execution fct
+		emptyLine();
 		addCodeln("//appel fct");
 		addCodeln("JSR @"+ast.getChild(0).getText()+"_");
 
 
 
 		//Fin de la fonction 
+		emptyLine();
 		for (int i = 0; i<tds_func.getParams().size() ; i++){
 			addCodeln("//depile "+tds_func.getParams().get(i).getIdf());
 			addCodeln("LDW R1, (SP)+");
@@ -208,17 +228,21 @@ public class AsmGenerator {
 		//addCodeln("ADQ "+tds_func.getSizeOfParams()+",SP");
 		
 		//restauration des registres
-		for(int i=10;i>=0;i--){
+		emptyLine();
+		for(int i=10;i>0;i--){
 			addCodeln("ldw R"+i+",(SP)+");
 		}
 		//restauration base
-		addCodeln("ldw BP,(SP)+");
+		emptyLine();
+		//addCodeln("ldw BP,(SP)+");
 		addCodeln("//fin appel fonction "+tds_func.getIdf());
 
 	}
 
 
 	private void function(Tree ast, TDS tds){
+		addTab();
+		emptyLine();
 		addCodeln("//fonction "+tds.getIdf());
 		//saut à la fin de la fct
 		addCodeln("JMP #end_"+tds.getIdf()+"_ -$-2");
@@ -237,6 +261,7 @@ public class AsmGenerator {
 		//addCodeln("SUB SP, R1, SP"); //reserve R1 octets sur la pile pour les variables locales
 
 		//debut corps fonction
+		emptyLine();
 		addCodeln("//Corps de la fonction");
 
 	}
@@ -244,8 +269,15 @@ public class AsmGenerator {
 
 	private void function_end(Tree as, TDS tds){
 
+		
+		emptyLine();
+		addCodeln("//fin corps de la fonction");
+		
+		//TODO suppr ça
 		// sauvegarde du resultat dans R0
-		addCodeln("LDW R0, (BP)-2");
+		//addCodeln("LDW R0, (BP)-2");
+		
+		
 		//fin de la fonction
 		addCodeln ("LDW SP, BP"); // charge SP avec contenu de BP: abandon infos locales
 		addCodeln ("LDW BP, (SP)"); // charge BP avec ancien BP
@@ -254,20 +286,25 @@ public class AsmGenerator {
 		addCodeln("RTS"); // retour au programme appelant
 		//label de fin de fct
 		addCodeln("end_"+tds.getIdf()+"_");
+		removeTab();
+		emptyLine();
 	}
 
 	private void variable(Tree ast, TDS tds){
 		if(ast.getChild(0).getText().equalsIgnoreCase("integer")){
+			emptyLine();
 			addCodeln("//integer");
 			for(int i=1;i<ast.getChildCount();i++){
 				addCodeln("ADQ -"+INT_SIZE+", SP //var "+ast.getChild(i).getText());
 			}
 		}else if(ast.getChild(0).getText().equalsIgnoreCase("boolean")){
+			emptyLine();
 			addCodeln("//boolean");
 			for(int i=1;i<ast.getChildCount();i++){
 				addCodeln("ADQ -"+BOOL_SIZE+", SP //var "+ast.getChild(i).getText());
 			}
 		}else if(ast.getChild(0).getText().equalsIgnoreCase("array")){
+			emptyLine();
 			addCodeln("//array");
 			//TODO
 			addCodeln("//TODO");
@@ -275,7 +312,8 @@ public class AsmGenerator {
 	}
 
 	private void affectaction(Tree ast, TDS tds){
-		addCodeln("//******");
+		emptyLine();
+		addCodeln("//****** affectation");
 		Tree left = ast.getChild(0).getChild(0);
 		Tree right = ast.getChild(1).getChild(0);
 		//TODO verifier type de la gauche
