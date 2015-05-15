@@ -66,12 +66,12 @@ public class AsmGenerator {
 		addCodeln("NIL EQU 0");
 		//init du programme
 		addCodeln("ORG LOAD_ADRS");
-		addCodeln("START main_");
+		addCodeln("START Root_");
 		//creation pile
 		addCodeln("stackSize equ 100");
 		addCodeln("stack rsb stackSize");
 
-		addCodeln("\n\nmain_");
+		addCodeln("\n\nRoot_");
 
 
 		addCodeln("LDW SP, #STACK_ADRS");
@@ -94,11 +94,6 @@ public class AsmGenerator {
 		//TODO a mettre au debut du main
 
 
-
-		//debut du programme
-		//addCodeln("main");
-		//init de la pile
-		//addCodeln("ldw R15,#(stack+stackSize)");
 
 
 
@@ -164,6 +159,10 @@ public class AsmGenerator {
 
 	public void function_call(Tree ast, TDS tds){
 		TDS tds_func = tds.getTdsOfFunction(ast.getChild(0).getText());
+		
+		//si le pere de la fct appelé c'est moi alors vrai
+		boolean fils=tds_func.getPere().getIdf().equals(tds.getIdf());
+		
 		addCodeln("//debut appel fonction "+tds_func.getIdf());
 		
 		//Sauvegarde registres
@@ -179,6 +178,17 @@ public class AsmGenerator {
 			boolean b = tds_func.getParams().get(i).getType()==Type.bool;
 			expr(ast.getChild(i+1),tds,b);
 			addCodeln("STW R0, -(SP)");
+		}
+		
+		addCodeln("//chainage static");
+		if(fils){
+			//le chainage static pointe sur moi
+			addCodeln("//c est un fils, donc je serai sont chainage static");
+			addCodeln("LDW R2, BP");
+		}else{
+			//le chainage static pointe sur notre pere
+			addCodeln("//c est un frere, donc meme valeur de chainage static");
+			addCodeln("LDW R2, (BP)-2");
 		}
 
 		//execution fct
@@ -214,13 +224,17 @@ public class AsmGenerator {
 		addCodeln("JMP #end_"+tds.getIdf()+"_ -$-2");
 		//etiquette de fonction
 		addCodeln(tds.getIdf()+"_"); 
-		addCodeln("LDQ "+tds.getSizeOfVar()+",R1"); // R1 = taille donnees locales de fonction appelee
+		
+		//sauvegarde de la base / DYN ? TODO
+		addCodeln("STW BP,-(SP)");
+		addCodeln("LDW BP, SP");
+		
+		// chainage static, R2 est definie par l'appelant
+		addCodeln("STW R2, -(SP)");
 
-		//sauvegarde de la base
-		addCodeln("stw BP,-(SP)");
-		addCodeln("ldw BP, SP");
-
-		addCodeln("SUB SP, R1, SP"); //reserve R1 octets sur la pile pour les variables locales
+		//la methode variable() fait ça normalement
+		//addCodeln("LDQ "+tds.getSizeOfVar()+",R1"); // R1 = taille donnees locales de fonction appelee
+		//addCodeln("SUB SP, R1, SP"); //reserve R1 octets sur la pile pour les variables locales
 
 		//debut corps fonction
 		addCodeln("//Corps de la fonction");
