@@ -104,18 +104,11 @@ public class AsmGenerator {
 		//on met 0 pour STATIC
 		addCodeln("STW R0, -(SP)");
 
-
+		//Generation du corps du programme
 		generateRec(tds, ast, -1);
-
-		//TODO a mettre au debut du main
-
-
-
-
 
 		//fin du programme
 		addCodeln("fin");
-
 
 		//fin du programme
 		addCodeln("trp #64");
@@ -250,7 +243,7 @@ public class AsmGenerator {
 		//etiquette de fonction
 		addCodeln(tds.getIdf()+"_"); 
 		
-		//sauvegarde de la base / DYN ? TODO
+		//sauvegarde de la base / DYN 
 		addCodeln("STW BP,-(SP)");
 		addCodeln("LDW BP, SP");
 		
@@ -269,15 +262,8 @@ public class AsmGenerator {
 
 
 	private void function_end(Tree as, TDS tds){
-
-		
 		emptyLine();
 		addCodeln("//fin corps de la fonction");
-		
-		//TODO suppr ça
-		// sauvegarde du resultat dans R0
-		//addCodeln("LDW R0, (BP)-2");
-		
 		
 		//fin de la fonction
 		addCodeln ("LDW SP, BP"); // charge SP avec contenu de BP: abandon infos locales
@@ -317,7 +303,6 @@ public class AsmGenerator {
 		addCodeln("//****** affectation");
 		Tree left = ast.getChild(0).getChild(0);
 		Tree right = ast.getChild(1).getChild(0);
-		//TODO verifier type de la gauche
 		Declaration decl = tds.getDeclarationOfVar(left.getText());
 		boolean bool = (decl.getType()==Type.bool);
 		expr(right, tds,bool);
@@ -332,13 +317,9 @@ public class AsmGenerator {
 	private void expr_rec(Tree ast, TDS tds, int num_fils, boolean bool){
 		if(ast.getChildCount()==0){
 			//bas de l'arbre
-			if(ast.getText().equalsIgnoreCase("true")){
-				addCodeln("LDW R0, #1");
-				if(num_fils!=-1){
-					addCodeln("STW R0, -(SP)");
-				}
-			}else if(ast.getText().equalsIgnoreCase("false")){
-				addCodeln("LDW R0, #0");
+			if(ast.getText().equalsIgnoreCase("true") || ast.getText().equalsIgnoreCase("false")){
+				boolean b = ast.getText().equalsIgnoreCase("true");
+				addCodeln("LDW R0, #"+(b?"1":"0"));
 				if(num_fils!=-1){
 					addCodeln("STW R0, -(SP)");
 				}
@@ -372,137 +353,78 @@ public class AsmGenerator {
 			}
 		}else{
 			if(ast.getType()==PlicParser.FUNC_CALL){
+				//generation de l appel de fonction
 				function_call(ast, tds);
 				if(num_fils!=-1){
 					addCodeln("STW R0, -(SP)");
 				}
 			}else{
 				for(int i=0;i<ast.getChildCount();i++){
+					//parcours recursif sur chacun des fils
 					expr_rec(ast.getChild(i), tds, i, bool); 
-
 				}
-				if(ast.getText().equalsIgnoreCase("+")){
+				
+				//Si c'est une operation +/-/* 
+				if(ast.getText().equalsIgnoreCase("+") || ast.getText().equalsIgnoreCase("-") || ast.getText().equalsIgnoreCase("*")){
+					char c = ast.getText().charAt(0);
+					//ternaire de la mort :P
+					String opp= (c=='+'?"ADD":(c=='-'?"SUB":"MUL"));
+					
 					addCodeln("LDW R1, (SP)+");
 					addCodeln("LDW R2, (SP)+");
-					addCodeln("ADD R1, R2, R"+(num_fils+1));
+					addCodeln(opp+" R1, R2, R"+(num_fils+1));
 					if(bool){
 						//si c'est un bool on met le resultat à 0 ou 1
+						addCodeln("//astuce pour les boolean, si c est different de zero alors on met à 1");
 						String label = "bool_"+getUniqId()+"_";
-						addCodeln("LDW R1, #0");
-						addCodeln("CMP R0, R1");
-						addCodeln("JEQ #"+label);
+						addCodeln("STW R3, -(SP)");
+						addCodeln("LDW R3, #0");
+						addCodeln("CMP R"+(num_fils+1)+", R3");
+						addCodeln("JEQ #"+label+" -$-2");
 						addCodeln("LDW R"+(num_fils+1)+", #1");
+						addCodeln("LDW R3, (SP)+");
 						addCodeln(label);
+						addCodeln("//fin de petite astuce");
 					}
 					if(num_fils!=-1){
 						addCodeln("STW R"+(num_fils+1)+", -(SP)");
 					}
 
-				}else if(ast.getText().equalsIgnoreCase("-")){
-					addCodeln("LDW R1, (SP)+");
-					addCodeln("LDW R2, (SP)+");
-					addCodeln("SUB R2, R1, R"+(num_fils+1));
-					if(bool){
-						//si c'est un bool on met le resultat à 0 ou 1
-						String label = "bool_"+getUniqId()+"_";
-						addCodeln("LDW R1, #0");
-						addCodeln("CMP R0, R1");
-						addCodeln("JEQ #"+label);
-						addCodeln("LDW R"+(num_fils+1)+", #1");
-						addCodeln(label);
-					}
-					if(num_fils!=-1){
-						addCodeln("STW R"+(num_fils+1)+", -(SP)");
-					}
-				}else if(ast.getText().equalsIgnoreCase("*")){
-					addCodeln("LDW R1, (SP)+");
-					addCodeln("LDW R2, (SP)+");
-					addCodeln("MUL R1, R2, R"+(num_fils+1));
-					if(bool){
-						//si c'est un bool on met le resultat à 0 ou 1
-						String label = "bool_"+getUniqId()+"_";
-						addCodeln("LDW R1, #0");
-						addCodeln("CMP R0, R1");
-						addCodeln("JEQ #"+label);
-						addCodeln("LDW R"+(num_fils+1)+", #1");
-						addCodeln(label);
-					}
-					if(num_fils!=-1){
-						addCodeln("STW R"+(num_fils+1)+", -(SP)");
-					}
+				//unaire
 				}else if(ast.getText().equalsIgnoreCase("unaire")){
 					addCodeln("LDW R1, (SP)+");
 					addCodeln("NEG R1, R"+(num_fils+1));
+					if(bool){
+						//TODO valentin
+					}
 					if(num_fils!=-1){
 						addCodeln("STW R0, -(SP)");
 					}
-				}else if(ast.getText().equalsIgnoreCase("==")){
+					
+					
+				//comparaison
+				}else if(ast.getText().equalsIgnoreCase("==") || ast.getText().equalsIgnoreCase("!=") ||ast.getText().equalsIgnoreCase(">") ||ast.getText().equalsIgnoreCase(">=") ||ast.getText().equalsIgnoreCase("<") ||ast.getText().equalsIgnoreCase("<=")){
+					String opp="";
+					if(ast.getText().equalsIgnoreCase("==")){
+						opp="JEQ";
+					}else if(ast.getText().equalsIgnoreCase("!=")){
+						opp="JNE";
+					}else if(ast.getText().equalsIgnoreCase(">")){
+						opp="JGT";
+					}else if(ast.getText().equalsIgnoreCase(">=")){
+						opp="JGE";
+					}else if(ast.getText().equalsIgnoreCase("<")){
+						opp="JLW";
+					}else if(ast.getText().equalsIgnoreCase("<=")){
+						opp="JLE";
+					}
+					
 					addCodeln("LDW R1, (SP)+");
 					addCodeln("LDW R2, (SP)+");
 					addCodeln("CMP R1, R2");
 					int id = getUniqId();
 					String label = "equals_"+id+"_";
-					addCodeln("JEQ #"+label);
-					addCodeln("LDW R0, #0");
-					addCodeln("LDW R0, #0");
-					addCodeln(label);
-					addCodeln("LDW R0, #1");
-					addCodeln("end_"+label);
-				}else if(ast.getText().equalsIgnoreCase("!=")){
-					addCodeln("LDW R1, (SP)+");
-					addCodeln("LDW R2, (SP)+");
-					addCodeln("CMP R1, R2");
-					int id = getUniqId();
-					String label = "not_equals_"+id+"_";
-					addCodeln("JNE "+label);
-					addCodeln("LDW R0, #0");
-					addCodeln("LDW R0, #0");
-					addCodeln(label);
-					addCodeln("LDW R0, #1");
-					addCodeln("end_"+label);
-				}else if(ast.getText().equalsIgnoreCase(">")){
-					addCodeln("LDW R1, (SP)+");
-					addCodeln("LDW R2, (SP)+");
-					addCodeln("CMP R1, R2");
-					int id = getUniqId();
-					String label = "greater_"+id+"_";
-					addCodeln("JGT "+label);
-					addCodeln("LDW R0, #0");
-					addCodeln("LDW R0, #0");
-					addCodeln(label);
-					addCodeln("LDW R0, #1");
-					addCodeln("end_"+label);
-				}else if(ast.getText().equalsIgnoreCase(">=")){
-					addCodeln("LDW R1, (SP)+");
-					addCodeln("LDW R2, (SP)+");
-					addCodeln("CMP R1, R2");
-					int id = getUniqId();
-					String label = "greate_equals_"+id+"_";
-					addCodeln("JGE "+label);
-					addCodeln("LDW R0, #0");
-					addCodeln("LDW R0, #0");
-					addCodeln(label);
-					addCodeln("LDW R0, #1");
-					addCodeln("end_"+label);
-				}else if(ast.getText().equalsIgnoreCase("<")){
-					addCodeln("LDW R1, (SP)+");
-					addCodeln("LDW R2, (SP)+");
-					addCodeln("CMP R1, R2");
-					int id = getUniqId();
-					String label = "lower"+id+"_";
-					addCodeln("JLW "+label);
-					addCodeln("LDW R0, #0");
-					addCodeln("LDW R0, #0");
-					addCodeln(label);
-					addCodeln("LDW R0, #1");
-					addCodeln("end_"+label);
-				}else if(ast.getText().equalsIgnoreCase("<=")){
-					addCodeln("LDW R1, (SP)+");
-					addCodeln("LDW R2, (SP)+");
-					addCodeln("CMP R1, R2");
-					int id = getUniqId();
-					String label = "lower_equals_"+id+"_";
-					addCodeln("JLE "+label);
+					addCodeln(opp+" #"+label);
 					addCodeln("LDW R0, #0");
 					addCodeln("LDW R0, #0");
 					addCodeln(label);
@@ -522,41 +444,6 @@ public class AsmGenerator {
 	}
 	
 	
-	
-	
-	
-	
-	
-	
-	
 
-	public void accessLocaleVar(String var){
-		addCodeln("LEA ("+Integer.toString(tds.getDeclarationOfLocaleVar(var).getDeplacement())+",A0),A1)");
-	}
-
-	public void accessNeitherGlobalNorLocaleVar(String var){
-		addCodeln("MOVE #(Nx-Ny),DO");// TODO A modifier et à ajouter une fonction permettant de retrouver le niveau d'imbrication
-		addCodeln("MOVE A0,A2");
-		addCodeln("BOUCLE: MOVE(depl_stat,A2),A2"); // TODO A modifier
-		addCodeln("SUB #1,D0");
-		addCodeln("BNE BOUCLE");
-		addCodeln("LEA (depl,A2),A1");
-	}
-
-	public void stackValue(){
-		addCodeln("MOVE (A1),-(A7)");
-	}
-
-	public void accessAddressParam(String param){
-		addCodeln("MOVE ("+Integer.toString(tds.getDeclarationOfParam(param).getDeplacement())+",A0),A1");
-	}
-
-	public void accessValParam(String param){
-		addCodeln("LEA ("+Integer.toString(tds.getDeclarationOfParam(param).getDeplacement())+",A0),A1");
-	}
-
-	public void accessRoutine(){
-
-	}
 
 }
