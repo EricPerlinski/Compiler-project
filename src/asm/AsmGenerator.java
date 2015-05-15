@@ -151,6 +151,9 @@ public class AsmGenerator {
 		case PlicParser.AFFECTATION:
 			affectaction(ast,tds);
 			break;
+		case PlicParser.RETURN:
+			retourne(ast,tds);
+			break;
 		}
 		//fin génération
 
@@ -222,8 +225,8 @@ public class AsmGenerator {
 			addCodeln("//depile "+tds_func.getParams().get(i).getIdf());
 			addCodeln("LDW R1, (SP)+");
 		}
-
-
+		
+		//equivalent au truc du dessus
 		// nettoyage de la pile par le programme appelant 	
 		//addCodeln("ADQ "+tds_func.getSizeOfParams()+",SP");
 		
@@ -232,9 +235,7 @@ public class AsmGenerator {
 		for(int i=10;i>0;i--){
 			addCodeln("ldw R"+i+",(SP)+");
 		}
-		//restauration base
 		emptyLine();
-		//addCodeln("ldw BP,(SP)+");
 		addCodeln("//fin appel fonction "+tds_func.getIdf());
 
 	}
@@ -514,6 +515,20 @@ public class AsmGenerator {
 
 
 	}
+	
+	
+	private void retourne(Tree ast, TDS tds){
+		//TODO code du return
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	public void accessLocaleVar(String var){
 		addCodeln("LEA ("+Integer.toString(tds.getDeclarationOfLocaleVar(var).getDeplacement())+",A0),A1)");
