@@ -1,14 +1,11 @@
 package asm;
 
-import java.util.Stack;
-
 import model.Declaration;
 import model.TDS;
 import model.Type;
 
 import org.antlr.runtime.tree.Tree;
 
-import parser_tools.SemanticChecker;
 import plic.PlicParser;
 
 public class AsmGenerator {
@@ -309,6 +306,15 @@ public class AsmGenerator {
 		addCodeln("STW R0, (BP)"+decl.getDeplacement());
 	}
 
+
+	/*
+	 * Permet de calculer le resultat d'une expression bool/arithmetique.
+	 * On lui donne le noeud le plus haut dans l'expression, la tds correspondante
+	 * Le parametre bool doit être à vrai si le resultat est mis dans un boolean (une variable, un parametre de fct, un if/while, ...)
+	 * si bool est a vrai il transformera systematiquement tout ce qui est different de 0 en 1. Et le 0 reste 0 :D
+	 * 
+	 * TODO ajouter les tableau dedans.
+	 */
 	private void expr(Tree ast, TDS tds, boolean bool){
 		// met le resultat de l'exp dans R0
 		expr_rec(ast, tds,-1,bool);
@@ -331,19 +337,21 @@ public class AsmGenerator {
 				}
 			}else if(tds.getDeclarationOfVar(ast.getText())!=null){
 				Declaration decl = tds.getDeclarationOfVar(ast.getText());
-				int deep = tds.getDeepOfVar(ast.getText());
-				//une variable, on le charge depuis la pile
-				int depl = decl.getDeplacement();
-
-				
-				addCodeln("LDW WR, BP");
-				while(deep>0){
-					//on parcours le chainage static
-					addCodeln("LDW WR, (WR)");
-					deep--;
+				if(decl.getType()==Type.bool || decl.getType()==Type.integer){
+					//int ou bool
+					int deep = tds.getDeepOfVar(ast.getText());
+					//une variable, on le charge depuis la pile
+					int depl = decl.getDeplacement();
+					addCodeln("LDW WR, BP");
+					while(deep>0){
+						//on parcours le chainage static
+						addCodeln("LDW WR, (WR)");
+						deep--;
+					}
+					addCodeln("LDW R0, (WR)"+depl);
+				}else{
+					//TODO array (à une vache près c'est pareil que int/bool)
 				}
-
-				addCodeln("LDW R0, (WR)"+depl);
 				if(num_fils!=-1){
 					addCodeln("STW R0, -(SP)");
 				}
@@ -369,22 +377,12 @@ public class AsmGenerator {
 					char c = ast.getText().charAt(0);
 					//ternaire de la mort :P
 					String opp= (c=='+'?"ADD":(c=='-'?"SUB":"MUL"));
-					
 					addCodeln("LDW R1, (SP)+");
 					addCodeln("LDW R2, (SP)+");
 					addCodeln(opp+" R1, R2, R"+(num_fils+1));
 					if(bool){
 						//si c'est un bool on met le resultat à 0 ou 1
-						addCodeln("//astuce pour les boolean, si c est different de zero alors on met à 1");
-						String label = "bool_"+getUniqId()+"_";
-						addCodeln("STW R3, -(SP)");
-						addCodeln("LDW R3, #0");
-						addCodeln("CMP R"+(num_fils+1)+", R3");
-						addCodeln("JEQ #"+label+" -$-2");
-						addCodeln("LDW R"+(num_fils+1)+", #1");
-						addCodeln("LDW R3, (SP)+");
-						addCodeln(label);
-						addCodeln("//fin de petite astuce");
+						astuceBool(num_fils);
 					}
 					if(num_fils!=-1){
 						addCodeln("STW R"+(num_fils+1)+", -(SP)");
@@ -392,24 +390,13 @@ public class AsmGenerator {
 
 				//unaire
 				}else if(ast.getText().equalsIgnoreCase("unaire")){
-					
 					if(bool){
 						//si c'est un bool on met le resultat à 0 ou 1
 						addCodeln("LDW R"+(num_fils+1)+", (SP)+");
 						//on enleve un (0->-1, 1->0)
 						addCodeln("ADI R"+(num_fils+1)+", R"+(num_fils+1)+", #-1");
-						
 						//on met le resultat à 0 ou 1
-						addCodeln("//astuce pour les boolean, si c est different de zero alors on met à 1");
-						String label = "bool_"+getUniqId()+"_";
-						addCodeln("STW R3, -(SP)");
-						addCodeln("LDW R3, #0");
-						addCodeln("CMP R"+(num_fils+1)+", R3");
-						addCodeln("JEQ #"+label+" -$-2");
-						addCodeln("LDW R"+(num_fils+1)+", #1");
-						addCodeln("LDW R3, (SP)+");
-						addCodeln(label);
-						addCodeln("//fin de petite astuce");
+						astuceBool(num_fils);
 					}else{
 						addCodeln("LDW R1, (SP)+");
 						addCodeln("NEG R1, R"+(num_fils+1));
@@ -417,7 +404,6 @@ public class AsmGenerator {
 					if(num_fils!=-1){
 						addCodeln("STW R0, -(SP)");
 					}
-					
 					
 				//comparaison
 				}else if(ast.getText().equalsIgnoreCase("==") || ast.getText().equalsIgnoreCase("!=") ||ast.getText().equalsIgnoreCase(">") ||ast.getText().equalsIgnoreCase(">=") ||ast.getText().equalsIgnoreCase("<") ||ast.getText().equalsIgnoreCase("<=")){
@@ -435,7 +421,6 @@ public class AsmGenerator {
 					}else if(ast.getText().equalsIgnoreCase("<=")){
 						opp="JLE";
 					}
-					
 					addCodeln("LDW R1, (SP)+");
 					addCodeln("LDW R2, (SP)+");
 					addCodeln("CMP R1, R2");
@@ -449,10 +434,21 @@ public class AsmGenerator {
 					addCodeln("end_"+label);
 				}
 			}
-
 		}
-
-
+	}
+	
+	private void astuceBool(int numR){
+		//permet de mettre le registre numR+1 à 1 si != 0
+		addCodeln("//astuce pour les boolean, si c est different de zero alors on met à 1");
+		String label = "bool_"+getUniqId()+"_";
+		addCodeln("STW R3, -(SP)");
+		addCodeln("LDW R3, #0");
+		addCodeln("CMP R"+(numR+1)+", R3");
+		addCodeln("JEQ #"+label+" -$-2");
+		addCodeln("LDW R"+(numR+1)+", #1");
+		addCodeln("LDW R3, (SP)+");
+		addCodeln(label);
+		addCodeln("//fin de petite astuce");
 	}
 	
 	

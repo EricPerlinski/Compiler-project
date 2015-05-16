@@ -216,7 +216,6 @@ public class TDS {
 	}
 	
 	public int getDeepOfVar(String v){
-		int res=0;;
         for(int i=0;i<var.size();i++){
             if(var.get(i).getIdf().equalsIgnoreCase(v)){
                 return 0;
