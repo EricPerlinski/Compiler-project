@@ -1,11 +1,15 @@
 do
 
-	boolean b,c,d
+	boolean b,c,d,e,f
 
 	b=true
 	c=false
 	d=true+false+true
-	
+	e=true*false
+	f=false-true
+	c=-false
+	d=-true+true
+
 	write i
 
 end

@@ -392,10 +392,27 @@ public class AsmGenerator {
 
 				//unaire
 				}else if(ast.getText().equalsIgnoreCase("unaire")){
-					addCodeln("LDW R1, (SP)+");
-					addCodeln("NEG R1, R"+(num_fils+1));
+					
 					if(bool){
-						//TODO valentin
+						//si c'est un bool on met le resultat à 0 ou 1
+						addCodeln("LDW R"+(num_fils+1)+", (SP)+");
+						//on enleve un (0->-1, 1->0)
+						addCodeln("ADI R"+(num_fils+1)+", R"+(num_fils+1)+", #-1");
+						
+						//on met le resultat à 0 ou 1
+						addCodeln("//astuce pour les boolean, si c est different de zero alors on met à 1");
+						String label = "bool_"+getUniqId()+"_";
+						addCodeln("STW R3, -(SP)");
+						addCodeln("LDW R3, #0");
+						addCodeln("CMP R"+(num_fils+1)+", R3");
+						addCodeln("JEQ #"+label+" -$-2");
+						addCodeln("LDW R"+(num_fils+1)+", #1");
+						addCodeln("LDW R3, (SP)+");
+						addCodeln(label);
+						addCodeln("//fin de petite astuce");
+					}else{
+						addCodeln("LDW R1, (SP)+");
+						addCodeln("NEG R1, R"+(num_fils+1));
 					}
 					if(num_fils!=-1){
 						addCodeln("STW R0, -(SP)");
