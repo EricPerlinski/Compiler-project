@@ -117,7 +117,7 @@ public class AsmGenerator {
 		boolean bloc=false;
 		
 		// Label unique nécessaire pour les if
-		String label;
+		String label = null;
 
 		// NE PAS MODIFIER
 		switch(ast.getType()){
@@ -470,7 +470,10 @@ public class AsmGenerator {
 		emptyLine();
 		addCodeln("// Structure IF");
 		expr(ast.getChild(0), tds, true);
-		addCodeln("CMP R0, #0");
+		addCodeln("STW R1, -(SP)");
+		addCodeln("LDW R1, #0");
+		addCodeln("CMP R0, R1");
+		addCodeln("LDW R1, (SP)+");
 		addCodeln("JEQ #"+label+"-$-2");
 	}
 
