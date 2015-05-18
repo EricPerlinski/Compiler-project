@@ -115,6 +115,9 @@ public class AsmGenerator {
 	public int generateRec(TDS tds, Tree ast, int truc){
 		//System.out.println(ast.getText());
 		boolean bloc=false;
+		
+		// Label unique nécessaire pour les if
+		String label;
 
 		// NE PAS MODIFIER
 		switch(ast.getType()){
@@ -144,6 +147,10 @@ public class AsmGenerator {
 		case PlicParser.RETURN:
 			retourne(ast,tds);
 			break;
+		case PlicParser.IF:
+			label = "end_if_"+getUniqId()+"_";
+			if_start(ast, tds, label);
+			break;
 		}
 		//fin génération
 
@@ -158,6 +165,9 @@ public class AsmGenerator {
 		switch(ast.getType()){
 		case PlicParser.FUNCTION:
 			function_end(ast,tds);
+			break;
+		case PlicParser.IF:
+			if_end(ast, tds, label);
 			break;
 		}
 
@@ -456,7 +466,16 @@ public class AsmGenerator {
 		//TODO code du return
 	}
 	
-	
+	public void if_start(Tree ast, TDS tds, String label){
+		emptyLine();
+		addCodeln("// Structure IF");
+		expr(ast.getChild(0), tds, true);
+		addCodeln("CMP R0, #0");
+		addCodeln("JEQ #"+label+"-$-2");
+	}
 
-
+	public void if_end(Tree ast, TDS tds, String label){
+		emptyLine();
+		addCodeln(label);
+	}
 }
