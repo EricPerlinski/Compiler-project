@@ -311,9 +311,19 @@ public class AsmGenerator {
 		Tree left = ast.getChild(0).getChild(0);
 		Tree right = ast.getChild(1).getChild(0);
 		Declaration decl = tds.getDeclarationOfVar(left.getText());
+		
+		int deep = tds.getDeepOfVar(left.getText());
+		//une variable, on le charge depuis la pile
+		addCodeln("LDW WR, BP");
+		while(deep>0){
+			//on parcours le chainage static
+			addCodeln("LDW WR, (WR)");
+			deep--;
+		}
+		
 		boolean bool = (decl.getType()==Type.bool);
 		expr(right, tds,bool);
-		addCodeln("STW R0, (BP)"+decl.getDeplacement());
+		addCodeln("STW R0, (WR)"+decl.getDeplacement());
 	}
 
 
