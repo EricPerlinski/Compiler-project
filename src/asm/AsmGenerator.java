@@ -381,7 +381,7 @@ public class AsmGenerator {
 			addCodeln("LDW WR, (WR)");
 			deep--;
 		}
-
+		//TODO verifier si c'est passé par adresse
 
 
 		addCodeln("STW R0, (WR)"+decl.getDeplacement());
@@ -429,6 +429,7 @@ public class AsmGenerator {
 						addCodeln("LDW WR, (WR)");
 						deep--;
 					}
+					//TODO verifier si c'est passé par adresse
 					addCodeln("LDW R0, (WR)"+depl);
 				}else{
 					//TODO array (à une vache près c'est pareil que int/bool)

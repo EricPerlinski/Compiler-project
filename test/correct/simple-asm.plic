@@ -1,15 +1,30 @@
 do
 
-	boolean b,c,d,e,f
+	boolean b
+	integer c,d
 
-	b=true
-	c=false
-	d=true+false+true
-	e=true*false
-	f=false-true
-	c=-false
-	d=-true+true
+	function integer f()
+		b=true
+		c=12
+		return (42)
+	end
 
-	write i
+	procedure p(i:integer)
+		b=false
+		begin
+			b=true
+		end
+		d=i
+	end
+
+
+	d=f()
+	p(42)
+
+	begin
+		d=123
+	end
+
+	write "toto"
 
 end
