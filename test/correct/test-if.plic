@@ -1,0 +1,7 @@
+do
+	integer i,j
+	i=0
+	j=0
+	if (true) then i=1 fi
+	if (false) then j=1 fi
+end

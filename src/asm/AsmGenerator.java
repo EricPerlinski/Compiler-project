@@ -180,7 +180,7 @@ public class AsmGenerator {
 		TDS tds_func = tds.getTdsOfFunction(ast.getChild(0).getText());
 		
 		//si le pere de la fct appelé c'est moi alors vrai
-		boolean fils=tds_func.getPere().getIdf().equals(tds.getIdf());
+		boolean fils=tds_func.getPere().getIdf().equals(tds.getIdf());	
 		emptyLine();
 		addCodeln("//debut appel fonction "+tds_func.getIdf());
 		
@@ -470,10 +470,10 @@ public class AsmGenerator {
 		emptyLine();
 		addCodeln("// Structure IF");
 		expr(ast.getChild(0), tds, true);
-		addCodeln("STW R1, -(SP)");
+		//addCodeln("STW R1, -(SP)");
 		addCodeln("LDW R1, #0");
 		addCodeln("CMP R0, R1");
-		addCodeln("LDW R1, (SP)+");
+		//addCodeln("LDW R1, (SP)+");
 		addCodeln("JEQ #"+label+"-$-2");
 	}
 
