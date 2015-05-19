@@ -436,9 +436,9 @@ public class AsmGenerator {
 					addCodeln("CMP R1, R2");
 					int id = getUniqId();
 					String label = "equals_"+id+"_";
-					addCodeln(opp+" #"+label);
+					addCodeln(opp+" #"+label+" -$-2");
 					addCodeln("LDW R0, #0");
-					addCodeln("LDW R0, #0");
+					addCodeln("JMP #end_"+label+" -$-2");
 					addCodeln(label);
 					addCodeln("LDW R0, #1");
 					addCodeln("end_"+label);
