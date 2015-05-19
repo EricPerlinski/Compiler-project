@@ -249,7 +249,11 @@ public class AsmGenerator {
 	private void function(Tree ast, TDS tds){
 		addTab();
 		emptyLine();
-		addCodeln("//fonction "+tds.getIdf());
+		if(tds.getTypeRet().equalsIgnoreCase("void")){
+			addCodeln("//procedure "+tds.getIdf());
+		}else{
+			addCodeln("//fonction "+tds.getIdf());
+		}
 		//saut à la fin de la fct
 		addCodeln("JMP #end_"+tds.getIdf()+"_ -$-2");
 		//etiquette de fonction
@@ -275,7 +279,11 @@ public class AsmGenerator {
 
 	private void function_end(Tree as, TDS tds){
 		emptyLine();
-		addCodeln("//fin corps de la fonction");
+		if(tds.getTypeRet().equalsIgnoreCase("void")){
+			addCodeln("//fin corps de la procedure");
+		}else{
+			addCodeln("//fin corps de la fonction");
+		}
 		
 		//fin de la fonction
 		addCodeln ("LDW SP, BP"); // charge SP avec contenu de BP: abandon infos locales
@@ -317,6 +325,9 @@ public class AsmGenerator {
 		Tree right = ast.getChild(1).getChild(0);
 		Declaration decl = tds.getDeclarationOfVar(left.getText());
 		
+		boolean bool = (decl.getType()==Type.bool);
+		expr(right, tds,bool);
+		
 		int deep = tds.getDeepOfVar(left.getText());
 		//une variable, on le charge depuis la pile
 		addCodeln("LDW WR, BP");
@@ -326,8 +337,8 @@ public class AsmGenerator {
 			deep--;
 		}
 		
-		boolean bool = (decl.getType()==Type.bool);
-		expr(right, tds,bool);
+		
+		
 		addCodeln("STW R0, (WR)"+decl.getDeplacement());
 	}
 
