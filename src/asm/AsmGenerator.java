@@ -136,6 +136,7 @@ public class AsmGenerator {
 		// Generer de l'ASM suivant le type
 		switch(ast.getType()){
 		case PlicParser.FUNCTION:
+		case PlicParser.PROCEDURE:
 			function(ast,tds);
 			break;
 		case PlicParser.VARIABLE:
@@ -151,6 +152,9 @@ public class AsmGenerator {
 			label = "end_if_"+getUniqId()+"_";
 			if_start(ast, tds, label);
 			break;
+		case PlicParser.PROC_CALL:
+			function_call(ast, tds);
+			break;
 		}
 		//fin génération
 
@@ -164,6 +168,7 @@ public class AsmGenerator {
 
 		switch(ast.getType()){
 		case PlicParser.FUNCTION:
+		case PlicParser.PROCEDURE:
 			function_end(ast,tds);
 			break;
 		case PlicParser.IF:
