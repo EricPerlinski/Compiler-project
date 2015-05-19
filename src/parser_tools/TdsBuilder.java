@@ -73,7 +73,7 @@ public class TdsBuilder {
 			Si c'est une variable, explorer le sous arbre pour recuperer les infos
 			Faire une fonction qui parse un noeud VARIABLE
 		*/
-		if(t.getText().equals("VARIABLE")){
+		if(t.getText().equals("VARIABLE") && t.getText()!=null){
 			parse_variable(t);
 		}else 
 		/* Si c'est un bloc avec params et nom alors ajouter la TDS courante a la pile créé une nouvelle TDS et parcourir le bloc recursivement*/
@@ -168,8 +168,10 @@ public class TdsBuilder {
 		NodeParse(t.getChild(0));
 		
 		//instructions
-		NodeParse(t.getChild(1));
-
+		if(t.getChild(1)!=null){
+			NodeParse(t.getChild(1));
+		}
+		
 		//reset current
 		current=stack.pop();
 	}

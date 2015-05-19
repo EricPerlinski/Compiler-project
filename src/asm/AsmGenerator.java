@@ -139,6 +139,9 @@ public class AsmGenerator {
 		case PlicParser.PROCEDURE:
 			function(ast,tds);
 			break;
+		case PlicParser.BLOC:
+			bloc(ast,tds);
+			break;
 		case PlicParser.VARIABLE:
 			variable(ast, tds);
 			break;
@@ -170,6 +173,9 @@ public class AsmGenerator {
 		case PlicParser.FUNCTION:
 		case PlicParser.PROCEDURE:
 			function_end(ast,tds);
+			break;
+		case PlicParser.BLOC:
+			bloc_end(ast, tds);
 			break;
 		case PlicParser.IF:
 			if_end(ast, tds, label);
@@ -243,6 +249,42 @@ public class AsmGenerator {
 		emptyLine();
 		addCodeln("//fin appel fonction "+tds_func.getIdf());
 
+	}
+	
+	private void bloc(Tree ast, TDS tds){
+		addCodeln("//debut bloc");
+		//Sauvegarde registres
+		for(int i=1;i<=10;i++){
+			addCodeln("stw R"+i+",-(SP)");
+		}
+		
+		
+		emptyLine();
+		addCodeln("//chainage static");
+		//sauvegarde de la base / DYN 
+		addCodeln("STW BP,-(SP)");
+		// chainage static
+		addCodeln("STW BP,-(SP)");
+		addCodeln("LDW BP, SP");
+		
+		
+		addCodeln("//corps bloc");
+	}
+	
+	private void bloc_end(Tree ast, TDS tds){
+		emptyLine();
+		addCodeln("//fin corps bloc");
+		addCodeln ("LDW SP, BP"); // charge SP avec contenu de BP: abandon infos locales
+		addCodeln ("LDW BP, (SP)"); // charge BP avec ancien BP
+		addCodeln ("ADQ 2,SP"); // supprime l'ancien BP de la pile
+
+		//restauration des registres
+		emptyLine();
+		for(int i=10;i>0;i--){
+			addCodeln("ldw R"+i+",(SP)+");
+		}
+		emptyLine();
+		addCodeln("//fin bloc");
 	}
 
 
