@@ -484,7 +484,7 @@ public class AsmGenerator {
 		addCodeln("LDW R1, #0");
 		addCodeln("CMP R0, R1");
 		//addCodeln("LDW R1, (SP)+");
-		addCodeln("JEQ #"+label+"-$-2");
+		addCodeln("JEQ #"+label+" -$-2");
 	}
 
 	public void if_end(Tree ast, TDS tds, String label){
