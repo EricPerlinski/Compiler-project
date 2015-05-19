@@ -31,15 +31,15 @@ public class AsmGenerator {
 		this.uniqId=0;
 		asmBuff=new StringBuffer();
 	}
-	
+
 	private void emptyLine(){
 		addCode("\n");
 	}
-	
+
 	private void addTab(){
 		tab++;
 	}
-	
+
 	private void removeTab(){
 		tab--;
 	}
@@ -115,7 +115,7 @@ public class AsmGenerator {
 	public int generateRec(TDS tds, Tree ast, int truc){
 		//System.out.println(ast.getText());
 		boolean bloc=false;
-		
+
 		// Label unique nécessaire pour les if
 		String label = null;
 
@@ -158,6 +158,9 @@ public class AsmGenerator {
 		case PlicParser.PROC_CALL:
 			function_call(ast, tds);
 			break;
+		case PlicParser.WRITE:
+			write(ast, tds);
+			break;
 		}
 		//fin génération
 
@@ -189,12 +192,12 @@ public class AsmGenerator {
 
 	public void function_call(Tree ast, TDS tds){
 		TDS tds_func = tds.getTdsOfFunction(ast.getChild(0).getText());
-		
+
 		//si le pere de la fct appelé c'est moi alors vrai
 		boolean fils=tds_func.getPere().getIdf().equals(tds.getIdf());	
 		emptyLine();
 		addCodeln("//debut appel fonction "+tds_func.getIdf());
-		
+
 		//Sauvegarde registres
 		for(int i=1;i<=10;i++){
 			addCodeln("stw R"+i+",-(SP)");
@@ -210,7 +213,7 @@ public class AsmGenerator {
 			expr(ast.getChild(i+1),tds,b);
 			addCodeln("STW R0, -(SP)");
 		}
-		
+
 		emptyLine();
 		addCodeln("//chainage static");
 		if(fils){
@@ -236,11 +239,11 @@ public class AsmGenerator {
 			addCodeln("//depile "+tds_func.getParams().get(i).getIdf());
 			addCodeln("LDW R1, (SP)+");
 		}
-		
+
 		//equivalent au truc du dessus
 		// nettoyage de la pile par le programme appelant 	
 		//addCodeln("ADQ "+tds_func.getSizeOfParams()+",SP");
-		
+
 		//restauration des registres
 		emptyLine();
 		for(int i=10;i>0;i--){
@@ -250,15 +253,15 @@ public class AsmGenerator {
 		addCodeln("//fin appel fonction "+tds_func.getIdf());
 
 	}
-	
+
 	private void bloc(Tree ast, TDS tds){
 		addCodeln("//debut bloc");
 		//Sauvegarde registres
 		for(int i=1;i<=10;i++){
 			addCodeln("stw R"+i+",-(SP)");
 		}
-		
-		
+
+
 		emptyLine();
 		addCodeln("//chainage static");
 		//sauvegarde de la base / DYN 
@@ -266,11 +269,11 @@ public class AsmGenerator {
 		// chainage static
 		addCodeln("STW BP,-(SP)");
 		addCodeln("LDW BP, SP");
-		
-		
+
+
 		addCodeln("//corps bloc");
 	}
-	
+
 	private void bloc_end(Tree ast, TDS tds){
 		emptyLine();
 		addCodeln("//fin corps bloc");
@@ -300,11 +303,11 @@ public class AsmGenerator {
 		addCodeln("JMP #end_"+tds.getIdf()+"_ -$-2");
 		//etiquette de fonction
 		addCodeln(tds.getIdf()+"_"); 
-		
+
 		//sauvegarde de la base / DYN 
 		addCodeln("STW BP,-(SP)");
 		addCodeln("LDW BP, SP");
-		
+
 		// chainage static, R2 est definie par l'appelant
 		addCodeln("STW R2, -(SP)");
 
@@ -326,7 +329,7 @@ public class AsmGenerator {
 		}else{
 			addCodeln("//fin corps de la fonction");
 		}
-		
+
 		//fin de la fonction
 		addCodeln ("LDW SP, BP"); // charge SP avec contenu de BP: abandon infos locales
 		addCodeln ("LDW BP, (SP)"); // charge BP avec ancien BP
@@ -366,10 +369,10 @@ public class AsmGenerator {
 		Tree left = ast.getChild(0).getChild(0);
 		Tree right = ast.getChild(1).getChild(0);
 		Declaration decl = tds.getDeclarationOfVar(left.getText());
-		
+
 		boolean bool = (decl.getType()==Type.bool);
 		expr(right, tds,bool);
-		
+
 		int deep = tds.getDeepOfVar(left.getText());
 		//une variable, on le charge depuis la pile
 		addCodeln("LDW WR, BP");
@@ -378,9 +381,9 @@ public class AsmGenerator {
 			addCodeln("LDW WR, (WR)");
 			deep--;
 		}
-		
-		
-		
+
+
+
 		addCodeln("STW R0, (WR)"+decl.getDeplacement());
 	}
 
@@ -449,7 +452,7 @@ public class AsmGenerator {
 					//parcours recursif sur chacun des fils
 					expr_rec(ast.getChild(i), tds, i, bool); 
 				}
-				
+
 				//Si c'est une operation +/-/* 
 				if(ast.getText().equalsIgnoreCase("+") || ast.getText().equalsIgnoreCase("-") || ast.getText().equalsIgnoreCase("*")){
 					char c = ast.getText().charAt(0);
@@ -466,7 +469,7 @@ public class AsmGenerator {
 						addCodeln("STW R"+(num_fils+1)+", -(SP)");
 					}
 
-				//unaire
+					//unaire
 				}else if(ast.getText().equalsIgnoreCase("unaire")){
 					if(bool){
 						//si c'est un bool on met le resultat à 0 ou 1
@@ -482,8 +485,8 @@ public class AsmGenerator {
 					if(num_fils!=-1){
 						addCodeln("STW R0, -(SP)");
 					}
-					
-				//comparaison
+
+					//comparaison
 				}else if(ast.getText().equalsIgnoreCase("==") || ast.getText().equalsIgnoreCase("!=") ||ast.getText().equalsIgnoreCase(">") ||ast.getText().equalsIgnoreCase(">=") ||ast.getText().equalsIgnoreCase("<") ||ast.getText().equalsIgnoreCase("<=")){
 					String opp="";
 					if(ast.getText().equalsIgnoreCase("==")){
@@ -514,7 +517,7 @@ public class AsmGenerator {
 			}
 		}
 	}
-	
+
 	private void astuceBool(int numR){
 		//permet de mettre le registre numR+1 à 1 si != 0
 		addCodeln("//astuce pour les boolean, si c est different de zero alors on met à 1");
@@ -528,12 +531,12 @@ public class AsmGenerator {
 		addCodeln(label);
 		addCodeln("//fin de petite astuce");
 	}
-	
-	
+
+
 	private void retourne(Tree ast, TDS tds){
 		//TODO code du return
 	}
-	
+
 	public void if_start(Tree ast, TDS tds, String label){
 		emptyLine();
 		addCodeln("// Structure IF");
@@ -549,4 +552,135 @@ public class AsmGenerator {
 		emptyLine();
 		addCodeln(label);
 	}
+	
+	private void write(Tree ast, TDS tds){
+		if(ast.getChild(0).getText().charAt(0)=='"'){
+			//c'est une cst string
+			String str = ast.getChild(0).getText();
+			String name = "str_"+getUniqId()+"_";
+			addCodeln(name+" string "+str);
+			addCodeln("LDW R0, #"+name);
+			addCodeln("TRP #66");
+		
+		}else{
+			//c'est une expr -> atoi ^^
+		}
+	}
+
+
+
+
+
+
+	private void write_number(Tree ast, TDS tds){
+		// FONCTIONS PRé-DéFINIES EN LANAGAGE D'ASSEMBLAGE
+
+		// char *itoa(int i, char *p, int b);
+		//
+		// i entier à convertir
+		// p pointeur du tampon déjà alloué en mémoire où copier la chaîne de caractères
+		// b base de numération utilisée (de 2 à 36 inclus car il n'y a que 36 chiffres; par exemple: 2, 4, 8, 10, 16)
+		//
+		// Convertit un entier en chaîne de caractères codée en ASCII
+		// (cette fonction fait partie de la bibliothèque standard portable C stdlib et est normalement écrite en C).
+		// Limitation ici: b doit être pair.
+		// Retourne le pointeur sur la chaîne de caractère
+		//
+		// Ce programme terminera automatiquement la chaîne de caractères par NUL;
+		// le tampon devrait avoir une taille suffisante (par exemple sizeof(int)*8+1 octets pour b=2)
+		// Si la base = 10 et que l'entier est négatif la chaîne de caractères est précédée d'un signe moins (-);
+		// pour toute autre base, la valeur i est considérée non signée.
+		// Les 36 chiffres utilisables sont dans l'ordre: 0, 1, 2,..., 9, A, B, C, ... , Z .
+		// Aucune erreur n'est gérée.
+		addCodeln("ITOA_I      equ 4");      // offset du paramètre i
+		addCodeln("ITOA_P      equ 6");      // offset du paramètre p
+		addCodeln("ITOA_B      equ 8 ");     // offset du paramètre b
+
+		addCodeln("ASCII_MINUS equ 45 ");    // code ASCII de -
+		addCodeln("ASCII_PLUS  equ 43 ");    // code ASCII de +
+		addCodeln("ASCII_SP    equ 32");     // code ASCII d'espace SP
+		addCodeln("ASCII_0     equ 48 ");    // code ASCII de zéro (les autres chiffres jusqu'à 9 suivent dans l'ordre)
+		addCodeln("ASCII_A     equ 65");     // code ASCII de A (les autres lettres jusqu'à Z suivent dans l'ordre alphabétique)
+
+		// LNK: crée environnement du main pour permettre des variables locales 
+		// mais sans encore les réserver
+		addCodeln("itoa_   stw bp, -(sp)");
+		addCodeln("ldw bp, sp");
+
+		// récupération des paramètres depuis pile vers registres
+		addCodeln("ldw r0, (bp)ITOA_I    // r0 = i    ");
+		addCodeln("ldw r1, (bp)ITOA_B    // r1 = b");
+
+		// gère le signe: normalement itoa gère des int c'est à dire des entiers signés, 
+		// mais en fait seulement pour b=10;
+		// dans ce cas calcule le signe dans r3 et charge r0 avec la valeur absolue de i
+		addCodeln("ldq ASCII_SP, r3 ");     // code ASCII de espace (SPace) -> r3
+		addCodeln("ldq 10, wr          ");  // 10 -> wr
+		addCodeln("cmp r1, wr");            // charge les indicateurs de b - 10
+		addCodeln("bne NOSIGN-$-2        ");// si non égal (donc si b != 10) saute en NOSIGN, sinon calcule signe
+		addCodeln("ldq ASCII_PLUS, r3");    // charge le code ASCII du signe plus + dans r3
+		addCodeln("tst r0               "); // charge les indicateurs de r0 et donc de i
+		addCodeln("bge POSIT-$-2       ");  // saute en POSIT si i >= 0
+		addCodeln("neg r0, r0           "); // change le signe de r0
+		addCodeln("ldq ASCII_MINUS, r3");   // charge le code ASCII du signe moins - dans r3
+		addCodeln("POSIT   NOP ");                  // r3 = code ASCII de signe: SP pour aucun, - ou +
+
+
+		// convertit l'entier i en chiffres et les empile de droite à gauche
+		addCodeln("NOSIGN  ldw r2, r0 ");           // r2 <- r0
+		addCodeln("CNVLOOP ldw r0, r2      ");      // r0 <- r2
+
+		// effectue "créativement" la division par b supposé pair (car l'instruction div est hélas signée ...)
+		// d=2*d' , D = d * q + r  , D = 2*D'+r" , D' = d' * q + r' => r = 2*r'+r"
+		// un bug apparaît avec SRL R0, R0 avec R0 = 2 : met CF à 1 !!
+		addCodeln("srl r1, r1           "); // r1 = b/2
+		addCodeln("ani r0, r4, #1      ");  // ANd Immédiate entre r0 et 00...01 vers r4:
+		// bit n°0 de r0 -> r4; r4 = reste" de r0/2
+		addCodeln("srl r0, r0           "); // r0 / 2 -> r0
+		addCodeln("div r0, r1, r2        ");// quotient = r0 / r1 -> r2, reste' = r0 % r1 -> r0
+		addCodeln("shl r0, r0            ");// r0 = 2 * reste'
+		addCodeln("add r0, r4, r0        ");// r0 = reste = 2 * reste' + reste" => r0 = chiffre
+		addCodeln("shl r1, r1            ");// r1 = b
+
+		addCodeln("adq -10, r0     ");      // chiffre - 10 -> r0 
+		addCodeln("bge LETTER-$-2       "); // saute en LETTER si chiffre >= 10
+		addCodeln("adq 10+ASCII_0, r0");    // ajoute 10 => r0 = chiffre, ajoute code ASCII de 0 
+		// => r0 = code ASCII de chiffre
+		addCodeln("bmp STKCHR-$-2");        // saute en STKCHR 
+
+		addCodeln("LETTER  adq ASCII_A, r0");       // r0 = ASCII(A) pour chiffre = 10, ASCII(B) pour 11 ...
+		// ajoute code ASCII de A => r = code ASCII de chiffre
+		addCodeln("STKCHR  stw r0, -(sp)  ");       // empile code ASCII du chiffre 
+		// (sur un mot complet pour pas désaligner pile)
+		addCodeln("tst r2              ");  // charge les indicateurs en fonction du quotient ds r2)
+		addCodeln("ne CNVLOOP-$-2  ");     // boucle si quotient non nul; sinon sort
+
+		// les caractères sont maintenant empilés : gauche en haut et droit en bas
+
+		// recopie les caractères dans le tampon dans le bon ordre: de gauche à droite
+		addCodeln("ldw r1, (bp)ITOA_P ");   // r1 pointe sur le début du tampon déjà alloué 
+		addCodeln("stb r3, (r1)+        "); // copie le signe dans le tampon
+		addCodeln("CPYLOOP ldw r0, (sp)+   ");      // dépile code du chiffre gauche (sur un mot) dans r0
+		addCodeln("stb r0, (r1)+        "); // copie code du chiffre dans un Byte du tampon de gauche à droite
+		addCodeln("cmp sp, bp        ");    // compare sp et sa valeur avant empilement des caractères qui était bp
+		addCodeln("bne CPYLOOP-$-2 ");      // boucle s'il reste au moins un chiffre sur la pile
+		addCodeln("ldq NUL, r0     ");      // charge le code du caractère NUL dans r0
+		addCodeln("stb r0, (r1)+  ");       // sauve code NUL pour terminer la chaîne de caractères
+
+		// termine
+		addCodeln("ldw r0, (bp)ITOA_P");    // retourne le pointeur sur la chaîne de caractères
+
+		// UNLINK: fermeture de l'environnement de la fonction itoa
+		addCodeln("ldw sp, bp ");           // sp <- bp : abandonne infos locales; sp pointe sur ancinne valeur de bp
+		addCodeln("ldw bp, (sp)+ ");        // dépile ancienne valeur de bp dans bp; sp pointe sur adresse de retour
+
+		addCodeln("rts ");                  // retourne au programme appelant
+
+		//-----------------------------------------------------------------------------------------------------
+
+
+
+	}
+
+
 }
