@@ -203,7 +203,8 @@ public class SemanticChecker{
 	public static boolean check_return_type(Tree sub_tree, TDS tds) {
 		boolean res = true;
 		Type typeCurrent = getTypeOfExp(sub_tree.getChild(0),tds);
-		Type typeDefined = tds.getTypeOfFunction((sub_tree.getParent().getParent().getChild(0).getChild(1).getText()));
+//		Type typeDefined = tds.getTypeOfFunction((sub_tree.getParent().getParent().getChild(0).getChild(1).getText()));
+		Type typeDefined = TDS.str2type(tds.getTypeRet());
 		if (typeCurrent!=typeDefined) {
 			addError("Line "+sub_tree.getLine()+": wrong type of return -> The function « "+sub_tree.getParent().getParent().getChild(0).getChild(1).getText()+" » must return a "+(typeDefined!=null ? typeDefined.toString() : "null" )+" but it actually returns a "+typeCurrent);
 			res = false;
