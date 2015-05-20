@@ -656,18 +656,13 @@ public class AsmGenerator {
     private void write(Tree ast, TDS tds) {
         if (ast.getChild(0).getText().charAt(0) == '"') {
             // c'est une cst string
-
             String str = ast.getChild(0).getText();
             String name = "str_" + getUniqId() + "_";
             addCodeln(name + " string " + str);
             addCodeln("LDW R0, #" + name);
             addCodeln("TRP #66");
-            addCodeln("LDW R0, #n_");
-            addCodeln("TRP #66");
-
         } else {
             // c'est une expr -> atoi ^^
-            String name = "str_" + getUniqId() + "_";
             addCodeln("ldw r0, #10 ");      // charge 10 (pour base décimale) dans r0
             addCodeln("stw r0, -(sp)");     // empile contenu de r0 (paramètre b)
             addCodeln("adi bp, r0, #-8 ");  // r0 = bp - 8 = adresse du tableau text
@@ -677,11 +672,9 @@ public class AsmGenerator {
             addCodeln("jsr @itoa_     ");   // appelle fonction itoa d'adresse itoa_
             addCodeln("adi sp, sp, #6 ");
             addCodeln("TRP #66");
-            
-        
-        	
-        	
         }
+        addCodeln("LDW R0, #n_");
+        addCodeln("TRP #66");
     }
 
     private void write_number() {
