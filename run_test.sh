@@ -57,5 +57,6 @@ echo "OK"
 cd ..
 echo "\n\033[33m========= GENERATION IUP =========\033[0m"
 cd asm
-sh compileAsm.sh
+sh compileAsm.sh 
+echo "OK"
 cd ..

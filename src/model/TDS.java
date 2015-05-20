@@ -227,7 +227,13 @@ public class TDS {
             }
         }
         if(pere!=null){
-            return 1+pere.getDeepOfVar(v);
+        	int d = pere.getDeepOfVar(v);
+        	if(d==-1){
+        		return -1;
+        	}else{
+        		return 1+d;
+        	}
+            
         }else{
             return -1;
         }
