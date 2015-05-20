@@ -391,8 +391,9 @@ public class AsmGenerator {
         	}
         } else {
             addCodeln("//Array Depl");
-            addCodeln("LDW R2, WR"); // R0 <- tête du tableau
+            addCodeln("LDW R8, WR"); // R0 <- tête du tableau
             addCodeln("ADQ "+depl+", WR");
+            addCodeln("LDW R2, #0"); // Mettre 0 dans R2
             for (int i = 1; i < ast.getChildCount() - 2; i++) {
                 expr(ast.getChild(i), tds, false); // borne i dans R0
                 addCodeln("LDW R1, #" + decl.getBound(i).getDim());
