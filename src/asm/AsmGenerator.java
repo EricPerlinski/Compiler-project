@@ -569,7 +569,7 @@ public class AsmGenerator {
                     }
                     addCodeln("LDW R1, (SP)+");
                     addCodeln("LDW R2, (SP)+");
-                    addCodeln("CMP R1, R2");
+                    addCodeln("CMP R2, R1");
                     int id = getUniqId();
                     String label = "equals_" + id + "_";
                     addCodeln(opp + " #" + label + " -$-2");
