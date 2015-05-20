@@ -82,6 +82,9 @@ public class AsmGenerator {
         addCodeln("stackSize equ 100");
         addCodeln("stack rsb stackSize");
 
+        // caractere retour ligne
+        addCodeln("n_ string \"\\n\"");
+
         addCodeln("Root_");
 
         addCodeln("LDW SP, #STACK_ADRS");
@@ -389,6 +392,8 @@ public class AsmGenerator {
      * (une variable, un parametre de fct, un if/while, ...)
      * si bool est a vrai il transformera systematiquement tout ce qui est
      * different de 0 en 1. Et le 0 reste 0 :D
+     * 
+     * TODO ajouter les tableau dedans.
      */
     private void expr(Tree ast, TDS tds, boolean bool) {
         // met le resultat de l'exp dans R0
@@ -421,7 +426,7 @@ public class AsmGenerator {
                 int deep = tds.getDeepOfVar(idf);
                 // une variable, on le charge depuis la pile
                 int depl = decl.getDeplacement();
-                //chainage statique
+                // chainage statique
                 addCodeln("LDW WR, BP");
                 while (deep > 0) {
                     // on parcours le chainage static
@@ -434,15 +439,18 @@ public class AsmGenerator {
                 } else {
                     addCodeln("//Array Depl");
                     addCodeln("LDW R2, (WR)" + depl); // R0 <- tête du tableau
-                    for(int i = 1 ; i < ast.getChildCount() - 2 ; i++) {
-                        expr(ast.getChild(i), tds, false); //borne i dans R0
+                    for (int i = 1; i < ast.getChildCount() - 2; i++) {
+                        expr(ast.getChild(i), tds, false); // borne i dans R0
                         addCodeln("LDW R1, #" + decl.getBound(i).getDim());
                         addCodeln("MUL R1, R0, R1");
                         addCodeln("ADD R1, R2, R2");
                     }
-                    expr(ast.getChild(ast.getChildCount()-1), tds, false); //dernière borne dans R0
+                    expr(ast.getChild(ast.getChildCount() - 1), tds, false); // dernière
+                                                                             // borne
+                                                                             // dans
+                                                                             // R0
                     addCodeln("ADD R0, R2, R2");
-                    
+
                     addCodeln("LDW R0, R2");
                 }
                 if (num_fils != -1) {
@@ -466,8 +474,7 @@ public class AsmGenerator {
                 }
 
                 // Si c'est une operation +/-/*
-                if (ast.getText().equalsIgnoreCase("+") || ast.getText().equalsIgnoreCase("-")
-                        || ast.getText().equalsIgnoreCase("*")) {
+                if (ast.getText().equalsIgnoreCase("+") || ast.getText().equalsIgnoreCase("-") || ast.getText().equalsIgnoreCase("*")) {
                     char c = ast.getText().charAt(0);
                     // ternaire de la mort :P
                     String opp = (c == '+' ? "ADD" : (c == '-' ? "SUB" : "MUL"));
@@ -500,9 +507,8 @@ public class AsmGenerator {
                     }
 
                     // comparaison
-                } else if (ast.getText().equalsIgnoreCase("==") || ast.getText().equalsIgnoreCase("!=")
-                        || ast.getText().equalsIgnoreCase(">") || ast.getText().equalsIgnoreCase(">=")
-                        || ast.getText().equalsIgnoreCase("<") || ast.getText().equalsIgnoreCase("<=")) {
+                } else if (ast.getText().equalsIgnoreCase("==") || ast.getText().equalsIgnoreCase("!=") || ast.getText().equalsIgnoreCase(">")
+                        || ast.getText().equalsIgnoreCase(">=") || ast.getText().equalsIgnoreCase("<") || ast.getText().equalsIgnoreCase("<=")) {
                     String opp = "";
                     if (ast.getText().equalsIgnoreCase("==")) {
                         opp = "JEQ";
@@ -575,10 +581,10 @@ public class AsmGenerator {
         // TODO Chainage Statique
         addCodeln("STW R0, (BP)" + decl.getDeplacement());
         // On stocke la valeur de la variable d'incrément dans R1
-        addCodeln("LDW R1, RO");
+        addCodeln("LDW R1, R0");
+        addCodeln("start_boucle_" + labelID + "_");
         // On récupète la valeur de la borne supérieure de la boucle
         expr(ast.getChild(2), tds, false);
-        addCodeln("start_boucle_" + labelID + "_");
         addCodeln("CMP R1, R0");
         addCodeln("JGT #end_boucle_" + labelID + "_ -$-2");
     }
@@ -587,7 +593,7 @@ public class AsmGenerator {
         Declaration decl = tds.getDeclarationOfVar(ast.getChild(0).getText());
         // TODO Chainage Statique
         addCodeln("LDW R1, (BP)" + decl.getDeplacement());
-        addCodeln("ADQ R1");
+        addCodeln("ADQ 1, R1");
         addCodeln("STW R1, (BP)" + decl.getDeplacement());
         addCodeln("JMP #start_boucle_" + labelID + "_ -$-2");
         addCodeln("end_boucle_" + labelID + "_");
@@ -596,10 +602,13 @@ public class AsmGenerator {
     private void write(Tree ast, TDS tds) {
         if (ast.getChild(0).getText().charAt(0) == '"') {
             // c'est une cst string
+
             String str = ast.getChild(0).getText();
             String name = "str_" + getUniqId() + "_";
             addCodeln(name + " string " + str);
             addCodeln("LDW R0, #" + name);
+            addCodeln("TRP #66");
+            addCodeln("LDW R0, #n_");
             addCodeln("TRP #66");
 
         } else {
@@ -645,8 +654,8 @@ public class AsmGenerator {
                                           // chiffres jusqu'à 9 suivent dans
                                           // l'ordre)
         addCodeln("ASCII_A     equ 65");     // code ASCII de A (les autres lettres
-        // jusqu'à Z suivent dans l'ordre
-        // alphabétique)
+                                         // jusqu'à Z suivent dans l'ordre
+                                         // alphabétique)
 
         // LNK: crée environnement du main pour permettre des variables locales
         // mais sans encore les réserver
@@ -677,7 +686,7 @@ public class AsmGenerator {
         addCodeln("ldq ASCII_MINUS, r3");   // charge le code ASCII du signe moins
                                           // - dans r3
         addCodeln("POSIT   NOP ");                  // r3 = code ASCII de signe: SP pour aucun, -
-        // ou +
+                                   // ou +
 
         // convertit l'entier i en chiffres et les empile de droite à gauche
         addCodeln("NOSIGN  ldw r2, r0 ");           // r2 <- r0
@@ -708,7 +717,7 @@ public class AsmGenerator {
         addCodeln("bmp STKCHR-$-2");        // saute en STKCHR
 
         addCodeln("LETTER  adq ASCII_A, r0");       // r0 = ASCII(A) pour chiffre =
-        // 10, ASCII(B) pour 11 ...
+                                              // 10, ASCII(B) pour 11 ...
         // ajoute code ASCII de A => r = code ASCII de chiffre
         addCodeln("STKCHR  stw r0, -(sp)  ");       // empile code ASCII du chiffre
         // (sur un mot complet pour pas désaligner pile)
@@ -725,18 +734,18 @@ public class AsmGenerator {
                                           // déjà alloué
         addCodeln("stb r3, (r1)+        "); // copie le signe dans le tampon
         addCodeln("CPYLOOP ldw r0, (sp)+   ");      // dépile code du chiffre gauche
-        // (sur un mot) dans r0
+                                               // (sur un mot) dans r0
         addCodeln("stb r0, (r1)+        "); // copie code du chiffre dans un
                                             // Byte du tampon de gauche à droite
         addCodeln("cmp sp, bp        ");    // compare sp et sa valeur avant
                                          // empilement des caractères qui était
                                          // bp
         addCodeln("bne CPYLOOP-$-2 ");      // boucle s'il reste au moins un chiffre
-        // sur la pile
+                                       // sur la pile
         addCodeln("ldq NUL, r0     ");      // charge le code du caractère NUL dans
-        // r0
+                                       // r0
         addCodeln("stb r0, (r1)+  ");       // sauve code NUL pour terminer la chaîne
-        // de caractères
+                                      // de caractères
 
         // termine
         addCodeln("ldw r0, (bp)ITOA_P");    // retourne le pointeur sur la chaîne
@@ -744,9 +753,9 @@ public class AsmGenerator {
 
         // UNLINK: fermeture de l'environnement de la fonction itoa
         addCodeln("ldw sp, bp ");           // sp <- bp : abandonne infos locales; sp
-        // pointe sur ancinne valeur de bp
+                                  // pointe sur ancinne valeur de bp
         addCodeln("ldw bp, (sp)+ ");        // dépile ancienne valeur de bp dans bp; sp
-        // pointe sur adresse de retour
+                                     // pointe sur adresse de retour
 
         addCodeln("rts ");                  // retourne au programme appelant
 
