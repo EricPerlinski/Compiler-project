@@ -366,8 +366,8 @@ public class AsmGenerator {
 		}else if(ast.getChild(0).getText().equalsIgnoreCase("array")){
 			emptyLine();
 			addCodeln("//array");
-			//TODO
-			addCodeln("//TODO");
+			Declaration decl = tds.getDeclarationOfVar(ast.getChild(1).getText());
+            addCodeln("ADQ -"+decl.getSize()+", SP //var array "+ast.getChild(1).getText());
 		}
 	}
 
