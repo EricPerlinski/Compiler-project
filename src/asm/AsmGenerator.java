@@ -408,18 +408,17 @@ public class AsmGenerator {
         addCodeln("//****** affectation");
         Tree left = ast.getChild(0).getChild(0);
         Tree right = ast.getChild(1).getChild(0);
-        Declaration decl = tds.getDeclarationOfVar(left.getText());
-
+        
+        Declaration decl;
+		if (ast.getText().equalsIgnoreCase("array")) { // array
+            decl = tds.getDeclarationOfLocaleVar(left.getChild(0).getText());
+        } else { // int ou bool
+            decl = tds.getDeclarationOfLocaleVar(left.getText());
+        }
         boolean bool = (decl.getType() == Type.bool);
         expr(right, tds, bool);
-        int deep = tds.getDeepOfVar(left.getText());
-        // une variable, on le charge depuis la pile
-        addCodeln("LDW WR, BP");
-        while (deep > 0) {
-            // on parcours le chainage static
-            addCodeln("LDW WR, (WR)");
-            deep--;
-        }
+        
+        pushVarOnR0(left, tds);
         // TODO verifier si c'est passé par adresse
         addCodeln("STW R0, (WR)" + decl.getDeplacement());
     }
