@@ -359,7 +359,8 @@ public class AsmGenerator {
             emptyLine();
             addCodeln("//array");
             Declaration decl = tds.getDeclarationOfVar(ast.getChild(1).getText());
-            addCodeln("ADQ -" + decl.getSize() + ", SP //var array " + ast.getChild(1).getText());
+            addCodeln("LDW R1, #"+decl.getSize());
+            addCodeln("SUB SP, R1, SP //var array " + ast.getChild(1).getText());
         }
     }
     
@@ -391,23 +392,28 @@ public class AsmGenerator {
         	}
         } else {
             addCodeln("//Array Depl");
-            addCodeln("LDW R8, WR"); // R0 <- tête du tableau
+            //addCodeln("LDW R9, WR"); // R0 <- tête du tableau
             addCodeln("ADQ "+depl+", WR");
             addCodeln("LDW R2, #0"); // Mettre 0 dans R2
-            for (int i = 1; i < ast.getChildCount() - 2; i++) {
+            for (int i = 1; i < ast.getChildCount() - 1; i++) {
                 expr(ast.getChild(i), tds, false); // borne i dans R0
-                addCodeln("LDW R1, #" + decl.getBound(i).getDim());
+                int dim =1;
+                for(int j=i;j< ast.getChildCount() - 1;j++){
+                	dim *= decl.getBound(j).getDim();
+                }
+                
+                addCodeln("LDW R1, #" + dim);
                 addCodeln("MUL R1, R0, R1");
-                addCodeln("ADD R1, R2, R2");
-                addCodeln("ADD R1, R2, R2");
+                addCodeln("SUB WR, R1, WR");
+                addCodeln("SUB WR, R1, WR");
             }
             expr(ast.getChild(ast.getChildCount() - 1), tds, false); // dernière borne dans R0
-            addCodeln("ADD R0, R2, R2");
-            addCodeln("ADD R0, R2, R2");
+            addCodeln("SUB WR, R0, WR");
+            addCodeln("SUB WR, R0, WR");
             if(!adr){
-        		addCodeln("LDW R0, (R2)");
+        		addCodeln("LDW R0, (WR)");
         	}else{
-        		addCodeln("LDW R0, R2");
+        		addCodeln("LDW R0, WR");
         	}
         }
     }
