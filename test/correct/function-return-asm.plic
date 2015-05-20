@@ -1,0 +1,8 @@
+do
+	integer a	
+	function integer f()
+		return (42)
+	end
+
+	a = f()
+end
