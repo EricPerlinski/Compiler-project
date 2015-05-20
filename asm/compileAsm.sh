@@ -8,5 +8,5 @@ do
 	java -jar ../microPIUP4.jar -ass src/$i
 done
 
-mv src/*.iup bin
+mv -v src/*.iup bin
 
