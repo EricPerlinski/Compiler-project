@@ -399,13 +399,11 @@ public class AsmGenerator {
                 addCodeln("LDW R1, #" + decl.getBound(i).getDim());
                 addCodeln("MUL R1, R0, R1");
                 addCodeln("ADD R1, R2, R2");
+                addCodeln("ADD R1, R2, R2");
             }
-            expr(ast.getChild(ast.getChildCount() - 1), tds, false); // dernière
-                                                                     // borne
-                                                                     // dans
-                                                                     // R0
+            expr(ast.getChild(ast.getChildCount() - 1), tds, false); // dernière borne dans R0
             addCodeln("ADD R0, R2, R2");
-            
+            addCodeln("ADD R0, R2, R2");
             if(!adr){
         		addCodeln("LDW R0, (R2)");
         	}else{
