@@ -83,6 +83,9 @@ public class AsmGenerator {
 		//creation pile
 		addCodeln("stackSize equ 100");
 		addCodeln("stack rsb stackSize");
+		
+		//caractere retour ligne
+		addCodeln("n_ string \"\\n\"");
 
 		addCodeln("Root_");
 
@@ -567,10 +570,10 @@ public class AsmGenerator {
 		// TODO Chainage Statique
 		addCodeln("STW R0, (BP)"+decl.getDeplacement());
 		// On stocke la valeur de la variable d'incrément dans R1
-		addCodeln("LDW R1, RO");
+		addCodeln("LDW R1, R0");
+		addCodeln("start_boucle_"+labelID+"_");
 		// On récupète la valeur de la borne supérieure de la boucle
 		expr(ast.getChild(2), tds, false);
-		addCodeln("start_boucle_"+labelID+"_");
 		addCodeln("CMP R1, R0");
 		addCodeln("JGT #end_boucle_"+labelID+"_ -$-2");
 	}
@@ -579,19 +582,24 @@ public class AsmGenerator {
 		Declaration decl = tds.getDeclarationOfVar(ast.getChild(0).getText());
 		// TODO Chainage Statique
 		addCodeln("LDW R1, (BP)"+decl.getDeplacement());
-		addCodeln("ADQ R1");
+		addCodeln("ADQ 1, R1");
 		addCodeln("STW R1, (BP)"+decl.getDeplacement());
 		addCodeln("JMP #start_boucle_"+labelID+"_ -$-2");
 		addCodeln("end_boucle_"+labelID+"_");
 	}
 	
+
+	
 	private void write(Tree ast, TDS tds){
 		if(ast.getChild(0).getText().charAt(0)=='"'){
 			//c'est une cst string
+			
 			String str = ast.getChild(0).getText();
 			String name = "str_"+getUniqId()+"_";
 			addCodeln(name+" string "+str);
 			addCodeln("LDW R0, #"+name);
+			addCodeln("TRP #66");
+			addCodeln("LDW R0, #n_");
 			addCodeln("TRP #66");
 		
 		}else{
