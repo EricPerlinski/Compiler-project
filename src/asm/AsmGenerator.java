@@ -85,6 +85,8 @@ public class AsmGenerator {
         // caractere retour ligne
         
 
+        write_number();
+        
         addCodeln("Root_");
 
         addCodeln("n_ rsw 1");
@@ -665,11 +667,24 @@ public class AsmGenerator {
 
         } else {
             // c'est une expr -> atoi ^^
+            String name = "str_" + getUniqId() + "_";
+            addCodeln("ldw r0, #10 ");      // charge 10 (pour base décimale) dans r0
+            addCodeln("stw r0, -(sp)");     // empile contenu de r0 (paramètre b)
+            addCodeln("adi bp, r0, #-8 ");  // r0 = bp - 8 = adresse du tableau text
+            addCodeln("stw r0, -(sp) ");    // empile contenu de r0 (paramètre p)
+            expr(ast, tds, false);
+            addCodeln("stw r0, -(sp)  ");   // empile contenu de r0 (paramètre i)
+            addCodeln("jsr @itoa_     ");   // appelle fonction itoa d'adresse itoa_
+            addCodeln("adi sp, sp, #6 ");
+            addCodeln("TRP #66");
+            
+        
+        	
         	
         }
     }
 
-    private void write_number(Tree ast, TDS tds) {
+    private void write_number() {
         // FONCTIONS PRé-DéFINIES EN LANAGAGE D'ASSEMBLAGE
 
         // char *itoa(int i, char *p, int b);
@@ -696,6 +711,17 @@ public class AsmGenerator {
         // Les 36 chiffres utilisables sont dans l'ordre: 0, 1, 2,..., 9, A, B,
         // C, ... , Z .
         // Aucune erreur n'est gérée.
+    	emptyLine();
+    	emptyLine();
+    	addCodeln("sp          equ r15");
+    	addCodeln("wr          equ r14");
+    	addCodeln("bp          equ r13");
+    	addCodeln("NUL         equ  0 ");
+    	
+    	
+    	
+    	
+    	
         addCodeln("ITOA_I      equ 4");      // offset du paramètre i
         addCodeln("ITOA_P      equ 6");      // offset du paramètre p
         addCodeln("ITOA_B      equ 8 ");     // offset du paramètre b
@@ -776,7 +802,7 @@ public class AsmGenerator {
         // (sur un mot complet pour pas désaligner pile)
         addCodeln("tst r2              ");  // charge les indicateurs en fonction
                                            // du quotient ds r2)
-        addCodeln("ne CNVLOOP-$-2  ");     // boucle si quotient non nul; sinon sort
+        addCodeln("bne CNVLOOP-$-2  ");     // boucle si quotient non nul; sinon sort
 
         // les caractères sont maintenant empilés : gauche en haut et droit en
         // bas
@@ -811,7 +837,9 @@ public class AsmGenerator {
                                      // pointe sur adresse de retour
 
         addCodeln("rts ");                  // retourne au programme appelant
-
+        
+        emptyLine();
+        emptyLine();
         // -----------------------------------------------------------------------------------------------------
 
     }
