@@ -116,8 +116,9 @@ public class AsmGenerator {
 		//System.out.println(ast.getText());
 		boolean bloc=false;
 
-		// Label unique nécessaire pour les if
+		// Label unique nécessaire pour les if et les boucles
 		String label = null;
+		int labelID = 0;
 
 		// NE PAS MODIFIER
 		switch(ast.getType()){
@@ -155,6 +156,10 @@ public class AsmGenerator {
 			label = "end_if_"+getUniqId()+"_";
 			if_start(ast, tds, label);
 			break;
+		case PlicParser.FOR:
+			labelID = getUniqId();
+			boucle_start(ast, tds, labelID);
+			break;
 		case PlicParser.PROC_CALL:
 			function_call(ast, tds);
 			break;
@@ -182,6 +187,9 @@ public class AsmGenerator {
 			break;
 		case PlicParser.IF:
 			if_end(ast, tds, label);
+			break;
+		case PlicParser.FOR:
+			boucle_end(ast, tds, labelID);
 			break;
 		}
 
@@ -372,7 +380,6 @@ public class AsmGenerator {
 
 		boolean bool = (decl.getType()==Type.bool);
 		expr(right, tds,bool);
-
 		int deep = tds.getDeepOfVar(left.getText());
 		//une variable, on le charge depuis la pile
 		addCodeln("LDW WR, BP");
@@ -382,8 +389,6 @@ public class AsmGenerator {
 			deep--;
 		}
 		//TODO verifier si c'est passé par adresse
-
-
 		addCodeln("STW R0, (WR)"+decl.getDeplacement());
 	}
 
@@ -550,8 +555,34 @@ public class AsmGenerator {
 	}
 
 	public void if_end(Tree ast, TDS tds, String label){
-		emptyLine();
 		addCodeln(label);
+	}
+	
+	public void boucle_start(Tree ast, TDS tds, int labelID){
+		emptyLine();
+		addCodeln("// Structure de boucle FOR");
+		// On affecte la valeur d'initialisation à la variable d'incrémentation
+		Declaration decl = tds.getDeclarationOfVar(ast.getChild(0).getText());
+		expr(ast.getChild(1), tds, false);
+		// TODO Chainage Statique
+		addCodeln("STW R0, (BP)"+decl.getDeplacement());
+		// On stocke la valeur de la variable d'incrément dans R1
+		addCodeln("LDW R1, RO");
+		// On récupète la valeur de la borne supérieure de la boucle
+		expr(ast.getChild(2), tds, false);
+		addCodeln("start_boucle_"+labelID+"_");
+		addCodeln("CMP R1, R0");
+		addCodeln("JGT #end_boucle_"+labelID+"_ -$-2");
+	}
+	
+	public void boucle_end(Tree ast, TDS tds, int labelID){
+		Declaration decl = tds.getDeclarationOfVar(ast.getChild(0).getText());
+		// TODO Chainage Statique
+		addCodeln("LDW R1, (BP)"+decl.getDeplacement());
+		addCodeln("ADQ R1");
+		addCodeln("STW R1, (BP)"+decl.getDeplacement());
+		addCodeln("JMP #start_boucle_"+labelID+"_ -$-2");
+		addCodeln("end_boucle_"+labelID+"_");
 	}
 	
 	private void write(Tree ast, TDS tds){
@@ -567,11 +598,6 @@ public class AsmGenerator {
 			//c'est une expr -> atoi ^^
 		}
 	}
-
-
-
-
-
 
 	private void write_number(Tree ast, TDS tds){
 		// FONCTIONS PRé-DéFINIES EN LANAGAGE D'ASSEMBLAGE
@@ -682,6 +708,4 @@ public class AsmGenerator {
 
 
 	}
-
-
 }
