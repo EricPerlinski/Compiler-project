@@ -410,10 +410,10 @@ public class AsmGenerator {
         Tree right = ast.getChild(1).getChild(0);
         
         Declaration decl;
-		if (ast.getText().equalsIgnoreCase("array")) { // array
-            decl = tds.getDeclarationOfLocaleVar(left.getChild(0).getText());
+		if (left.getText().equalsIgnoreCase("array")) { // array
+            decl = tds.getDeclarationOfVar(left.getChild(0).getText());
         } else { // int ou bool
-            decl = tds.getDeclarationOfLocaleVar(left.getText());
+            decl = tds.getDeclarationOfVar(left.getText());
         }
         boolean bool = (decl.getType() == Type.bool);
         expr(right, tds, bool);
