@@ -83,10 +83,15 @@ public class AsmGenerator {
         addCodeln("stack rsb stackSize");
 
         // caractere retour ligne
-        addCodeln("n_ string \"\\n\"");
+        
 
         addCodeln("Root_");
 
+        addCodeln("n_ rsw 1");
+        addCodeln("LDW R0, #n_");
+        addCodeln("LDW R1, #2560");
+        addCodeln("STW R1, (R0)");
+        
         addCodeln("LDW SP, #STACK_ADRS");
         // addCodeln("LDW BP, SP");
 
@@ -382,8 +387,9 @@ public class AsmGenerator {
             addCodeln("LDW WR, (WR)");
             deep--;
         }
+        addCodeln("STW WR, -(SP)");
         if (decl.getType() == Type.bool || decl.getType() == Type.integer) {
-            // TODO verifier si c'est passé par adresse
+        	addCodeln("LDW WR, (SP)+");
         	if(!adr){
         		addCodeln("LDW R0, (WR)" + depl);
         	}else{
@@ -391,6 +397,7 @@ public class AsmGenerator {
         		addCodeln("STW WR, R0");
         	}
         } else {
+        	
             addCodeln("//Array Depl");
             //addCodeln("LDW R9, WR"); // R0 <- tête du tableau
             addCodeln("ADQ "+depl+", WR");
@@ -402,19 +409,29 @@ public class AsmGenerator {
                 	dim *= decl.getBound(j).getDim();
                 }
                 
+                addCodeln("LDW R1, #"+decl.getBound(i-1).getLb());
+                addCodeln("SUB R0, R1, R0");
+                
                 addCodeln("LDW R1, #" + dim);
                 addCodeln("MUL R1, R0, R1");
                 addCodeln("SUB WR, R1, WR");
                 addCodeln("SUB WR, R1, WR");
+                
             }
             expr(ast.getChild(ast.getChildCount() - 1), tds, false); // dernière borne dans R0
+            addCodeln("LDW WR, (SP)+");
+            addCodeln("LDW R1, #"+decl.getBound(decl.getBounds().size()-1).getLb());
+            addCodeln("SUB R0, R1, R0");
+            
             addCodeln("SUB WR, R0, WR");
             addCodeln("SUB WR, R0, WR");
+            addCodeln("ADQ -2, WR");
             if(!adr){
         		addCodeln("LDW R0, (WR)");
         	}else{
         		addCodeln("LDW R0, WR");
         	}
+            addCodeln("//fin Array Depl");
         }
     }
 
@@ -512,6 +529,7 @@ public class AsmGenerator {
 
                     // unaire
                 } else if (ast.getText().equalsIgnoreCase("unaire")) {
+                	addCodeln("//UNAIRE");
                     if (bool) {
                         // si c'est un bool on met le resultat à 0 ou 1
                         addCodeln("LDW R" + (num_fils + 1) + ", (SP)+");
@@ -526,6 +544,7 @@ public class AsmGenerator {
                     if (num_fils != -1) {
                         addCodeln("STW R0, -(SP)");
                     }
+                    addCodeln("//fin unaire");
 
                     // comparaison
                 } else if (ast.getText().equalsIgnoreCase("==") || ast.getText().equalsIgnoreCase("!=") || ast.getText().equalsIgnoreCase(">")
@@ -594,23 +613,27 @@ public class AsmGenerator {
     }
 
     public void boucle_start(Tree ast, TDS tds, int labelID) {
+    	addTab();
         emptyLine();
         addCodeln("// Structure de boucle FOR");
         // On affecte la valeur d'initialisation à la variable d'incrémentation
         Declaration decl = tds.getDeclarationOfVar(ast.getChild(0).getText());
         expr(ast.getChild(1), tds, false);
-        // TODO Chainage Statique
-        addCodeln("STW R0, (BP)" + decl.getDeplacement());
+        addCodeln("STW R0, R6");
+        pushVarOnR0(ast.getChild(0),tds,true);
+        addCodeln("STW R6, (R0)");
         // On stocke la valeur de la variable d'incrément dans R1
-        addCodeln("LDW R1, R0");
         addCodeln("start_boucle_" + labelID + "_");
         // On récupète la valeur de la borne supérieure de la boucle
         expr(ast.getChild(2), tds, false);
-        addCodeln("CMP R1, R0");
+        addCodeln("STW R0, R6");
+        pushVarOnR0(ast.getChild(0),tds,false);
+        addCodeln("CMP R0, R6");
         addCodeln("JGT #end_boucle_" + labelID + "_ -$-2");
     }
 
     public void boucle_end(Tree ast, TDS tds, int labelID) {
+    	addCodeln("//fin boucle");
         Declaration decl = tds.getDeclarationOfVar(ast.getChild(0).getText());
         // TODO Chainage Statique
         addCodeln("LDW R1, (BP)" + decl.getDeplacement());
@@ -618,6 +641,7 @@ public class AsmGenerator {
         addCodeln("STW R1, (BP)" + decl.getDeplacement());
         addCodeln("JMP #start_boucle_" + labelID + "_ -$-2");
         addCodeln("end_boucle_" + labelID + "_");
+        removeTab();
     }
 
     private void write(Tree ast, TDS tds) {
@@ -634,6 +658,7 @@ public class AsmGenerator {
 
         } else {
             // c'est une expr -> atoi ^^
+        	
         }
     }
 
