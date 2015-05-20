@@ -80,14 +80,20 @@ public class AsmGenerator {
 		//init du programme
 		addCodeln("ORG LOAD_ADRS");
 		addCodeln("START Root_");
+		
 		//creation pile
 		addCodeln("stackSize equ 100");
 		addCodeln("stack rsb stackSize");
 		
-		//caractere retour ligne
-		addCodeln("n_ string \"\\n\"");
-
 		addCodeln("Root_");
+		
+		//caractere retour ligne
+		addCodeln("n_ rsw 1");
+		addCodeln("LDW R0, @n_");
+		addCodeln("LDW R1, #2560");
+		addCodeln("STW R1, (R0)");
+
+		
 
 
 		addCodeln("LDW SP, #STACK_ADRS");
@@ -567,8 +573,19 @@ public class AsmGenerator {
 		// On affecte la valeur d'initialisation à la variable d'incrémentation
 		Declaration decl = tds.getDeclarationOfVar(ast.getChild(0).getText());
 		expr(ast.getChild(1), tds, false);
-		// TODO Chainage Statique
-		addCodeln("STW R0, (BP)"+decl.getDeplacement());
+		
+		// Chainage Statique
+		int deep = tds.getDeepOfVar(ast.getText());
+		//une variable, on le charge depuis la pile
+		addCodeln("LDW WR, BP");
+		while(deep>0){
+			//on parcours le chainage static
+			addCodeln("LDW WR, (WR)");
+			deep--;
+		}
+		
+		
+		addCodeln("STW R0, (WR)"+decl.getDeplacement());
 		// On stocke la valeur de la variable d'incrément dans R1
 		addCodeln("LDW R1, R0");
 		addCodeln("start_boucle_"+labelID+"_");
@@ -580,10 +597,19 @@ public class AsmGenerator {
 	
 	public void boucle_end(Tree ast, TDS tds, int labelID){
 		Declaration decl = tds.getDeclarationOfVar(ast.getChild(0).getText());
-		// TODO Chainage Statique
-		addCodeln("LDW R1, (BP)"+decl.getDeplacement());
+		// Chainage Statique
+		int deep = tds.getDeepOfVar(ast.getText());
+		//une variable, on le charge depuis la pile
+		addCodeln("LDW WR, BP");
+		while(deep>0){
+			//on parcours le chainage static
+			addCodeln("LDW WR, (WR)");
+			deep--;
+		}
+		
+		addCodeln("LDW R1, (WR)"+decl.getDeplacement());
 		addCodeln("ADQ 1, R1");
-		addCodeln("STW R1, (BP)"+decl.getDeplacement());
+		addCodeln("STW R1, (WR)"+decl.getDeplacement());
 		addCodeln("JMP #start_boucle_"+labelID+"_ -$-2");
 		addCodeln("end_boucle_"+labelID+"_");
 	}
@@ -599,7 +625,7 @@ public class AsmGenerator {
 			addCodeln(name+" string "+str);
 			addCodeln("LDW R0, #"+name);
 			addCodeln("TRP #66");
-			addCodeln("LDW R0, #n_");
+			addCodeln("LDW R0, @n_");
 			addCodeln("TRP #66");
 		
 		}else{
