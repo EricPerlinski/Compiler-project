@@ -1,0 +1,20 @@
+do
+    integer i, j
+    i = 3
+    j = -3
+    if i > 0 then
+        write "i sup OK"
+    fi
+    if j < 0 then
+        write "j inf OK"
+    fi
+    if -3 == j then
+        write "j = -3 OK"
+    fi
+    if i == 3 then
+        write "i = 3 OK"
+    fi
+    if i != j then
+        write "i diff j OK"
+    fi
+end
