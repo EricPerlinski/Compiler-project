@@ -327,6 +327,8 @@ public class AsmGenerator {
     }
 
     private void function_end(Tree as, TDS tds) {
+        addCodeln("end_" + tds.getIdf() + "_RTS_");
+
         emptyLine();
         if (tds.getTypeRet().equalsIgnoreCase("void")) {
             addCodeln("//fin corps de la procedure");
@@ -518,7 +520,7 @@ public class AsmGenerator {
                     String opp = (c == '+' ? "ADD" : (c == '-' ? "SUB" : "MUL"));
                     addCodeln("LDW R1, (SP)+");
                     addCodeln("LDW R2, (SP)+");
-                    addCodeln(opp + " R1, R2, R" + (num_fils + 1));
+                    addCodeln(opp + " R2, R1, R" + (num_fils + 1));
                     if (bool) {
                         // si c'est un bool on met le resultat à 0 ou 1
                         astuceBool(num_fils);
@@ -594,7 +596,12 @@ public class AsmGenerator {
     }
 
     private void retourne(Tree ast, TDS tds) {
-        // TODO code du return
+        if(TDS.str2type(tds.getTypeRet()) == Type.bool) {
+            expr(ast.getChild(0), tds, true);
+        } else if (TDS.str2type(tds.getTypeRet()) == Type.integer) {
+            expr(ast.getChild(0), tds, false);
+        }
+        addCodeln("JMP #end_" + tds.getIdf() + "_RTS_ -$-2");
     }
 
     public void if_start(Tree ast, TDS tds, String label) {
