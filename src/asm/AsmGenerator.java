@@ -362,6 +362,46 @@ public class AsmGenerator {
             addCodeln("ADQ -" + decl.getSize() + ", SP //var array " + ast.getChild(1).getText());
         }
     }
+    
+    private void pushVarOnR0(Tree ast, TDS tds){
+    	String idf;
+        if (ast.getText().equalsIgnoreCase("array")) { // array
+            idf = ast.getChild(0).getText();
+        } else { // int ou bool
+            idf = ast.getText();
+        }
+        Declaration decl = tds.getDeclarationOfVar(idf);
+        int deep = tds.getDeepOfVar(idf);
+        // une variable, on le charge depuis la pile
+        int depl = decl.getDeplacement();
+        // chainage statique
+        addCodeln("LDW WR, BP");
+        while (deep > 0) {
+            // on parcours le chainage static
+            addCodeln("LDW WR, (WR)");
+            deep--;
+        }
+        if (decl.getType() == Type.bool || decl.getType() == Type.integer) {
+            // TODO verifier si c'est passé par adresse
+            addCodeln("LDW R0, (WR)" + depl);
+        } else {
+            addCodeln("//Array Depl");
+            addCodeln("LDW R2, (WR)" + depl); // R0 <- tête du tableau
+            for (int i = 1; i < ast.getChildCount() - 2; i++) {
+                expr(ast.getChild(i), tds, false); // borne i dans R0
+                addCodeln("LDW R1, #" + decl.getBound(i).getDim());
+                addCodeln("MUL R1, R0, R1");
+                addCodeln("ADD R1, R2, R2");
+            }
+            expr(ast.getChild(ast.getChildCount() - 1), tds, false); // dernière
+                                                                     // borne
+                                                                     // dans
+                                                                     // R0
+            addCodeln("ADD R0, R2, R2");
+
+            addCodeln("LDW R0, R2");
+        }
+    }
 
     private void affectaction(Tree ast, TDS tds) {
         emptyLine();
@@ -416,43 +456,7 @@ public class AsmGenerator {
                     addCodeln("STW R0, -(SP)");
                 }
             } else if (tds.getDeclarationOfVar(ast.getText()) != null || ast.getText().equalsIgnoreCase("array")) {
-                String idf;
-                if (ast.getText().equalsIgnoreCase("array")) { // array
-                    idf = ast.getChild(0).getText();
-                } else { // int ou bool
-                    idf = ast.getText();
-                }
-                Declaration decl = tds.getDeclarationOfVar(idf);
-                int deep = tds.getDeepOfVar(idf);
-                // une variable, on le charge depuis la pile
-                int depl = decl.getDeplacement();
-                // chainage statique
-                addCodeln("LDW WR, BP");
-                while (deep > 0) {
-                    // on parcours le chainage static
-                    addCodeln("LDW WR, (WR)");
-                    deep--;
-                }
-                if (decl.getType() == Type.bool || decl.getType() == Type.integer) {
-                    // TODO verifier si c'est passé par adresse
-                    addCodeln("LDW R0, (WR)" + depl);
-                } else {
-                    addCodeln("//Array Depl");
-                    addCodeln("LDW R2, (WR)" + depl); // R0 <- tête du tableau
-                    for (int i = 1; i < ast.getChildCount() - 2; i++) {
-                        expr(ast.getChild(i), tds, false); // borne i dans R0
-                        addCodeln("LDW R1, #" + decl.getBound(i).getDim());
-                        addCodeln("MUL R1, R0, R1");
-                        addCodeln("ADD R1, R2, R2");
-                    }
-                    expr(ast.getChild(ast.getChildCount() - 1), tds, false); // dernière
-                                                                             // borne
-                                                                             // dans
-                                                                             // R0
-                    addCodeln("ADD R0, R2, R2");
-
-                    addCodeln("LDW R0, R2");
-                }
+            	pushVarOnR0(ast,tds);
                 if (num_fils != -1) {
                     addCodeln("STW R0, -(SP)");
                 }
