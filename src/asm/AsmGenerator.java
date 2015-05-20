@@ -363,7 +363,7 @@ public class AsmGenerator {
         }
     }
     
-    private void pushVarOnR0(Tree ast, TDS tds){
+    private void pushVarOnR0(Tree ast, TDS tds, boolean adr){
     	String idf;
         if (ast.getText().equalsIgnoreCase("array")) { // array
             idf = ast.getChild(0).getText();
@@ -383,10 +383,16 @@ public class AsmGenerator {
         }
         if (decl.getType() == Type.bool || decl.getType() == Type.integer) {
             // TODO verifier si c'est passé par adresse
-            addCodeln("LDW R0, (WR)" + depl);
+        	if(!adr){
+        		addCodeln("LDW R0, (WR)" + depl);
+        	}else{
+        		addCodeln("ADQ "+depl+", WR");
+        		addCodeln("STW WR, R0");
+        	}
         } else {
             addCodeln("//Array Depl");
-            addCodeln("LDW R2, (WR)" + depl); // R0 <- tête du tableau
+            addCodeln("LDW R2, WR"); // R0 <- tête du tableau
+            addCodeln("ADQ "+depl+", WR");
             for (int i = 1; i < ast.getChildCount() - 2; i++) {
                 expr(ast.getChild(i), tds, false); // borne i dans R0
                 addCodeln("LDW R1, #" + decl.getBound(i).getDim());
@@ -398,8 +404,12 @@ public class AsmGenerator {
                                                                      // dans
                                                                      // R0
             addCodeln("ADD R0, R2, R2");
-
-            addCodeln("LDW R0, R2");
+            
+            if(!adr){
+        		addCodeln("LDW R0, (R2)");
+        	}else{
+        		addCodeln("LDW R0, R2");
+        	}
         }
     }
 
@@ -416,11 +426,14 @@ public class AsmGenerator {
             decl = tds.getDeclarationOfVar(left.getText());
         }
         boolean bool = (decl.getType() == Type.bool);
+        
         expr(right, tds, bool);
         
-        pushVarOnR0(left, tds);
+        addCodeln("STW R0, -(SP)");
+        pushVarOnR0(left, tds, true);
+        addCodeln("LDW R1, (SP)+");
         // TODO verifier si c'est passé par adresse
-        addCodeln("STW R0, (WR)" + decl.getDeplacement());
+        addCodeln("STW R1, (R0)");
     }
 
     /*
@@ -455,7 +468,7 @@ public class AsmGenerator {
                     addCodeln("STW R0, -(SP)");
                 }
             } else if (tds.getDeclarationOfVar(ast.getText()) != null || ast.getText().equalsIgnoreCase("array")) {
-            	pushVarOnR0(ast,tds);
+            	pushVarOnR0(ast,tds,false);
                 if (num_fils != -1) {
                     addCodeln("STW R0, -(SP)");
                 }
