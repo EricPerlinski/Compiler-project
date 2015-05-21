@@ -167,11 +167,9 @@ public class AsmGenerator {
         	id=getUniqId();
         	stackIf.push(id);
         	if(ast.getChildCount()==2){
-        		System.out.println("IF");
         		label = "end_if_" + id + "_";
                 if_start(ast, tds, label);
         	}else if(ast.getChildCount()==3){
-        		System.out.println("IF/ELSE");
         		label = "else_" + id + "_";
                 if_start(ast, tds, label);
         	}
@@ -592,17 +590,17 @@ public class AsmGenerator {
                     } else if (ast.getText().equalsIgnoreCase("!=")) {
                         opp = "JNE";
                     } else if (ast.getText().equalsIgnoreCase(">")) {
-                        opp = "JLE";
-                    } else if (ast.getText().equalsIgnoreCase(">=")) {
-                        opp = "JLW";
-                    } else if (ast.getText().equalsIgnoreCase("<")) {
-                        opp = "JGE";
-                    } else if (ast.getText().equalsIgnoreCase("<=")) {
                         opp = "JGT";
+                    } else if (ast.getText().equalsIgnoreCase(">=")) {
+                        opp = "JGE";
+                    } else if (ast.getText().equalsIgnoreCase("<")) {
+                        opp = "JLW";
+                    } else if (ast.getText().equalsIgnoreCase("<=")) {
+                        opp = "JLE";
                     }
                     addCodeln("LDW R1, (SP)+");
                     addCodeln("LDW R2, (SP)+");
-                    addCodeln("CMP R1, R2");
+                    addCodeln("CMP R2, R1");
                     int id = getUniqId();
                     String label = "equals_" + id + "_";
                     addCodeln(opp + " #" + label + " -$-2");
