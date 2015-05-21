@@ -175,7 +175,6 @@ public class AsmGenerator {
         	}
             break;
         case PlicParser.ELSE_BLOC:
-        	System.out.println("ELSE BLOCK");
         	id = (int)stackIf.peek();
         	else_bloc(ast,tds,id);
         	break;
