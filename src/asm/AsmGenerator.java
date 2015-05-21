@@ -375,12 +375,15 @@ public class AsmGenerator {
     
     private void pushVarOnR0(Tree ast, TDS tds, boolean adr){
     	String idf;
+
         if (ast.getText().equalsIgnoreCase("array")) { // array
             idf = ast.getChild(0).getText();
         } else { // int ou bool
             idf = ast.getText();
         }
         Declaration decl = tds.getDeclarationOfVar(idf);
+        
+        
         int deep = tds.getDeepOfVar(idf);
         // une variable, on le charge depuis la pile
         int depl = decl.getDeplacement();
@@ -509,7 +512,12 @@ public class AsmGenerator {
                 if (num_fils != -1) {
                     addCodeln("STW R0, -(SP)");
                 }
-            } else {
+            } else if(ast.getType() == PlicParser.ARRAY){
+            	pushVarOnR0(ast,tds,false);
+                if (num_fils != -1) {
+                    addCodeln("STW R0, -(SP)");
+                }
+        	}else{
                 for (int i = 0; i < ast.getChildCount(); i++) {
                     // parcours recursif sur chacun des fils
                     expr_rec(ast.getChild(i), tds, i, bool);

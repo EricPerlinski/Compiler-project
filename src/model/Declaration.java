@@ -55,6 +55,10 @@ public class Declaration {
 	
 	/* Getters & Setters */
 
+	public boolean getParAdresse(){
+		return parAdresse;
+	}
+	
 	public Type getType() {
 		return type;
 	}

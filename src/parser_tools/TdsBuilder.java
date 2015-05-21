@@ -197,7 +197,8 @@ public class TdsBuilder {
 
 		for(int k = 0; k < t_2proto.getChildCount(); k++){
 
-			int adr=(t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("adr")?1:0);
+			boolean par_adresse =t_2proto.getChild(k).getChild(0).getText().equalsIgnoreCase("adr"); 
+			int adr=(par_adresse?1:0);
 			
 			int deplacement=DEPLACEMENT_PARAM;
 			if(current.getLastParam()!=null){
@@ -210,10 +211,10 @@ public class TdsBuilder {
 
 
 			if(firstSon.getText().equalsIgnoreCase("integer")){
-				Declaration d = new Declaration(Type.integer,secondSon.getText(),deplacement); 
+				Declaration d = new Declaration(Type.integer,secondSon.getText(),deplacement,par_adresse); 
 				current.addParam(d);
 			}else if(firstSon.getText().equalsIgnoreCase("boolean")){
-				Declaration d = new Declaration(Type.bool,secondSon.getText(),deplacement); 
+				Declaration d = new Declaration(Type.bool,secondSon.getText(),deplacement,par_adresse); 
 				current.addParam(d);
 			}else if(firstSon.getText().equalsIgnoreCase("array")){
 				
@@ -244,7 +245,7 @@ public class TdsBuilder {
 						Bounds.add(b);
 					}
 				}
-				Declaration d = new Declaration(Type.array,secondSon.getText(),deplacement, Bounds);
+				Declaration d = new Declaration(Type.array,secondSon.getText(),deplacement, Bounds,par_adresse);
 				current.addParam(d);
 				
 				
