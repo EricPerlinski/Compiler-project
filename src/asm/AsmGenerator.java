@@ -466,7 +466,6 @@ public class AsmGenerator {
         addCodeln("STW R0, -(SP)");
         pushVarOnR0(left, tds, true);
         addCodeln("LDW R1, (SP)+");
-        // TODO verifier si c'est passé par adresse
         addCodeln("STW R1, (R0)");
     }
 
@@ -479,7 +478,6 @@ public class AsmGenerator {
      * si bool est a vrai il transformera systematiquement tout ce qui est
      * different de 0 en 1. Et le 0 reste 0 :D
      * 
-     * TODO ajouter les tableau dedans.
      */
     private void expr(Tree ast, TDS tds, boolean bool) {
         // met le resultat de l'exp dans R0
@@ -639,7 +637,6 @@ public class AsmGenerator {
         emptyLine();
         addCodeln("// Structure de boucle FOR");
         // On affecte la valeur d'initialisation à la variable d'incrémentation
-        Declaration decl = tds.getDeclarationOfVar(ast.getChild(0).getText());
         expr(ast.getChild(1), tds, false);
         addCodeln("STW R0, R6");
         pushVarOnR0(ast.getChild(0),tds,true);
@@ -656,11 +653,10 @@ public class AsmGenerator {
 
     public void boucle_end(Tree ast, TDS tds, int labelID) {
     	addCodeln("//fin boucle");
-        Declaration decl = tds.getDeclarationOfVar(ast.getChild(0).getText());
-        // TODO Chainage Statique
-        addCodeln("LDW R1, (BP)" + decl.getDeplacement());
+    	pushVarOnR0(ast.getChild(0), tds, true);
+        addCodeln("LDW R1, (R0)");
         addCodeln("ADQ 1, R1");
-        addCodeln("STW R1, (BP)" + decl.getDeplacement());
+        addCodeln("STW R1, (R0)");
         addCodeln("JMP #start_boucle_" + labelID + "_ -$-2");
         addCodeln("end_boucle_" + labelID + "_");
         removeTab();

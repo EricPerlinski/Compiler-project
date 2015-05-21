@@ -20,13 +20,11 @@ do
 	end
 
 	procedure check()
-		integer j
-
-		for j in bi..bs
+		for i in bi..bs
 		do
-			if(tab1[j]==tab2[j])
+			if(tab1[i]==tab2[i])
 			then
-				write j
+				write i
 				write "ok"
 			fi
 		end
