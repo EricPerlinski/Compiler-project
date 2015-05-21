@@ -1,5 +1,7 @@
 package asm;
 
+import java.util.Stack;
+
 import model.Declaration;
 import model.TDS;
 import model.Type;
@@ -21,6 +23,8 @@ public class AsmGenerator {
 
     private static final int INT_SIZE = 2;
     private static final int BOOL_SIZE = 2;
+    
+    private Stack<Integer> stackIf;
 
     public AsmGenerator(String name, Tree ast, TDS tds) {
         this.ast = ast;
@@ -28,6 +32,7 @@ public class AsmGenerator {
         this.name = name;
         this.uniqId = 0;
         asmBuff = new StringBuffer();
+        stackIf=new Stack<Integer>();
     }
 
     private void emptyLine() {
@@ -126,6 +131,7 @@ public class AsmGenerator {
         // Label unique nécessaire pour les if et les boucles
         String label = null;
         int labelID = 0;
+        int id;
 
         // NE PAS MODIFIER
         switch (ast.getType()) {
@@ -158,9 +164,23 @@ public class AsmGenerator {
             retourne(ast, tds);
             break;
         case PlicParser.IF:
-            label = "end_if_" + getUniqId() + "_";
-            if_start(ast, tds, label);
+        	id=getUniqId();
+        	stackIf.push(id);
+        	if(ast.getChildCount()==2){
+        		System.out.println("IF");
+        		label = "end_if_" + id + "_";
+                if_start(ast, tds, label);
+        	}else if(ast.getChildCount()==3){
+        		System.out.println("IF/ELSE");
+        		label = "else_" + id + "_";
+                if_start(ast, tds, label);
+        	}
             break;
+        case PlicParser.ELSE_BLOC:
+        	System.out.println("ELSE BLOCK");
+        	id = (int)stackIf.peek();
+        	else_bloc(ast,tds,id);
+        	break;
         case PlicParser.FOR:
             labelID = getUniqId();
             boucle_start(ast, tds, labelID);
@@ -190,7 +210,9 @@ public class AsmGenerator {
             bloc_end(ast, tds);
             break;
         case PlicParser.IF:
-            if_end(ast, tds, label);
+        	id = (int)stackIf.pop();
+        	label = "end_if_" + id + "_";
+        	if_end(ast, tds, label);
             break;
         case PlicParser.FOR:
             boucle_end(ast, tds, labelID);
@@ -398,9 +420,9 @@ public class AsmGenerator {
         if (decl.getType() == Type.bool || decl.getType() == Type.integer) {
         
         	if(!adr){
-        		addCodeln("LDW R0, (WR)" + depl);
+        		addCodeln("LDW R0, (WR)" + depl+" //"+decl.getIdf());
         	}else{
-        		addCodeln("ADQ "+depl+", WR");
+        		addCodeln("ADQ "+depl+", WR //"+decl.getIdf());
         		addCodeln("STW WR, R0");
         	}
         } else {
@@ -570,17 +592,17 @@ public class AsmGenerator {
                     } else if (ast.getText().equalsIgnoreCase("!=")) {
                         opp = "JNE";
                     } else if (ast.getText().equalsIgnoreCase(">")) {
-                        opp = "JGT";
-                    } else if (ast.getText().equalsIgnoreCase(">=")) {
-                        opp = "JGE";
-                    } else if (ast.getText().equalsIgnoreCase("<")) {
-                        opp = "JLW";
-                    } else if (ast.getText().equalsIgnoreCase("<=")) {
                         opp = "JLE";
+                    } else if (ast.getText().equalsIgnoreCase(">=")) {
+                        opp = "JLW";
+                    } else if (ast.getText().equalsIgnoreCase("<")) {
+                        opp = "JGE";
+                    } else if (ast.getText().equalsIgnoreCase("<=")) {
+                        opp = "JGT";
                     }
                     addCodeln("LDW R1, (SP)+");
                     addCodeln("LDW R2, (SP)+");
-                    addCodeln("CMP R2, R1");
+                    addCodeln("CMP R1, R2");
                     int id = getUniqId();
                     String label = "equals_" + id + "_";
                     addCodeln(opp + " #" + label + " -$-2");
@@ -618,8 +640,10 @@ public class AsmGenerator {
     }
 
     public void if_start(Tree ast, TDS tds, String label) {
+    	
         emptyLine();
         addCodeln("// Structure IF");
+        addTab();
         expr(ast.getChild(0), tds, true);
         // addCodeln("STW R1, -(SP)");
         addCodeln("LDW R1, #0");
@@ -627,8 +651,18 @@ public class AsmGenerator {
         // addCodeln("LDW R1, (SP)+");
         addCodeln("JEQ #" + label + " -$-2");
     }
+    
+    private void else_bloc(Tree ast, TDS tds, int id){
+    	addCodeln("// Structure ELSE");
+    	addCodeln("JMP #end_if_"+id+"_ -$-2");
+    	removeTab();
+    	addCodeln("else_"+id+"_");
+    	addTab();
+    	
+    }
 
     public void if_end(Tree ast, TDS tds, String label) {
+    	removeTab();
         addCodeln(label);
     }
 

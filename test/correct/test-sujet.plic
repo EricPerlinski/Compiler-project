@@ -1,0 +1,29 @@
+/* Un exemple de programme très simple */
+do
+	integer i, j, maximum
+	
+	function integer fMax (x: integer, y: integer)
+		integer result
+		if x > y 
+		then 
+			write "if"
+			result = x
+		else 
+			write "else"
+			result = y
+		fi
+		return (result)
+	end /* function */
+
+	procedure theEnd ()
+		write "that's all !"
+	end
+	
+	i = 6
+	j=4
+	/*read j  previously j = 0 */
+	maximum = fMax(i, j)
+	write maximum
+	theEnd()
+end
+
