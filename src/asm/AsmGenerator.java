@@ -394,9 +394,9 @@ public class AsmGenerator {
             addCodeln("LDW WR, (WR)");
             deep--;
         }
-        addCodeln("STW WR, -(SP)");
+        
         if (decl.getType() == Type.bool || decl.getType() == Type.integer) {
-        	addCodeln("LDW WR, (SP)+");
+        
         	if(!adr){
         		addCodeln("LDW R0, (WR)" + depl);
         	}else{
@@ -410,7 +410,9 @@ public class AsmGenerator {
             addCodeln("ADQ "+depl+", WR");
             addCodeln("LDW R2, #0"); // Mettre 0 dans R2
             for (int i = 1; i < ast.getChildCount() - 1; i++) {
+            	addCodeln("STW WR, -(SP)");
                 expr(ast.getChild(i), tds, false); // borne i dans R0
+                addCodeln("LDW WR, (SP)+");
                 int dim =1;
                 for(int j=i;j< ast.getChildCount() - 1;j++){
                 	dim *= decl.getBound(j).getDim();
@@ -425,7 +427,10 @@ public class AsmGenerator {
                 addCodeln("SUB WR, R1, WR");
                 
             }
+            addCodeln("STW WR, -(SP)");
+            addCodeln("//debut expr");
             expr(ast.getChild(ast.getChildCount() - 1), tds, false); // dernière borne dans R0
+            addCodeln("//fin expr");
             addCodeln("LDW WR, (SP)+");
             addCodeln("LDW R1, #"+decl.getBound(decl.getBounds().size()-1).getLb());
             addCodeln("SUB R0, R1, R0");
