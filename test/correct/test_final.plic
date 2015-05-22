@@ -1,14 +1,10 @@
 do
 
 	integer i,bi,bs
-	array [0..6] tab1
-	array [0..6] tab2
-
+	array [0..6,0..1] tab1
 	function integer f42()
 		return (42)
 	end
-
-
 	function integer fib(n:integer)
 		integer res
 		if(n<=1)
@@ -18,36 +14,31 @@ do
 		return(fib(n-1)+fib(n-2))
 		
 	end
-
 	procedure check()
 		for i in bi..bs
 		do
-			if(tab1[i]==tab2[i])
+			if(tab1[i,0]==tab1[i,1])
 			then
 				write i
-				write "ok"
+				write "OK"
+			else
+				write i
+				write "KO"
 			fi
 		end
-
 	end
-
 	bi=0
 	bs=(1+2+3+4+5-f42()+2*2*(1+1)*2*2+1)
-
 	for i in bi..bs
 	do
-		tab1[i]=fib(i)
+		tab1[i,0]=fib(i)
 	end
-
-	tab2[0]=1
-	tab2[1]=1
+	tab1[0,1]=1
+	tab1[1,1]=1
 	for i in 2..bs
 	do
-		tab2[i]=tab2[i-1]+tab2[i-2]
+		tab1[i,1]=tab1[i-1,1]+tab1[i-2,1]
 	end
-
+	tab1[2,0]=0
 	check()
-	
-
-
 end
